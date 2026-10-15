@@ -81,6 +81,11 @@
             display: inline-block;
         }
 
+        .lv_card p {
+            line-height: 1.8;
+            color: var(--lv-text);
+        }
+
         .lv_row {
             display: flex;
             flex-wrap: wrap;
@@ -201,9 +206,9 @@
             margin-top: 16px;
         }
 
-        .lv_code .lv_keyword { color: #e74c3c; }
+        .lv_code .lv-keyword { color: #e74c3c; }
         .lv_code .lv_prop { color: #3498db; }
-        .lv_code .lv_value { color: #2ecc71; }
+        .lv_code .lv-value { color: #2ecc71; }
         .lv_code .lv_comment { color: #7f8c8d; }
 
         .lv_back {
@@ -222,6 +227,30 @@
             margin-bottom: 20px;
         }
 
+        .lv_desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        .lv_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .lv-table th, .lv-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lv-table th {
+            background: var(--lv-primary);
+            color: #fff;
+        }
+
         @media (max-width: 600px) {
             .lv_card { padding: 20px; }
             h1 { font-size: 1.6em; }
@@ -229,8 +258,8 @@
     </style>
 </head>
 <body>
-    <h1>CSS 变量示例</h1>
-    <p class="lv_subtitle">Custom Properties 完整展示</p>
+    <h1>CSS 变量完整示例</h1>
+    <p class="lv_subtitle">Custom Properties 详细展示与实战应用</p>
     <div class="lv_name">吕淼</div>
 
     <div class="lv_toggle">
@@ -238,67 +267,127 @@
     </div>
 
     <div class="lv_container">
+        <!-- 变量定义表格 -->
         <div class="lv_card">
-            <h2>颜色按钮</h2>
-            <div class="lv_row">
-                <button class="lv_btn lv_btn-primary">主要按钮</button>
-                <button class="lv_btn lv_btn-secondary">成功按钮</button>
-                <button class="lv_btn lv_btn-danger">危险按钮</button>
-                <button class="lv_btn lv_btn-warning">警告按钮</button>
-            </div>
+            <h2>变量定义表</h2>
+            <p>以下变量统一定义在 :root 选择器中，可全局使用：</p>
+            <table class="lv-table">
+                <tr><th>变量名</th><th>默认值</th><th>用途</th></tr>
+                <tr><td>--lv-primary</td><td>#3498db</td><td>主色调，用于按钮、链接、强调</td></tr>
+                <tr><td>--lv-secondary</td><td>#2ecc71</td><td>成功色，用于成功状态、标签</td></tr>
+                <tr><td>--lv-danger</td><td>#e74c3c</td><td>危险色，用于删除、警告操作</td></tr>
+                <tr><td>--lv-warning</td><td>#f39c12</td><td>警告色，用于提示信息</td></tr>
+                <tr><td>--lv-radius</td><td>12px</td><td>圆角大小</td></tr>
+                <tr><td>--lv-shadow</td><td>0 4px 16px rgba(0,0,0,0.08)</td><td>阴影效果</td></tr>
+                <tr><td>--lv-bg</td><td>#f5f6fa</td><td>页面背景色</td></tr>
+                <tr><td>--lv-text</td><td>#2c3e50</td><td>正文文字颜色</td></tr>
+            </table>
         </div>
 
+        <!-- 颜色按钮 -->
+        <div class="lv_card">
+            <h2>颜色按钮组件</h2>
+            <p>按钮背景色通过 CSS 变量控制，修改变量即可全局切换配色：</p>
+            <div class="lv_row">
+                <button class="lv_btn lv_btn-primary">主要操作</button>
+                <button class="lv_btn lv_btn-secondary">确认提交</button>
+                <button class="lv_btn lv_btn-danger">删除数据</button>
+                <button class="lv_btn lv_btn-warning">警告提示</button>
+            </div>
+            <p class="lv_desc">所有按钮使用 var(--lv-primary) 等变量定义背景色，通过 :hover 实现悬停动效</p>
+        </div>
+
+        <!-- 标签组件 -->
         <div class="lv_card">
             <h2>标签组件</h2>
+            <p>使用 CSS 变量定义标签颜色，实现统一风格：</p>
             <span class="lv_tag lv-tag-primary">前端开发</span>
             <span class="lv_tag lv-tag-secondary">后端开发</span>
-            <span class="lv_tag lv-tag-danger">全栈工程师</span>
+            <span class="lv-tag lv-tag-danger">全栈工程师</span>
+            <p class="lv_desc">标签使用 border-radius: 20px 实现圆角胶囊形状</p>
         </div>
 
+        <!-- 进度条 -->
         <div class="lv_card">
             <h2>进度条</h2>
+            <p>进度条颜色跟随 CSS 变量变化：</p>
             <div class="lv_progress">
                 <div class="lv_progress-bar"></div>
             </div>
-            <p style="text-align:right; margin:0;">75%</p>
+            <p style="text-align:right; margin:0;">75% 完成</p>
+            <p class="lv_desc">进度条背景使用 var(--lv-primary)，可通过修改变量改变进度条颜色</p>
         </div>
 
+        <!-- 表单输入 -->
         <div class="lv_card">
-            <h2>表单输入</h2>
-            <input type="text" class="lv_input" placeholder="请输入内容..." />
-            <input type="email" class="lv_input" placeholder="请输入邮箱..." />
+            <h2>表单输入框</h2>
+            <p>输入框聚焦时边框颜色使用 CSS 变量：</p>
+            <input type="text" class="lv_input" placeholder="请输入用户名..." />
+            <input type="email" class="lv_input" placeholder="请输入邮箱地址..." />
+            <input type="password" class="lv_input" placeholder="请输入密码..." />
+            <p class="lv_desc">输入框 border-color 在 :focus 状态下使用 var(--lv-primary)</p>
         </div>
 
+        <!-- 彩色容器 -->
         <div class="lv_card">
             <h2>彩色容器</h2>
+            <p>容器背景色使用 var(--lv-secondary) 变量定义：</p>
             <div class="lv_box">使用 CSS 变量定义的容器背景色</div>
+            <p class="lv_desc">通过 CSS 变量统一管理容器颜色，便于全局修改</p>
         </div>
 
+        <!-- 色板 -->
         <div class="lv_card">
-            <h2>色板</h2>
+            <h2>主题色板</h2>
+            <p>点击色板可复制对应颜色值：</p>
             <div class="lv_color-row">
-                <div class="lv-color lv-c1" title="Primary"></div>
-                <div class="lv-color lv-c2" title="Secondary"></div>
-                <div class="lv-color lv-c3" title="Danger"></div>
-                <div class="lv-color lv-c4" title="Warning"></div>
+                <div class="lv-color lv-c1" title="#3498db" onclick="navigator.clipboard.writeText('#3498db')"></div>
+                <div class="lv-color lv-c2" title="#2ecc71" onclick="navigator.clipboard.writeText('#2ecc71')"></div>
+                <div class="lv-color lv-c3" title="#e74c3c" onclick="navigator.clipboard.writeText('#e74c3c')"></div>
+                <div class="lv-color lv-c4" title="#f39c12" onclick="navigator.clipboard.writeText('#f39c12')"></div>
             </div>
+            <p class="lv_desc">每个色块对应一个 CSS 变量值，悬停时放大显示</p>
         </div>
 
+        <!-- 核心代码 -->
         <div class="lv_card">
-            <h2>核心代码</h2>
-            <div class="lv_code"><span class="lv_comment">/* 定义变量 */</span>
-<span class="lv_keyword">:root</span> {
+            <h2>核心代码实现</h2>
+            <div class="lv_code"><span class="lv_comment">/* 1. 在 :root 中定义变量 */</span>
+<span class="lv-keyword">:root</span> {
   <span class="lv-prop">--lv-primary</span>: <span class="lv-value">#3498db</span>;
   <span class="lv-prop">--lv-secondary</span>: <span class="lv-value">#2ecc71</span>;
   <span class="lv-prop">--lv-danger</span>: <span class="lv-value">#e74c3c</span>;
+  <span class="lv-prop">--lv-warning</span>: <span class="lv-value">#f39c12</span>;
   <span class="lv-prop">--lv-radius</span>: <span class="lv-value">12px</span>;
+  <span class="lv-prop">--lv-shadow</span>: <span class="lv-value">0 4px 16px rgba(0,0,0,0.08)</span>;
 }
 
-<span class="lv-comment">/* 使用变量 */</span>
-<span class="lv_prop">.lv_btn</span> {
+<span class="lv-comment">/* 2. 使用 var() 函数引用变量 */</span>
+<span class="lv-prop">.lv_btn</span> {
   <span class="lv-prop">background</span>: <span class="lv-value">var(--lv-primary)</span>;
   <span class="lv-prop">border-radius</span>: <span class="lv-value">var(--lv-radius)</span>;
+  <span class="lv-prop">box-shadow</span>: <span class="lv-value">var(--lv-shadow)</span>;
+}
+
+<span class="lv-comment">/* 3. 通过修改变量值切换主题 */</span>
+<span class="lv-prop">.lv_dark</span> {
+  <span class="lv-prop">--lv-primary</span>: <span class="lv-value">#8e44ad</span>;
+  <span class="lv-prop">--lv-bg</span>: <span class="lv-value">#1a1a2e</span>;
 }</div>
+            <p class="lv_desc">CSS 变量通过 var() 函数引用，修改一处即可全局生效</p>
+        </div>
+
+        <!-- 交互式演示 -->
+        <div class="lv_card">
+            <h2>交互式演示</h2>
+            <p>点击下方按钮，体验 CSS 变量的动态修改效果：</p>
+            <div class="lv_row">
+                <button class="lv_btn lv_btn-primary" onclick="document.documentElement.style.setProperty('--lv-primary', '#e91e63')">修改主色为粉色</button>
+                <button class="lv_btn lv_btn-secondary" onclick="document.documentElement.style.setProperty('--lv-primary', '#00bcd4')">修改主色为青色</button>
+                <button class="lv_btn lv_btn-danger" onclick="document.documentElement.style.setProperty('--lv-primary', '#ff5722')">修改主色为橙色</button>
+                <button class="lv_btn lv_btn-warning" onclick="document.documentElement.style.setProperty('--lv-primary', '#3498db')">恢复默认主色</button>
+            </div>
+            <p class="lv_desc">通过 JavaScript 的 setProperty 方法动态修改变量值，所有使用该变量的元素自动更新</p>
         </div>
     </div>
 

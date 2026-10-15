@@ -129,6 +129,10 @@
             display: inline-block;
         }
 
+        .lv_card p {
+            line-height: 1.8;
+        }
+
         .lv_code {
             background: #2c3e50;
             color: #ecf0f1;
@@ -145,6 +149,27 @@
         .lv_code .lv-prop { color: #3498db; }
         .lv_code .lv-value { color: #2ecc71; }
         .lv_code .lv-comment { color: #7f8c8d; }
+
+        .lv_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .lv-table th, .lv-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lv-table th {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .lv-table tr:hover {
+            background: #f8f9fa;
+        }
 
         .lv_back {
             display: block;
@@ -178,26 +203,40 @@
 
     <div class="lv_container">
         <div class="lv_grid">
-            <div class="lv_item lv_a">a<span>grid-row: 1</span></div>
-            <div class="lv_item lv_b">b<span>跨 2 行 2 列</span></div>
-            <div class="lv_item lv_c">c<span>跨 3 行 1 列</span></div>
-            <div class="lv_item lv_d">d<span>跨 2 行 1 列</span></div>
-            <div class="lv_item lv_e">e<span>grid-row: 3</span></div>
-            <div class="lv_item lv_f">f<span>grid-row: 4</span></div>
+            <div class="lv_item lv_a">a<span>1行1列</span></div>
+            <div class="lv_item lv_b">b<span>跨2行2列</span></div>
+            <div class="lv_item lv_c">c<span>跨3行1列</span></div>
+            <div class="lv_item lv_d">d<span>跨2行1列</span></div>
+            <div class="lv_item lv_e">e<span>3行3列</span></div>
+            <div class="lv_item lv_f">f<span>4行3列</span></div>
         </div>
 
         <div class="lv_card">
-            <h2>布局结构</h2>
-            <p>本页面使用 CSS Grid 实现如下布局：</p>
-            <div class="lv_code"><span class="lv_comment">/* 网格容器 */</span>
-<span class="lv_prop">.lv_grid</span> {
+            <h2>区域位置说明</h2>
+            <p>每个区域的具体定位如下表所示：</p>
+            <table class="lv-table">
+                <tr><th>区域</th><th>grid-row</th><th>grid-column</th><th>说明</th></tr>
+                <tr><td>a</td><td>1</td><td>1</td><td>第1行第1列，单独占据一个格子</td></tr>
+                <tr><td>b</td><td>1 / 3</td><td>2 / 4</td><td>从第1行到第3行（跨2行），从第2列到第4列（跨2列）</td></tr>
+                <tr><td>c</td><td>2 / 5</td><td>1</td><td>从第2行到第5行（跨3行），第1列</td></tr>
+                <tr><td>d</td><td>3 / 5</td><td>2</td><td>从第3行到第5行（跨2行），第2列</td></tr>
+                <tr><td>e</td><td>3</td><td>3</td><td>第3行第3列，单独占据一个格子</td></tr>
+                <tr><td>f</td><td>4</td><td>3</td><td>第4行第3列，单独占据一个格子</td></tr>
+            </table>
+        </div>
+
+        <div class="lv_card">
+            <h2>布局代码实现</h2>
+            <p>完整 CSS 代码如下：</p>
+            <div class="lv_code"><span class="lv-comment">/* 网格容器 */</span>
+<span class="lv-prop">.lv_grid</span> {
   <span class="lv-prop">display</span>: <span class="lv-value">grid</span>;
   <span class="lv-prop">grid-template-columns</span>: <span class="lv-value">1fr 1.5fr 1fr</span>;
   <span class="lv-prop">grid-template-rows</span>: <span class="lv-value">repeat(4, 130px)</span>;
   <span class="lv-prop">gap</span>: <span class="lv-value">14px</span>;
 }
 
-<span class="lv_comment">/* 区域 b：跨 2 行 2 列 */</span>
+<span class="lv-comment">/* 区域 b：跨 2 行 2 列 */</span>
 <span class="lv-prop">.lv_b</span> {
   <span class="lv-prop">grid-row</span>: <span class="lv-value">1 / 3</span>;
   <span class="lv-prop">grid-column</span>: <span class="lv-value">2 / 4</span>;
@@ -214,6 +253,13 @@
   <span class="lv-prop">grid-row</span>: <span class="lv-value">3 / 5</span>;
   <span class="lv-prop">grid-column</span>: <span class="lv-value">2</span>;
 }</div>
+        </div>
+
+        <div class="lv_card">
+            <h2>Grid 核心概念</h2>
+            <p><strong>fr 单位：</strong>fr 是 grid 布局中的弹性单位，1fr 表示占据剩余空间的等份。例如 1fr 1.5fr 1fr 表示三列宽度比例为 1:1.5:1。</p>
+            <p><strong>grid-row / grid-column：</strong>通过 `起始线 / 结束线` 的语法控制元素跨越多行或多列。</p>
+            <p><strong>gap 属性：</strong>设置网格之间的间距，等同于传统布局中的 margin 效果。</p>
         </div>
     </div>
 
