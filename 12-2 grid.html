@@ -4,107 +4,219 @@
     <meta charset="UTF-8">
     <title>Grid 布局</title>
     <style>
+        * { box-sizing: border-box; }
+
         body {
             font-family: "Microsoft YaHei", sans-serif;
             margin: 0;
-            padding: 40px;
-            background: #f0f2f5;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
         }
 
         h1 {
             text-align: center;
             color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+
+        .lv_subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .lv_name {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+            margin: 0 0 24px 0;
+            letter-spacing: 4px;
+        }
+
+        .lv_container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         .lv_grid {
             display: grid;
             grid-template-columns: 1fr 1.5fr 1fr;
-            grid-template-rows: repeat(4, 120px);
-            gap: 12px;
-            max-width: 700px;
-            margin: 30px auto;
+            grid-template-rows: repeat(4, 130px);
+            gap: 14px;
+            margin-bottom: 30px;
         }
 
         .lv_item {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
             color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lv_item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .lv_item span {
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 6px;
+            opacity: 0.9;
         }
 
         .lv_a {
             grid-row: 1;
             grid-column: 1;
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
         }
 
         .lv_b {
             grid-row: 1 / 3;
             grid-column: 2 / 4;
-            background: #2ecc71;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
         }
 
         .lv_c {
             grid-row: 2 / 5;
             grid-column: 1;
-            background: #e74c3c;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
 
         .lv_d {
             grid-row: 3 / 5;
             grid-column: 2;
-            background: #f39c12;
+            background: linear-gradient(135deg, #f39c12, #d68910);
         }
 
         .lv_e {
             grid-row: 3;
             grid-column: 3;
-            background: #9b59b6;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
         }
 
         .lv_f {
             grid-row: 4;
             grid-column: 3;
-            background: #1abc9c;
+            background: linear-gradient(135deg, #1abc9c, #16a085);
         }
 
-        .lv_name {
-            text-align: center;
-            font-size: 24px;
-            color: #7f8c8d;
-            margin-top: 20px;
+        .lv_card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            padding: 28px;
+            margin-bottom: 24px;
         }
+
+        .lv_card h2 {
+            margin-top: 0;
+            color: #3498db;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .lv_code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        .lv_code .lv-keyword { color: #e74c3c; }
+        .lv_code .lv-prop { color: #3498db; }
+        .lv_code .lv-value { color: #2ecc71; }
+        .lv_code .lv-comment { color: #7f8c8d; }
 
         .lv_back {
             display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
             color: #3498db;
             text-decoration: none;
+            font-size: 16px;
         }
 
-        .lv_back:hover {
-            text-decoration: underline;
+        .lv_back:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .lv_grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: repeat(5, 100px);
+            }
+            .lv_a { grid-row: 1; grid-column: 1; }
+            .lv_b { grid-row: 1; grid-column: 2; }
+            .lv_c { grid-row: 2 / 4; grid-column: 1; }
+            .lv_d { grid-row: 2 / 4; grid-column: 2; }
+            .lv_e { grid-row: 4; grid-column: 1; }
+            .lv_f { grid-row: 4; grid-column: 2; }
         }
     </style>
 </head>
 <body>
     <h1>CSS Grid 布局</h1>
+    <p class="lv_subtitle">Grid 网格布局完整展示</p>
+    <div class="lv_name">吕淼</div>
 
-    <div class="lv_grid">
-        <div class="lv_item lv_a">a</div>
-        <div class="lv_item lv_b">b</div>
-        <div class="lv_item lv_c">c</div>
-        <div class="lv_item lv_d">d</div>
-        <div class="lv_item lv_e">e</div>
-        <div class="lv_item lv_f">f</div>
+    <div class="lv_container">
+        <div class="lv_grid">
+            <div class="lv_item lv_a">a<span>grid-row: 1</span></div>
+            <div class="lv_item lv_b">b<span>跨 2 行 2 列</span></div>
+            <div class="lv_item lv_c">c<span>跨 3 行 1 列</span></div>
+            <div class="lv_item lv_d">d<span>跨 2 行 1 列</span></div>
+            <div class="lv_item lv_e">e<span>grid-row: 3</span></div>
+            <div class="lv_item lv_f">f<span>grid-row: 4</span></div>
+        </div>
+
+        <div class="lv_card">
+            <h2>布局结构</h2>
+            <p>本页面使用 CSS Grid 实现如下布局：</p>
+            <div class="lv_code"><span class="lv_comment">/* 网格容器 */</span>
+<span class="lv_prop">.lv_grid</span> {
+  <span class="lv-prop">display</span>: <span class="lv-value">grid</span>;
+  <span class="lv-prop">grid-template-columns</span>: <span class="lv-value">1fr 1.5fr 1fr</span>;
+  <span class="lv-prop">grid-template-rows</span>: <span class="lv-value">repeat(4, 130px)</span>;
+  <span class="lv-prop">gap</span>: <span class="lv-value">14px</span>;
+}
+
+<span class="lv_comment">/* 区域 b：跨 2 行 2 列 */</span>
+<span class="lv-prop">.lv_b</span> {
+  <span class="lv-prop">grid-row</span>: <span class="lv-value">1 / 3</span>;
+  <span class="lv-prop">grid-column</span>: <span class="lv-value">2 / 4</span>;
+}
+
+<span class="lv-comment">/* 区域 c：跨 3 行 1 列 */</span>
+<span class="lv-prop">.lv_c</span> {
+  <span class="lv-prop">grid-row</span>: <span class="lv-value">2 / 5</span>;
+  <span class="lv-prop">grid-column</span>: <span class="lv-value">1</span>;
+}
+
+<span class="lv-comment">/* 区域 d：跨 2 行 1 列 */</span>
+<span class="lv-prop">.lv_d</span> {
+  <span class="lv-prop">grid-row</span>: <span class="lv-value">3 / 5</span>;
+  <span class="lv-prop">grid-column</span>: <span class="lv-value">2</span>;
+}</div>
+        </div>
     </div>
 
-    <div class="lv_name">吕淼</div>
     <a class="lv_back" href="./index.html">← 返回首页</a>
 </body>
 </html>
