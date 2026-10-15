@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>930吕淼 · 高级网页设计课堂实践</title>
+    <style>
+        /* ============ 基础重置 ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --c1: #ff9a8b;
+            --c2: #a18cd1;
+            --c3: #48bbff;
+            --text: #f5f7ff;
+            --muted: rgba(245, 247, 255, 0.62);
+            --card: rgba(255, 255, 255, 0.06);
+            --line: rgba(255, 255, 255, 0.16);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            color: var(--text);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%;
+            animation: bgShift 16s ease infinite;
+            padding: 44px 20px 60px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes bgShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 背景漂浮光斑 */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(72px);
+            opacity: 0.42;
+            z-index: 0;
+            pointer-events: none;
+            animation: float 9s ease-in-out infinite;
+        }
+        .orb-1 { width: 340px; height: 340px; background: rgba(255, 107, 107, 0.55); top: -90px; left: -70px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(72, 187, 255, 0.5); top: 40%; right: -90px; animation-delay: -3s; }
+        .orb-3 { width: 240px; height: 240px; background: rgba(167, 139, 250, 0.5); bottom: -70px; left: 18%; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%      { transform: translateY(-30px) scale(1.08); }
+        }
+
+        /* ============ 内容容器 ============ */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        /* ============ 头部 Hero ============ */
+        header {
+            position: relative;
+            text-align: center;
+            padding: 52px 34px 46px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 26px 64px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            animation: fadeUp 0.9s ease both;
+        }
+        /* 顶部渐变高光条 */
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3));
+        }
+
+        .avatar {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 800;
+            color: #1b1533;
+            border-radius: 26px;
+            background: linear-gradient(135deg, #ffd8a8, #ff9a8b 55%, #a18cd1);
+            box-shadow: 0 14px 34px rgba(255, 154, 139, 0.42);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            letter-spacing: 4px;
+            padding: 7px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line);
+            color: #d9e2ff;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: 44px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            line-height: 1.3;
+            background: linear-gradient(120deg, #ffd8a8 0%, #ff9a8b 42%, #a18cd1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .divider {
+            width: 76px;
+            height: 4px;
+            margin: 22px auto;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--c1), var(--c2));
+        }
+
+        .subtitle {
+            font-size: 15px;
+            letter-spacing: 4px;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        /* 数据条 */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 34px;
+        }
+        .stat {
+            min-width: 130px;
+            padding: 16px 22px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--line);
+        }
+        .stat strong {
+            display: block;
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(120deg, #ffd8a8, #a18cd1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat span {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--muted);
+        }
+
+        /* ============ 小节标题 ============ */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 56px 0 24px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .section-title::before {
+            content: "";
+            width: 6px;
+            height: 24px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, var(--c1), var(--c3));
+        }
+        .section-title span {
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--muted);
+        }
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--line), transparent);
+        }
+
+        /* ============ 卡片网格 ============ */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            --accent: var(--c3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            padding: 26px 24px 24px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            overflow: hidden;
+            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            animation: fadeUp 0.8s ease both;
+        }
+        /* 顶部彩色描边 */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0.85;
+        }
+        /* 悬浮流光 */
+        .card::after {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 60%;
+            background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+            transform: translateX(-180%) skewX(-18deg);
+            transition: transform 0.75s ease;
+            pointer-events: none;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 22px 48px rgba(0, 0, 0, 0.44), 0 0 26px -12px var(--accent);
+        }
+        .card:hover::after { transform: translateX(260%) skewX(-18deg); }
+
+        .card .num {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 22px -10px var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            position: relative;
+            z-index: 1;
+            font-size: 19px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            position: relative;
+            z-index: 1;
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--muted);
+        }
+
+        .tags {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .tags span {
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 3px 11px;
+            border-radius: 999px;
+            color: #cdd6f5;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .card .go {
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            padding-top: 18px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: var(--accent);
+            transition: transform 0.35s ease;
+        }
+        .card:hover .go { transform: translateX(6px); }
+
+        /* ============ 提示词区块 ============ */
+        .prompt {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.34);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeUp 0.9s ease both;
+        }
+        .term-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .term-bar i {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .term-bar i:nth-child(1) { background: #ff5f57; }
+        .term-bar i:nth-child(2) { background: #febc2e; }
+        .term-bar i:nth-child(3) { background: #28c840; }
+        .term-bar span {
+            margin-left: 8px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: var(--muted);
+            font-family: Consolas, "Courier New", monospace;
+        }
+        .prompt blockquote {
+            padding: 26px 30px;
+            font-size: 15px;
+            line-height: 2;
+            color: rgba(245, 247, 255, 0.9);
+            word-break: break-all;
+        }
+        .prompt blockquote::before { content: "“"; color: var(--c1); font-size: 22px; }
+        .prompt blockquote::after  { content: "”"; color: var(--c1); font-size: 22px; }
+
+        /* ============ 页脚 ============ */
+        footer {
+            margin-top: 60px;
+            padding-top: 26px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: rgba(245, 247, 255, 0.45);
+        }
+        footer .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin: 0 10px;
+            vertical-align: middle;
+            background: linear-gradient(135deg, var(--c1), var(--c3));
+        }
+
+        /* ============ 回到顶部 ============ */
+        .to-top {
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            z-index: 5;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1b1533;
+            text-decoration: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffd8a8, #ff9a8b);
+            box-shadow: 0 12px 28px rgba(255, 154, 139, 0.42);
+            transition: transform 0.3s ease;
+        }
+        .to-top:hover { transform: translateY(-4px) scale(1.06); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片依次入场 */
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.12s; }
+        .card:nth-child(3) { animation-delay: 0.19s; }
+        .card:nth-child(4) { animation-delay: 0.26s; }
+        .card:nth-child(5) { animation-delay: 0.33s; }
+        .card:nth-child(6) { animation-delay: 0.40s; }
+        .card:nth-child(7) { animation-delay: 0.47s; }
+        .card:nth-child(8) { animation-delay: 0.54s; }
+        .card:nth-child(9) { animation-delay: 0.61s; }
+        .card:nth-child(10) { animation-delay: 0.68s; }
+        .card:nth-child(11) { animation-delay: 0.75s; }
+        .card:nth-child(12) { animation-delay: 0.82s; }
+        .card:nth-child(13) { animation-delay: 0.89s; }
+
+        /* ============ 移动端适配 ============ */
+        @media (max-width: 600px) {
+            body { padding: 24px 14px 44px; }
+            h1 { font-size: 28px; }
+            header { padding: 36px 20px 34px; border-radius: 22px; }
+            .avatar { width: 68px; height: 68px; font-size: 32px; border-radius: 20px; }
+            .stat { min-width: calc(50% - 7px); padding: 13px 16px; }
+            .section-title { font-size: 18px; }
+            .grid { grid-template-columns: 1fr; }
+            .prompt blockquote { padding: 22px 18px; font-size: 14px; }
+            .to-top { right: 16px; bottom: 16px; }
+        }
+    </style>
+</head>
+<body id="top">
+    <!-- 背景光斑装饰 -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="wrap">
+        <!-- 页面头部 -->
+        <header>
+            <div class="avatar">吕</div>
+            <div class="badge">930 · 计算机24009</div>
+            <h1>930吕淼的《高级网页设计》课堂实践</h1>
+            <div class="divider"></div>
+            <p class="subtitle">以梦为马 · 不负韶华</p>
+
+            <div class="stats">
+                <div class="stat"><strong>13</strong><span>实践页面</span></div>
+                <div class="stat"><strong>8</strong><span>学习章节</span></div>
+                <div class="stat"><strong>100%</strong><span>原生手写</span></div>
+            </div>
+        </header>
+
+        <!-- 页面导航 -->
+        <h2 class="section-title">课堂实践页面 <span>PRACTICE PAGES</span></h2>
+        <div class="grid">
+            <a class="card" href="./1.html" style="--accent:#ff9a8b">
+                <div class="num">01</div>
+                <h3>个人名片</h3>
+                <p>渐变背景、毛玻璃卡片与动态粒子，展示个人姓名与风采。</p>
+                <div class="tags"><span>HTML</span><span>CSS 动画</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./2-1.html" style="--accent:#4ecdc4">
+                <div class="num">02</div>
+                <h3>HTML 基础元素</h3>
+                <p>标题、段落、换行、列表与盒子的基本用法练习。</p>
+                <div class="tags"><span>标签</span><span>列表</span><span>盒子</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./2-2.html" style="--accent:#ffd93d">
+                <div class="num">03</div>
+                <h3>超链接与图片</h3>
+                <p>超链接、图片超链接，以及「大国重器」四行三列表格。</p>
+                <div class="tags"><span>超链接</span><span>图片</span><span>表格</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./3-1form.html" style="--accent:#6c8cff">
+                <div class="num">04</div>
+                <h3>表单 Form</h3>
+                <p>文本框、密码、单选、多选、下拉框、文件上传与各类按钮。</p>
+                <div class="tags"><span>input</span><span>select</span><span>表单控件</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./3-2css.html" style="--accent:#a18cd1">
+                <div class="num">05</div>
+                <h3>CSS 层叠样式表</h3>
+                <p>id / class 选择器、颜色、宽高与背景等样式属性。</p>
+                <div class="tags"><span>选择器</span><span>盒模型</span><span>背景</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./4-1css2.html" style="--accent:#48bbff">
+                <div class="num">06</div>
+                <h3>CSS 进阶</h3>
+                <p>群组选择器、后代选择器，字体、行高、首行缩进等文本样式。</p>
+                <div class="tags"><span>群组选择器</span><span>后代选择器</span><span>文本样式</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./5-1 层叠与继承.html" style="--accent:#f78fb3">
+                <div class="num">07</div>
+                <h3>层叠与继承</h3>
+                <p>CSS 优先级的层叠规则：id &gt; class &gt; 标签，以及 !important 的用法。</p>
+                <div class="tags"><span>优先级</span><span>层叠</span><span>继承</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./5-2 盒模型.html" style="--accent:#f6a623">
+                <div class="num">08</div>
+                <h3>盒模型</h3>
+                <p>内容、padding、border、margin 组成的盒模型，以及 margin 水平居中。</p>
+                <div class="tags"><span>盒模型</span><span>padding</span><span>margin</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./6-1 flex.html" style="--accent:#00b894">
+                <div class="num">09</div>
+                <h3>Flex 布局演示</h3>
+                <p>居中、纵向居中、2×2 网格、上全下双四种常用 Flex 布局。</p>
+                <div class="tags"><span>Flex</span><span>justify-content</span><span>align-items</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./6-2 一左一右.html" style="--accent:#ff7675">
+                <div class="num">10</div>
+                <h3>一左一右</h3>
+                <p>标题居左、链接居右，space-between、flex-grow 与定位实现。</p>
+                <div class="tags"><span>space-between</span><span>flex-grow</span><span>定位</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./7-1 上图下文.html" style="--accent:#26c6da">
+                <div class="num">11</div>
+                <h3>上图下文</h3>
+                <p>图片在上、文字压底的图文卡片，相对定位 + 绝对定位实现。</p>
+                <div class="tags"><span>图文卡片</span><span>相对定位</span><span>绝对定位</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./7-2 左图右文.html" style="--accent:#e84393">
+                <div class="num">12</div>
+                <h3>左图右文</h3>
+                <p>左图右文的新闻列表项，flex 图文混排与虚线分隔。</p>
+                <div class="tags"><span>图文混排</span><span>flex-grow</span><span>列表</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./8-1css3 选择器.html" style="--accent:#9b59b6">
+                <div class="num">13</div>
+                <h3>CSS3 选择器</h3>
+                <p>:hover 交互、伪元素、相邻兄弟选择器，以及渐变、阴影与 transform 变形。</p>
+                <div class="tags"><span>:hover</span><span>伪元素</span><span>渐变</span><span>transform</span></div>
+                <span class="go">进入页面 →</span>
+            </a>
+        </div>
+
+        <!-- 本提示词 -->
+        <h2 class="section-title">本提示词 <span>PROMPT</span></h2>
+        <div class="prompt">
+            <div class="term-bar">
+                <i></i><i></i><i></i>
+                <span>prompt.txt</span>
+            </div>
+            <blockquote>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为930吕淼的《高级网页设计》课堂实践，美化页面，页面中包括本提示词。</blockquote>
+        </div>
+
+        <!-- 页脚 -->
+        <footer>
+            © 2026 930 吕淼 <span class="dot"></span> 高级网页设计课堂实践
+        </footer>
+    </div>
+
+    <!-- 回到顶部 -->
+    <a class="to-top" href="#top" title="回到顶部">↑</a>
+</body>
+</html>

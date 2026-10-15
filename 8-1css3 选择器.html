@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>css3</title>
+</head>
+<style>
+    .main{
+        display:flex;
+        flex-wrap: wrap;
+        margin: 10px;
+    }
+    .box{
+        width: 150px;
+        height: 150px;
+        border: 1px solid #ccc;
+        margin: 10px;
+        display: flex;
+        /* 水平垂直居中 */
+        justify-content: center;
+        align-items: center;
+        font-size: 40px;
+        transition: all 0.6s;
+        box-sizing: border-box;
+        /* width:包含padding 和bordeing*/
+    }
+    .box:first-child:hover{
+        background: red;
+        color: white;
+        font-size: 140px;
+    }
+    .box:nth-child(2):hover{
+        border-radius: 50%;
+        border-width: 10px;
+    }
+    .box:nth-child(3):hover{
+        box-shadow: 10px 10px 10px #ccc;/*盒子的阴影*/
+
+    }
+    .box:nth-of-type(4):hover{
+        text-shadow: 10px 10px 10px #ccc;/*文字的阴影*/
+    }
+    .box:nth-of-type(5):hover{
+        /* 线性渐变 */
+        background: linear-gradient( red, yellow, blue);
+    }
+    .box:nth-of-type(5)+.box{
+        /* 径向渐变 */
+        background: radial-gradient( #fff,#ccc,#000);
+    }
+    /* 相邻兄弟选择器
+    +后面的一个兄弟
+    ~后面的所有兄弟 */
+    .box.box:nth-of-type(7):hover{
+        transform: scale(0.5);
+    }
+    .box.box:nth-of-type(8):hover{
+        transform: translate(-150px);
+    }
+    .box.box:nth-of-type(9):hover{
+        transform: rotate(-180deg);
+    }
+    .box.box:nth-of-type(10):hover{
+        transform: skew(20deg) translateY(50px);
+    }
+    .box.box:nth-last-child(2):hover::before{
+        /* 内部的最前面的元素 */
+        content: "*";
+        color:red;
+    }
+    /* 第12个盒子：鼠标移上去时显示自己的名字 */
+    .box.box:nth-of-type(12){
+        position: relative;/* 给伪元素当定位父级 */
+    }
+    .box.box:nth-of-type(12):hover{
+        background-color: #333;/* 深色背景 */
+    }
+    .box:nth-child(12):hover::after{
+        /* 伪元素：显示名字 */
+        content: "吕淼";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;/* 铺满整个盒子，盖住原来的数字12 */
+        display: flex;
+        justify-content: center;/* 水平居中 */
+        align-items: center;/* 垂直居中 */
+        background-color: #222;/* 深色背景 */
+        color: #fff;/* 白色文字 */
+        font-size: 40px;
+        font-weight: bold;
+    }
+    .box:nth-child(3n):hover{
+        border:3px solid red;
+    }
+    /* 偶数 */
+    .box:nth-child(2n):hover{
+        border:3px dotted red;
+        background-color: orange;
+    }
+</style>
+<body>
+    <div class="main">
+        <div class="box">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+        <div class="box">4</div>
+        <div class="box">5</div>
+        <div class="box">6</div>
+        <div class="box">7</div>
+        <div class="box">8</div>
+        <div class="box">9</div>
+        <div class="box">10</div>
+        <div class="box">11</div>
+        <div class="box">12</div>
+    </div>
+</body>
+</html>

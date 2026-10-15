@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10-4 响应式布局</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f4f7fb;
+      padding: 30px 20px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 24px;
+      letter-spacing: 0.1em;
+    }
+
+    .container {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .box {
+      flex: 1 1 calc(20% - 20px);
+      min-height: 160px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      border-radius: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(96, 165, 250, 0.25);
+    }
+
+    @media (max-width: 1200px) {
+      .box {
+        flex-basis: calc(25% - 20px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .box {
+        flex-basis: calc(33.333% - 20px);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .box {
+        flex-basis: calc(50% - 20px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .box {
+        flex-basis: calc(100% - 20px);
+      }
+    }
+
+    @media (max-width: 360px) {
+      .title {
+        font-size: 1.5rem;
+      }
+
+      .box {
+        min-height: 120px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="title">吕淼</h1>
+
+  <div class="container">
+    <div class="box">1</div>
+    <div class="box">2</div>
+    <div class="box">3</div>
+    <div class="box">4</div>
+    <div class="box">5</div>
+    <div class="box">6</div>
+    <div class="box">7</div>
+    <div class="box">8</div>
+  </div>
+</body>
+</html>

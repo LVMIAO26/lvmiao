@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS 长度单位演示 - 930吕淼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 50%, #ecfeff 100%);
+            background-attachment: fixed;
+            padding: 34px 16px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            background: linear-gradient(120deg, #6c5ce7, #00b894 60%, #0984e3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lv_subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .lv_section-title {
+            width: 100%;
+            max-width: 1200px;
+            margin: 36px auto 18px;
+            padding-left: 14px;
+            font-size: 20px;
+            color: #6c5ce7;
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .lv_grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 26px;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lv_card {
+            --accent: #6c5ce7;
+            --soft: #e6e1ff;
+            width: 320px;
+            background-color: #fff;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(76, 91, 175, 0.14);
+            overflow: hidden;
+        }
+
+        .lv_card h3 {
+            background: var(--soft);
+            color: var(--accent);
+            font-size: 20px;
+            padding: 12px 18px;
+            text-align: center;
+        }
+
+        .lv_card .lv_code {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: var(--accent);
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 10px 18px 0;
+        }
+
+        .lv_card .lv_desc {
+            padding: 10px 18px 6px;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .lv_card .lv_demo {
+            padding: 16px 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 130px;
+            background: #fafaff;
+            overflow: hidden;
+        }
+
+        .lv_u-px   { width: 100px; height: 40px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-em   { font-size: 20px; width: 5em; height: 2em; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-rem  { width: 6rem; height: 2.5rem; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-pct  { width: 60%; height: 50px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-vw   { width: 25vw; height: 50px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-vh   { width: 200px; height: 10vh; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-vmin { width: 20vmin; height: 20vmin; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-vmax { width: 15vmax; height: 10vmax; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-ch   { font-family: Consolas, monospace; font-size: 18px; width: 20ch; height: 40px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-ex   { width: 10ex; height: 6ex; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-pt   { width: 72pt; height: 30pt; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-pc   { width: 6pc; height: 3pc; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-in   { width: 1.5in; height: 0.7in; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-cm   { width: 4cm; height: 2cm; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-mm   { width: 40mm; height: 20mm; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; }
+        .lv_u-q    { width: 16q; height: 16q; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; font-size: 10px; }
+        .lv_u-lh   { font-size: 16px; line-height: 2; width: 150px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; padding: 0 6px; }
+        .lv_u-ic   { font-size: 20px; width: 5ic; height: 2ic; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; font-size: 12px; }
+        .lv_u-rlh  { font-size: 16px; width: 8rlh; height: 2rlh; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px; font-size: 11px; }
+
+        .lv_card:nth-child(odd)  { --accent: #6c5ce7; --soft: #e6e1ff; }
+        .lv_card:nth-child(even) { --accent: #00b894; --soft: #d3f7ec; }
+        .lv_card:nth-child(3n)   { --accent: #0984e3; --soft: #d6eaff; }
+        .lv_card:nth-child(4n)   { --accent: #e17055; --soft: #ffe3d8; }
+        .lv_card:nth-child(5n)   { --accent: #e84393; --soft: #ffd6e8; }
+        .lv_card:nth-child(6n)   { --accent: #00cec9; --soft: #d4fbfb; }
+        .lv_card:nth-child(7n)   { --accent: #a29bfe; --soft: #eceaff; }
+        .lv_card:nth-child(8n)   { --accent: #fdcb6e; --soft: #fff3d6; }
+        .lv_card:nth-child(9n)   { --accent: #55efc4; --soft: #dcfdf3; }
+        .lv_card:nth-child(10n)  { --accent: #74b9ff; --soft: #e0f0ff; }
+        .lv_card:nth-child(11n)  { --accent: #ff7675; --soft: #ffe0e0; }
+        .lv_card:nth-child(12n)  { --accent: #b2bec3; --soft: #f0f0f0; }
+
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin-top: 34px;
+            color: #6c5ce7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .lv_back:hover {
+            color: #00b894;
+            text-decoration: underline;
+        }
+
+        .lv_table {
+            width: 100%;
+            max-width: 1200px;
+            margin: 36px auto;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(76, 91, 175, 0.1);
+        }
+        .lv-table th, .lv-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .lv-table th {
+            background: #6c5ce7;
+            color: #fff;
+            font-weight: 600;
+        }
+        .lv-table tr:hover {
+            background: #f8f7ff;
+        }
+    </style>
+</head>
+<body>
+    <h2>CSS 长度单位演示</h2>
+    <p class="lv_subtitle">全面介绍 CSS 中所有长度单位：绝对单位、相对单位、视口单位、容器查询单位</p>
+
+    <div class="lv_section-title">绝对单位</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>px（像素）</h3>
+            <span class="lv-code">width: 100px</span>
+            <p class="lv_desc">最常用的绝对单位。1px = 1 个 CSS 逻辑像素，在不同屏幕上可能对应不同物理像素。</p>
+            <div class="lv_demo"><div class="lv_u-px"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>pt（点）</h3>
+            <span class="lv-code">width: 72pt</span>
+            <p class="lv_desc">印刷单位，1pt = 1/72 英寸。常用于打印样式表。</p>
+            <div class="lv_demo"><div class="lv_u-pt"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>pc（派卡）</h3>
+            <span class="lv-code">width: 6pc</span>
+            <p class="lv_desc">印刷单位，1pc = 12pt = 1/6 英寸。</p>
+            <div class="lv_demo"><div class="lv_u-pc"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>in（英寸）</h3>
+            <span class="lv-code">width: 1.5in</span>
+            <p class="lv_desc">1in = 96px = 2.54cm。物理长度单位。</p>
+            <div class="lv_demo"><div class="lv_u-in"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>cm（厘米）</h3>
+            <span class="lv-code">width: 4cm</span>
+            <p class="lv_desc">1cm ≈ 37.8px。物理长度单位。</p>
+            <div class="lv_demo"><div class="lv_u-cm"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>mm（毫米）</h3>
+            <span class="lv-code">width: 40mm</span>
+            <p class="lv_desc">1mm ≈ 3.78px。物理长度单位。</p>
+            <div class="lv_demo"><div class="lv_u-mm"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>q（四分之一毫米）</h3>
+            <span class="lv-code">width: 16q</span>
+            <p class="lv_desc">1q = 1/4mm ≈ 0.945px。最小的绝对单位。</p>
+            <div class="lv_demo"><div class="lv_u-q"></div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">相对单位（字体相关）</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>em（相对父元素）</h3>
+            <span class="lv-code">font-size: 20px; width: 5em</span>
+            <p class="lv_desc">相对于父元素的 font-size。此处父级为 20px，故 5em = 100px。复合效应：用于 font-size 时基于自身计算。</p>
+            <div class="lv_demo"><div class="lv_u-em"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>rem（相对根元素）</h3>
+            <span class="lv-code">width: 6rem</span>
+            <p class="lv_desc">相对于 html 根元素的 font-size，默认 16px，故 6rem = 96px。避免了 em 的复合效应。</p>
+            <div class="lv_demo"><div class="lv_u-rem"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>ex（x 高度）</h3>
+            <span class="lv-code">width: 10ex</span>
+            <p class="lv_desc">相对于当前字体的 x-height（小写字母 x 的高度）。不同字体差异大。</p>
+            <div class="lv_demo"><div class="lv_u-ex"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>ch（字符宽度）</h3>
+            <span class="lv-code">width: 20ch</span>
+            <p class="lv_desc">相对于字符 "0" 的宽度。在等宽字体中常用于控制文本列宽，如 60ch 约 60 列。</p>
+            <div class="lv_demo"><div class="lv_u-ch"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>lh（行高）</h3>
+            <span class="lv-code">line-height: 2</span>
+            <p class="lv_desc">相对于当前元素的 line-height。实验性支持，可用于与文本行高同步的尺寸。</p>
+            <div class="lv_demo"><div class="lv_u-lh">行高单位演示</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>ic（汉字宽度）</h3>
+            <span class="lv-code">width: 5ic</span>
+            <p class="lv_desc">相对于当前字体的汉字宽度（ideographic character）。中日韩排版中很有用。</p>
+            <div class="lv_demo"><div class="lv_u-ic">汉字宽</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>rlh（根行高）</h3>
+            <span class="lv-code">width: 8rlh</span>
+            <p class="lv_desc">相对于根元素的 line-height。与 rem 类似，基于 html 的行高。</p>
+            <div class="lv_demo"><div class="lv_u-rlh">根行高</div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">视口单位</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>vw（视口宽度）</h3>
+            <span class="lv-code">width: 25vw</span>
+            <p class="lv_desc">1vw = 视口宽度的 1%。此处 25vw，随窗口宽度实时变化。响应式布局首选。</p>
+            <div class="lv_demo"><div class="lv_u-vw"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>vh（视口高度）</h3>
+            <span class="lv-code">height: 10vh</span>
+            <p class="lv_desc">1vh = 视口高度的 1%。此处 10vh，随窗口高度实时变化。</p>
+            <div class="lv_demo"><div class="lv_u-vh"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>vmin（视口较小边）</h3>
+            <span class="lv-code">width: 20vmin</span>
+            <p class="lv_desc">取 vw、vh 中较小值的 1%。常用于保持正方形、全屏元素适配。</p>
+            <div class="lv_demo"><div class="lv_u-vmin"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>vmax（视口较大边）</h3>
+            <span class="lv-code">width: 15vmax</span>
+            <p class="lv_desc">取 vw、vh 中较大值的 1%。常用于全屏背景、大屏适配。</p>
+            <div class="lv_demo"><div class="lv_u-vmax"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>svw / svh（小视口）</h3>
+            <span class="lv-code">width: 30svw</span>
+            <p class="lv_desc">Small Viewport 单位，不考虑移动端浏览器 UI（地址栏）收缩时的视口。</p>
+            <div class="lv_demo"><div style="width: 25%; height: 45px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px;"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>lvw / lvh（大视口）</h3>
+            <span class="lv-code">width: 25lvw</span>
+            <p class="lv_desc">Large Viewport 单位，考虑移动端浏览器 UI 完全展开时的视口尺寸。</p>
+            <div class="lv_demo"><div style="width: 30%; height: 45px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px;"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>dvw / dvh（动态视口）</h3>
+            <span class="lv-code">width: 30dvw</span>
+            <p class="lv_desc">Dynamic Viewport 单位，随浏览器 UI 的显示/隐藏动态调整，最精确。</p>
+            <div class="lv_demo"><div style="width: 35%; height: 45px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px;"></div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">百分比与其他</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>%（百分比）</h3>
+            <span class="lv-code">width: 60%</span>
+            <p class="lv_desc">相对于父元素对应属性的百分比。宽度基于父宽度，高度基于父高度，font-size 基于父 font-size。</p>
+            <div class="lv_demo"><div class="lv_u-pct"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>fr（网格分数）</h3>
+            <span class="lv-code">grid-template-columns: 1fr 2fr</span>
+            <p class="lv_desc">Grid 布局中的分数单位，按比例分配剩余空间。此处演示 1:2 比例。</p>
+            <div class="lv_demo">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 6px; width: 200px;">
+                    <div style="background: var(--soft); border: 2px solid var(--accent); border-radius: 6px; height: 40px;"></div>
+                    <div style="background: var(--soft); border: 2px solid var(--accent); border-radius: 6px; height: 40px;"></div>
+                </div>
+            </div>
+        </li>
+        <li class="lv_card">
+            <h3>cqw（容器查询）</h3>
+            <span class="lv-code">width: 50cqw</span>
+            <p class="lv_desc">Container Query 单位，1cqw = 容器宽度的 1%。需配合 container-type 使用。</p>
+            <div class="lv_demo">
+                <div style="container-type: inline-size; width: 200px;">
+                    <div style="width: 50cqw; height: 40px; background: var(--soft); border: 2px solid var(--accent); border-radius: 8px;"></div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">单位对照表</div>
+    <table class="lv_table">
+        <thead>
+            <tr><th>单位</th><th>名称</th><th>类型</th><th>参照基准</th><th>常见用途</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>px</td><td>像素</td><td>绝对</td><td>设备物理像素</td><td>边框、阴影、精确尺寸</td></tr>
+            <tr><td>pt</td><td>点</td><td>绝对</td><td>1/72 英寸</td><td>打印样式</td></tr>
+            <tr><td>in/cm/mm/q</td><td>物理长度</td><td>绝对</td><td>物理尺寸</td><td>打印样式</td></tr>
+            <tr><td>em</td><td>父元素字体</td><td>相对</td><td>父 font-size</td><td>内边距、行高</td></tr>
+            <tr><td>rem</td><td>根元素字体</td><td>相对</td><td>html font-size</td><td>字体、间距、响应式</td></tr>
+            <tr><td>ex</td><td>x 高度</td><td>相对</td><td>字体 x-height</td><td>微调排版</td></tr>
+            <tr><td>ch</td><td>字符宽度</td><td>相对</td><td>"0" 字符宽</td><td>文本列宽控制</td></tr>
+            <tr><td>vw/vh</td><td>视口宽高</td><td>视口</td><td>视口尺寸 1%</td><td>响应式布局、字号</td></tr>
+            <tr><td>vmin/vmax</td><td>视口极值</td><td>视口</td><td>视口较小/较大边</td><td>保持比例、全屏</td></tr>
+            <tr><td>%</td><td>百分比</td><td>相对</td><td>父元素属性值</td><td>流式布局、宽度</td></tr>
+            <tr><td>fr</td><td>分数</td><td>网格</td><td>剩余空间</td><td>Grid 列/行分配</td></tr>
+            <tr><td>cqw/cqh</td><td>容器查询</td><td>容器</td><td>容器尺寸 1%</td><td>容器查询响应式</td></tr>
+        </tbody>
+    </table>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+</body>
+</html>

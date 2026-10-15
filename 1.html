@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吕淼 · 930 · 高级网页设计</title>
+    <style>
+        /* ============ 基础重置 ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --c1: #ff9a8b;
+            --c2: #a18cd1;
+            --c3: #48bbff;
+            --text: #ffffff;
+            --muted: rgba(255, 255, 255, 0.72);
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%;
+            animation: gradientShift 14s ease infinite;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ============ 背景光斑 ============ */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(62px);
+            opacity: 0.45;
+            animation: float 8s ease-in-out infinite;
+        }
+        .orb-1 { width: 320px; height: 320px; background: rgba(255, 107, 107, 0.55); top: -80px; left: -60px; }
+        .orb-2 { width: 280px; height: 280px; background: rgba(72, 187, 255, 0.5); bottom: -60px; right: -50px; animation-delay: -3s; }
+        .orb-3 { width: 180px; height: 180px; background: rgba(167, 139, 250, 0.5); bottom: 12%; left: 18%; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%      { transform: translateY(-28px) scale(1.08); }
+        }
+
+        /* ============ 主卡片 ============ */
+        .card {
+            --mx: 50%;
+            --my: 0%;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 460px;
+            text-align: center;
+            color: var(--text);
+            padding: 48px 46px 40px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 28px;
+            box-shadow: 0 28px 68px rgba(0, 0, 0, 0.45);
+            overflow: hidden;
+            animation: cardIn 1s ease both;
+        }
+
+        /* 顶部渐变高光条 */
+        .card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3));
+        }
+
+        /* 跟随鼠标的光斑 */
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(340px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.16), transparent 62%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        .card:hover::before { opacity: 1; }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(38px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ============ 头像 ============ */
+        .avatar-wrap {
+            position: relative;
+            width: 104px;
+            height: 104px;
+            margin: 0 auto 22px;
+        }
+        .avatar {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+            font-weight: 800;
+            color: #1b1533;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd8a8, #ff9a8b 55%, #a18cd1);
+            box-shadow: 0 16px 36px rgba(255, 154, 139, 0.45);
+        }
+        /* 脉冲光环 */
+        .ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 154, 139, 0.6);
+            animation: pulse 2.6s ease-out infinite;
+        }
+        .ring.delay { animation-delay: 1.3s; }
+
+        @keyframes pulse {
+            0%   { transform: scale(0.9); opacity: 0.9; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+
+        /* ============ 徽章 ============ */
+        .badge {
+            display: inline-block;
+            font-size: 13px;
+            letter-spacing: 4px;
+            padding: 8px 22px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ff6b6b, #48bbff);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            margin-bottom: 22px;
+            font-weight: 600;
+        }
+
+        .name {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: 8px;
+            text-indent: 8px;
+            background: linear-gradient(120deg, #ffd8a8 0%, #ff9a8b 40%, #a18cd1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .divider {
+            width: 72px;
+            height: 4px;
+            margin: 22px auto 18px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--c1), var(--c2));
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--muted);
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        /* ============ 信息列表 ============ */
+        .info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 32px;
+        }
+        .info .item {
+            padding: 14px 8px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .info .item:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .info .item span {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+        }
+        .info .item strong {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* ============ 标签 ============ */
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .chips span {
+            font-size: 12px;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            color: #d9e2ff;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+        .chips span:hover {
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            color: #1b1533;
+            transform: translateY(-3px);
+        }
+
+        /* ============ 按钮 ============ */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 18px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #1b1533;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffd8a8, #ff9a8b);
+            box-shadow: 0 12px 28px rgba(255, 154, 139, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 34px rgba(255, 154, 139, 0.55);
+        }
+        .btn.ghost {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: none;
+        }
+        .btn.ghost:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        /* ============ 上升粒子 ============ */
+        .particles span {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: rise linear infinite;
+        }
+
+        @keyframes rise {
+            0%   { transform: translateY(0); opacity: 0; }
+            15%  { opacity: 0.9; }
+            85%  { opacity: 0.9; }
+            100% { transform: translateY(-110vh); opacity: 0; }
+        }
+
+        /* ============ 移动端适配 ============ */
+        @media (max-width: 600px) {
+            .card {
+                padding: 38px 24px 32px;
+                border-radius: 22px;
+            }
+            .avatar-wrap { width: 88px; height: 88px; }
+            .avatar { font-size: 38px; }
+            .name { font-size: 44px; letter-spacing: 6px; text-indent: 6px; }
+            .badge { font-size: 12px; letter-spacing: 2px; }
+            .subtitle { font-size: 14px; letter-spacing: 2px; }
+            .info { grid-template-columns: 1fr; }
+            .info .item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+            .info .item span { margin-bottom: 0; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 光晕装饰 -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- 上升粒子 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 主卡片 -->
+    <div class="card" id="card">
+        <div class="avatar-wrap">
+            <div class="ring"></div>
+            <div class="ring delay"></div>
+            <div class="avatar">吕</div>
+        </div>
+
+        <div class="badge">930</div>
+        <h1 class="name">吕淼</h1>
+        <div class="divider"></div>
+        <p class="subtitle">以梦为马 · 不负韶华</p>
+
+        <div class="info">
+            <div class="item"><span>学号</span><strong>930</strong></div>
+            <div class="item"><span>班级</span><strong>计算机24009</strong></div>
+            <div class="item"><span>课程</span><strong>高级网页设计</strong></div>
+        </div>
+
+        <div class="chips">
+            <span>HTML</span>
+            <span>CSS</span>
+            <span>JavaScript</span>
+            <span>网页设计</span>
+        </div>
+
+        <div class="actions">
+            <a class="btn" href="./index.html">返回首页</a>
+            <a class="btn ghost" href="./2-2.html">查看实践</a>
+        </div>
+    </div>
+
+    <script>
+        // 动态生成上升粒子
+        const container = document.getElementById('particles');
+        const count = 26;
+        for (let i = 0; i < count; i++) {
+            const dot = document.createElement('span');
+            const size = Math.random() * 4 + 2;
+            dot.style.left = Math.random() * 100 + '%';
+            dot.style.width = size + 'px';
+            dot.style.height = size + 'px';
+            dot.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            dot.style.animationDelay = (Math.random() * 10) + 's';
+            container.appendChild(dot);
+        }
+
+        // 卡片内跟随鼠标的光斑
+        const card = document.getElementById('card');
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+            card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS 变量</title>
+    <style>
+        :root {
+            --lv-primary: #3498db;
+            --lv-secondary: #2ecc71;
+            --lv-danger: #e74c3c;
+            --lv-bg: #f5f6fa;
+            --lv-text: #2c3e50;
+            --lv-radius: 12px;
+            --lv-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .lv_dark {
+            --lv-primary: #8e44ad;
+            --lv-secondary: #16a085;
+            --lv-bg: #1a1a2e;
+            --lv-text: #eee;
+            --lv-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: var(--lv-bg);
+            color: var(--lv-text);
+            margin: 0;
+            padding: 40px;
+            transition: background 0.3s;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--lv-primary);
+        }
+
+        .lv_card {
+            background: #fff;
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 24px;
+            margin: 20px auto;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .lv_dark .lv_card {
+            background: #16213e;
+        }
+
+        .lv_btn {
+            display: inline-block;
+            padding: 12px 32px;
+            margin: 8px;
+            border: none;
+            border-radius: var(--lv-radius);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .lv_btn:hover {
+            opacity: 0.85;
+        }
+
+        .lv_btn-primary {
+            background: var(--lv-primary);
+        }
+
+        .lv_btn-secondary {
+            background: var(--lv-secondary);
+        }
+
+        .lv_btn-danger {
+            background: var(--lv-danger);
+        }
+
+        .lv_name {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--lv-primary);
+            text-align: center;
+            margin: 40px 0;
+            letter-spacing: 8px;
+        }
+
+        .lv_back {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--lv-primary);
+            text-decoration: none;
+        }
+
+        .lv_back:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSS 变量示例</h1>
+
+    <div class="lv_name">吕淼</div>
+
+    <div class="lv_card">
+        <p>使用 CSS 变量定义的颜色和样式</p>
+        <button class="lv_btn lv_btn-primary">主要按钮</button>
+        <button class="lv_btn lv_btn-secondary">成功按钮</button>
+        <button class="lv_btn lv_btn-danger">危险按钮</button>
+    </div>
+
+    <div class="lv_card">
+        <p>通过修改变量值，可以整体切换配色方案</p>
+        <button class="lv_btn lv_btn-primary" onclick="document.body.classList.toggle('lv_dark')">切换暗色模式</button>
+    </div>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+</body>
+</html>

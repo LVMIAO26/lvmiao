@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS3 3D 动画演示 - 930吕淼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background-attachment: fixed;
+            padding: 34px 16px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            background: linear-gradient(120deg, #6c5ce7, #00b894 60%, #0984e3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lv_subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 32px;
+        }
+
+        .lv_section-title {
+            width: 100%;
+            max-width: 1200px;
+            margin: 36px auto 18px;
+            padding-left: 14px;
+            font-size: 20px;
+            color: #a29bfe;
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .lv_grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 26px;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lv_card {
+            --accent: #6c5ce7;
+            width: 320px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .lv_card h3 {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 18px;
+            padding: 12px 18px;
+            text-align: center;
+        }
+
+        .lv_card .lv_code {
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: var(--accent);
+            padding: 8px 18px 0;
+            display: block;
+        }
+
+        .lv_card .lv_desc {
+            padding: 8px 18px 4px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .lv_stage {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 600px;
+            padding: 20px;
+        }
+
+        .lv_card:nth-child(1)  { --accent: #6c5ce7; }
+        .lv_card:nth-child(2)  { --accent: #00b894; }
+        .lv_card:nth-child(3)  { --accent: #0984e3; }
+        .lv_card:nth-child(4)  { --accent: #e17055; }
+        .lv_card:nth-child(5)  { --accent: #fdcb6e; }
+        .lv_card:nth-child(6)  { --accent: #e84393; }
+        .lv_card:nth-child(7)  { --accent: #00cec9; }
+        .lv_card:nth-child(8)  { --accent: #a29bfe; }
+        .lv_card:nth-child(9)  { --accent: #55efc4; }
+        .lv_card:nth-child(10) { --accent: #74b9ff; }
+        .lv_card:nth-child(11) { --accent: #ff7675; }
+        .lv_card:nth-child(12) { --accent: #b2bec3; }
+
+        .lv_box {
+            width: 80px;
+            height: 80px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .lv_rotateX {
+            animation: lv_rotX 3s ease-in-out infinite;
+        }
+        @keyframes lv_rotX {
+            0%, 100% { transform: rotateX(0deg); }
+            50% { transform: rotateX(360deg); }
+        }
+
+        .lv_rotateY {
+            animation: lv_rotY 3s ease-in-out infinite;
+        }
+        @keyframes lv_rotY {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(360deg); }
+        }
+
+        .lv_rotateZ {
+            animation: lv_rotZ 2s linear infinite;
+        }
+        @keyframes lv_rotZ {
+            from { transform: rotateZ(0deg); }
+            to { transform: rotateZ(360deg); }
+        }
+
+        .lv_flip {
+            animation: lv_flip 2.5s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+        @keyframes lv_flip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .lv_cube {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: lv_cubeSpin 4s linear infinite;
+        }
+        .lv_cube .lv_face {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: var(--accent);
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+        }
+        .lv_cube .lv_front  { transform: translateZ(30px); }
+        .lv_cube .lv_back   { transform: rotateY(180deg) translateZ(30px); }
+        .lv_cube .lv_right  { transform: rotateY(90deg) translateZ(30px); }
+        .lv_cube .lv_left   { transform: rotateY(-90deg) translateZ(30px); }
+        .lv_cube .lv_top    { transform: rotateX(90deg) translateZ(30px); }
+        .lv_cube .lv_bottom { transform: rotateX(-90deg) translateZ(30px); }
+        @keyframes lv_cubeSpin {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .lv_pendulum {
+            animation: lv_pend 2s ease-in-out infinite;
+            transform-origin: top center;
+        }
+        @keyframes lv_pend {
+            0%, 100% { transform: rotate(25deg); }
+            50% { transform: rotate(-25deg); }
+        }
+
+        .lv_pulse3d {
+            animation: lv_pulse 2s ease-in-out infinite;
+        }
+        @keyframes lv_pulse {
+            0%, 100% { transform: scale3d(1, 1, 1); }
+            50% { transform: scale3d(1.2, 1.2, 1.2); }
+        }
+
+        .lv_orbit {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: lv_orbitSpin 3s linear infinite;
+        }
+        .lv_orbit .lv_satellite {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            margin: -12px 0 0 -12px;
+            box-shadow: 0 0 12px var(--accent);
+        }
+        .lv_orbit .lv_satellite:nth-child(1) { transform: rotateY(0deg) translateZ(50px); }
+        .lv_orbit .lv_satellite:nth-child(2) { transform: rotateY(120deg) translateZ(50px); }
+        .lv_orbit .lv_satellite:nth-child(3) { transform: rotateY(240deg) translateZ(50px); }
+        @keyframes lv_orbitSpin {
+            from { transform: rotateX(70deg) rotateZ(0deg); }
+            to { transform: rotateX(70deg) rotateZ(360deg); }
+        }
+
+        .lv_cardflip {
+            width: 100px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: lv_cardFlip 3s ease-in-out infinite;
+        }
+        .lv_cardflip .lv_front,
+        .lv_cardflip .lv_back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            backface-visibility: hidden;
+        }
+        .lv_cardflip .lv_front {
+            background: var(--accent);
+        }
+        .lv_cardflip .lv_back {
+            background: #2d3436;
+            transform: rotateY(180deg);
+        }
+        @keyframes lv_cardFlip {
+            0%, 30% { transform: rotateY(0deg); }
+            70%, 100% { transform: rotateY(180deg); }
+        }
+
+        .lv_door {
+            width: 80px;
+            height: 100px;
+            background: var(--accent);
+            border-radius: 6px;
+            transform-origin: left center;
+            animation: lv_doorOpen 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+        }
+        @keyframes lv_doorOpen {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(-100deg); }
+        }
+
+        .lv_pyramid {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 70px solid var(--accent);
+            position: relative;
+            transform-style: preserve-3d;
+            animation: lv_pyrSpin 4s linear infinite;
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+        @keyframes lv_pyrSpin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .lv_ring {
+            width: 80px;
+            height: 80px;
+            border: 6px solid var(--accent);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: lv_ringSpin 1.5s linear infinite;
+        }
+        @keyframes lv_ringSpin {
+            from { transform: rotateZ(0deg); }
+            to { transform: rotateZ(360deg); }
+        }
+
+        .lv_text3d {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow:
+                1px 1px 0 rgba(0,0,0,0.2),
+                2px 2px 0 rgba(0,0,0,0.15),
+                3px 3px 0 rgba(0,0,0,0.1),
+                4px 4px 0 rgba(0,0,0,0.05);
+            animation: lv_textFloat 3s ease-in-out infinite;
+        }
+        @keyframes lv_textFloat {
+            0%, 100% { transform: translateZ(0px); }
+            50% { transform: translateZ(30px); }
+        }
+
+        .lv_carousel3d {
+            width: 120px;
+            height: 80px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: lv_carouselSpin 6s linear infinite;
+        }
+        .lv_carousel3d .lv_item {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+        .lv_carousel3d .lv_item:nth-child(1) { transform: rotateY(0deg) translateZ(100px); }
+        .lv_carousel3d .lv_item:nth-child(2) { transform: rotateY(60deg) translateZ(100px); }
+        .lv_carousel3d .lv_item:nth-child(3) { transform: rotateY(120deg) translateZ(100px); }
+        .lv_carousel3d .lv_item:nth-child(4) { transform: rotateY(180deg) translateZ(100px); }
+        .lv_carousel3d .lv_item:nth-child(5) { transform: rotateY(240deg) translateZ(100px); }
+        .lv_carousel3d .lv_item:nth-child(6) { transform: rotateY(300deg) translateZ(100px); }
+        @keyframes lv_carouselSpin {
+            from { transform: rotateX(-10deg) rotateY(0deg); }
+            to { transform: rotateX(-10deg) rotateY(360deg); }
+        }
+
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin-top: 34px;
+            color: #a29bfe;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .lv_back:hover {
+            color: #00b894;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>CSS3 3D 动画演示</h2>
+    <p class="lv_subtitle">12 种 3D 变换与动画效果：旋转、翻转、立方体、轨道、卡片、门、金字塔、圆环、文字、走马灯</p>
+
+    <div class="lv_section-title">基础 3D 旋转</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>rotateX 翻转</h3>
+            <span class="lv-code">transform: rotateX(360deg)</span>
+            <p class="lv_desc">绕 X 轴旋转 360°，产生翻筋斗效果</p>
+            <div class="lv_stage"><div class="lv_box lv_rotateX">3D</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>rotateY 翻转</h3>
+            <span class="lv-code">transform: rotateY(360deg)</span>
+            <p class="lv_desc">绕 Y 轴旋转 360°，产生开门效果</p>
+            <div class="lv_stage"><div class="lv_box lv_rotateY">3D</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>rotateZ 旋转</h3>
+            <span class="lv-code">transform: rotateZ(360deg)</span>
+            <p class="lv_desc">绕 Z 轴持续旋转，类似 2D rotate 但在 3D 空间</p>
+            <div class="lv_stage"><div class="lv_box lv_rotateZ">3D</div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">翻转与卡片效果</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>3D 卡片翻转</h3>
+            <span class="lv-code">preserve-3d + rotateY</span>
+            <p class="lv_desc">正反面翻转，常用于卡片记忆游戏</p>
+            <div class="lv_stage"><div class="lv_box lv_flip">FLIP</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>正反面卡片</h3>
+            <span class="lv-code">backface-visibility: hidden</span>
+            <p class="lv_desc">正面 A 面，翻转后显示 B 面</p>
+            <div class="lv_stage">
+                <div class="lv_cardflip">
+                    <div class="lv_front">正面</div>
+                    <div class="lv_back">背面</div>
+                </div>
+            </div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 开门</h3>
+            <span class="lv-code">transform-origin: left</span>
+            <p class="lv_desc">以左边缘为轴旋转，模拟开门效果</p>
+            <div class="lv_stage"><div class="lv_door">门</div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">立体几何体</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>3D 立方体</h3>
+            <span class="lv-code">6 个面 + preserve-3d</span>
+            <p class="lv_desc">经典六面体，前后左右上下</p>
+            <div class="lv_stage">
+                <div class="lv_cube">
+                    <div class="lv_face lv_front">前</div>
+                    <div class="lv_face lv_back">后</div>
+                    <div class="lv_face lv_right">右</div>
+                    <div class="lv_face lv_left">左</div>
+                    <div class="lv_face lv_top">上</div>
+                    <div class="lv_face lv_bottom">下</div>
+                </div>
+            </div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 金字塔</h3>
+            <span class="lv-code">border 三角 + rotateY</span>
+            <p class="lv_desc">CSS 三角形组成的锥体旋转</p>
+            <div class="lv_stage"><div class="lv_pyramid"></div></div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 圆环</h3>
+            <span class="lv-code">border + border-radius</span>
+            <p class="lv_desc">缺口圆环持续旋转</p>
+            <div class="lv_stage"><div class="lv_ring"></div></div>
+        </li>
+    </ul>
+
+    <div class="lv_section-title">复合动画效果</div>
+    <ul class="lv_grid">
+        <li class="lv_card">
+            <h3>3D 脉冲缩放</h3>
+            <span class="lv-code">scale3d(1.2, 1.2, 1.2)</span>
+            <p class="lv_desc">三维空间中的缩放脉冲</p>
+            <div class="lv_stage"><div class="lv_box lv_pulse3d">PULSE</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 钟摆</h3>
+            <span class="lv-code">transform-origin: top</span>
+            <p class="lv_desc">以顶部为轴心左右摆动</p>
+            <div class="lv_stage"><div class="lv_box lv_pendulum">摆</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 轨道卫星</h3>
+            <span class="lv-code">rotateX(70deg) + rotateZ</span>
+            <p class="lv_desc">三颗卫星沿轨道旋转</p>
+            <div class="lv_stage">
+                <div class="lv_orbit">
+                    <div class="lv_satellite"></div>
+                    <div class="lv_satellite"></div>
+                    <div class="lv_satellite"></div>
+                </div>
+            </div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 文字浮动</h3>
+            <span class="lv-code">translateZ(30px)</span>
+            <p class="lv_desc">文字在 Z 轴方向浮动</p>
+            <div class="lv_stage"><div class="lv_text3d">3D</div></div>
+        </li>
+        <li class="lv_card">
+            <h3>3D 走马灯</h3>
+            <span class="lv-code">6 面 + rotateY</span>
+            <p class="lv_desc">经典 carousel 效果</p>
+            <div class="lv_stage">
+                <div class="lv_carousel3d">
+                    <div class="lv_item">1</div>
+                    <div class="lv_item">2</div>
+                    <div class="lv_item">3</div>
+                    <div class="lv_item">4</div>
+                    <div class="lv_item">5</div>
+                    <div class="lv_item">6</div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+</body>
+</html>

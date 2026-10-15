@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex 布局演示 - 930吕淼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 50%, #ecfeff 100%);
+            background-attachment: fixed;
+            padding: 34px 16px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            margin-bottom: 32px;
+            background: linear-gradient(120deg, #6c5ce7, #00b894 60%, #0984e3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 外层：四个演示容器横向排列 */
+        .flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 26px;
+            list-style: none;
+        }
+
+        /* 演示容器：白色圆角卡片 + 顶部彩色条 */
+        .flex li {
+            --accent: #6c5ce7;
+            --soft: #e6e1ff;
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background-color: #fff;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(76, 91, 175, 0.14);
+            overflow: hidden;
+            display: flex;
+        }
+        .flex li::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
+
+        /* 四个容器各自的配色 */
+        .flex li:nth-child(1) { --accent: #6c5ce7; --soft: #e6e1ff; }
+        .flex li:nth-child(2) { --accent: #00b894; --soft: #d3f7ec; }
+        .flex li:nth-child(3) { --accent: #0984e3; --soft: #d6eaff; }
+        .flex li:nth-child(4) { --accent: #e17055; --soft: #ffe3d8; }
+
+        /* 所有内部小方块：使用所在容器的配色 */
+        .box,
+        .box1, .box2,
+        .box3, .box4, .box5, .box6,
+        .box7, .box8, .box9 {
+            background-color: var(--soft);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+        }
+
+        /* ===== 形状一：一个方块水平垂直居中 ===== */
+        .flex li:nth-child(1) {
+            justify-content: center;
+            align-items: center;
+        }
+        .box {
+            width: 80px;
+            height: 80px;
+        }
+
+        /* ===== 形状二：两个矩形上下居中排列 ===== */
+        .flex li:nth-child(2) {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .box1, .box2 {
+            width: 140px;
+            height: 70px;
+        }
+
+        /* ===== 形状三：四个矩形组成 2×2 网格 ===== */
+        .flex li:nth-child(3) {
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            gap: 16px;
+        }
+        .box3, .box4, .box5, .box6 {
+            width: 110px;
+            height: 70px;
+        }
+
+        /* ===== 形状四：上全下双（头部 + 两列） ===== */
+        .flex li:nth-child(4) {
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            gap: 16px;
+        }
+        .box7 {
+            width: 260px;
+            height: 70px;
+        }
+        .box8, .box9 {
+            width: 120px;
+            height: 70px;
+        }
+
+        /* 返回首页 */
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 34px;
+            color: #6c5ce7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .back:hover {
+            color: #00b894;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>Flex 布局演示</h2>
+    <ul class="flex">
+        <li>
+            <div class="box"></div>
+        </li>
+        <li>
+            <div class="box1"></div>
+            <div class="box2"></div>
+        </li>
+        <li>
+            <div class="box3"></div>
+            <div class="box4"></div>
+            <div class="box5"></div>
+            <div class="box6"></div>
+        </li>
+        <li>
+            <div class="box7"></div>
+            <div class="box8"></div>
+            <div class="box9"></div>
+        </li>
+    </ul>
+    <a class="back" href="./index.html">← 返回首页</a>
+</body>
+</html>
