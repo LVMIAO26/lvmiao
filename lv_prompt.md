@@ -24,3 +24,24 @@
 **Model:** opencode/longcat-2.5-preview-free
 **Prompt:** 创建skill：提交项目：使用git commit并push当前项目到https://gitee.com/jio-o/lvmiao2026
 
+## 2026-10-15-15-55
+**Model:** opencode/longcat-2.5-preview-free
+**Prompt:** 创建网页12-1.html，展示CSS变量，然后提交项目，页面中包括文字吕淼
+
+## 2026-10-15-15-58
+**Model:** opencode/longcat-2.5-preview-free
+**Prompt:** 新建网页gird布局。'a b b','c b b','c d e','c d f'
+
+## 2026-10-15-16-00
+**Model:** opencode/longcat-2.5-preview-free
+**Prompt:** 12-1和12-2给我做的全一点好看一点，并且以后做的也要这样
+
+## 2026-10-15-16-05
+**Model:** opencode/longcat-2.5-preview-free
+**Prompt:** 还得具体一点
+
+
+## 2026-10-16-09-15
+**Model:** opencode/longcat-2.5-preview-free
+**Prompt:** 提交报告
+
