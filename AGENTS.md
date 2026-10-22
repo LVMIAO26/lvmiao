@@ -16,8 +16,16 @@ Static HTML/CSS coursework for "高级网页设计" (Advanced Web Design). No bu
 - All HTML files use `<meta charset="UTF-8">` and `lang="zh-CN"` — preserve these.
 - CSS is written inline in `<style>` tags per-file; do not refactor into external sheets unless asked.
 - File names contain Chinese characters — always quote paths in shell commands.
-- All CSS class names, id names, and JS variables must start with `lv_` (e.g., `lv_box`, `lv_title`, `lv_count`).
-- Every new HTML file must include a hyperlink back to `index.html` (e.g., `<a class="lv_back" href="./index.html">← 返回首页</a>`).
+- All variable names, CSS class names, and id names must start with `lm_` (e.g., `lm_box`, `lm_title`, `lm_count`). This replaces the earlier `lv_` prefix rule — use `lm_` for all NEW code; do not mass-rename existing files unless asked.
+- Every new HTML file must include an author comment right after `<body>` (or at the top of the file): `<!-- 姓名：袁磊，日期：YYYY-MM-DD，功能名称：XXX -->` (fill in the actual date and the page's feature name).
+- Every new HTML file must include a hyperlink back to `index.html` (e.g., `<a class="lm_back" href="./index.html">← 返回首页</a>`).
+
+## Tech constraints
+
+- Use native HTML, CSS, and JavaScript only — no frameworks, no third-party libraries, no CDN resources.
+- Icons must come from the local `font/` directory (iconfont: `font/iconfont.css` classes or `font/iconfont.js` SVG symbols). Check `font/iconfont.json` for available glyph class names.
+- Use `fetch` to get server-side data when the page needs remote data (no XMLHttpRequest, no jQuery.ajax).
+- Cache-bust locally referenced assets that change (e.g., `./font/iconfont.css?v=2`).
 
 ## Prompt logging
 

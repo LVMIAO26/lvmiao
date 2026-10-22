@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-2 JavaScript 六种基础数据类型演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 40px 20px 60px;
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            color: #2d3a3a;
+            background: linear-gradient(135deg, #eef3f4, #dfe9ec);
+        }
+
+        .lm_wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 22px;
+            font-size: 14px;
+            color: #1f4e4a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .lm_back:hover { text-decoration: underline; }
+
+        h2 {
+            font-size: 26px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .lm_sub {
+            font-size: 14px;
+            color: #7d8a8a;
+            margin-bottom: 28px;
+        }
+
+        /* 类型卡片 */
+        .lm_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 34px;
+        }
+
+        .lm_card {
+            background: #fff;
+            border: 1px solid #e3ecec;
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 18px rgba(31, 78, 74, 0.07);
+        }
+
+        .lm_card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #1f4e4a;
+        }
+        .lm_card h3 small {
+            font-size: 12px;
+            color: #93a2a0;
+            font-weight: 400;
+            margin-left: 8px;
+        }
+
+        .lm_card code {
+            display: block;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            background: #f2f7f6;
+            border: 1px solid #e0ecea;
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #b03a5b;
+            word-break: break-all;
+        }
+
+        .lm_card p {
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #5c6b69;
+        }
+
+        /* typeof 演示表格 */
+        .lm_demo-title {
+            font-size: 18px;
+            margin: 6px 0 14px;
+            color: #1f4e4a;
+            letter-spacing: 1px;
+        }
+
+        .lm_table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(31, 78, 74, 0.07);
+            font-size: 14px;
+        }
+        .lm_table th, .lm_table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eef4f3;
+            text-align: left;
+        }
+        .lm_table th {
+            background: #1f4e4a;
+            color: #fff;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+        .lm_table tr:last-child td { border-bottom: none; }
+        .lm_table tr:hover td { background: #f6faf9; }
+
+        .lm_table code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            color: #b03a5b;
+        }
+
+        .lm_type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #e5f3f1;
+            color: #1f4e4a;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .lm_note {
+            margin-top: 18px;
+            padding: 14px 18px;
+            border-left: 4px solid #f6a623;
+            background: #fff8ec;
+            border-radius: 0 10px 10px 0;
+            font-size: 13px;
+            line-height: 1.9;
+            color: #6b5a34;
+        }
+
+        /* 控制台提示 */
+        .lm_console-tip {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #7d8a8a;
+        }
+        .lm_console-tip code {
+            font-family: Consolas, "Courier New", monospace;
+            color: #b03a5b;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 26px 12px 44px; }
+            h2 { font-size: 21px; }
+            .lm_table { font-size: 12px; }
+            .lm_table th, .lm_table td { padding: 9px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：袁磊，日期：2026-10-22，功能名称：JavaScript六种基础数据类型演示 -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h2>JavaScript 六种基础数据类型</h2>
+        <p class="lm_sub">14-2 · 定义并演示 Number、String、Boolean、Undefined、Null、Symbol 六种基本数据类型</p>
+
+        <!-- 六种类型的定义卡片 -->
+        <div class="lm_cards">
+            <div class="lm_card">
+                <h3>String<small>字符串型</small></h3>
+                <code>var lm_name = "袁磊";</code>
+                <p>用单引号或双引号包裹的一串文本。</p>
+            </div>
+            <div class="lm_card">
+                <h3>Number<small>数值型</small></h3>
+                <code>var lm_age = 20;</code>
+                <p>整数和小数统一用 Number 表示，如 20、3.14。</p>
+            </div>
+            <div class="lm_card">
+                <h3>Boolean<small>布尔型</small></h3>
+                <code>var lm_ok = true;</code>
+                <p>只有 true（真）和 false（假）两个值。</p>
+            </div>
+            <div class="lm_card">
+                <h3>Undefined<small>未定义</small></h3>
+                <code>var lm_tmp;</code>
+                <p>变量声明了但未赋值，值就是 undefined。</p>
+            </div>
+            <div class="lm_card">
+                <h3>Null<small>空型</small></h3>
+                <code>var lm_empty = null;</code>
+                <p>表示"空值"，通常用来主动清空对象引用。</p>
+            </div>
+            <div class="lm_card">
+                <h3>Symbol<small>符号型</small></h3>
+                <code>var lm_id = Symbol("id");</code>
+                <p>ES6 新增，每次调用都生成独一无二的值。</p>
+            </div>
+        </div>
+
+        <!-- typeof 运行结果演示（由 JS 动态生成） -->
+        <h3 class="lm_demo-title">typeof 运行演示</h3>
+        <table class="lm_table" id="lm_table">
+            <thead>
+                <tr>
+                    <th>数据类型</th>
+                    <th>定义代码</th>
+                    <th>typeof 结果</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody id="lm_tbody"></tbody>
+        </table>
+
+        <div class="lm_note">
+            易错点：typeof null 的结果是 "object" 而不是 "null"，这是 JavaScript 早期遗留的历史 bug，但为了兼容旧代码一直保留至今，判断 null 应使用 <b>lm_empty === null</b>。
+        </div>
+
+        <p class="lm_console-tip">
+            同时已用 <code>console.log()</code> 把六种类型输出到控制台，按 <b>F12</b> 打开开发者工具可查看。
+        </p>
+    </div>
+
+    <script>
+        // ============ 定义六种基础数据类型 ============
+        var lm_str    = "袁磊";            // String    字符串型
+        var lm_num    = 20;               // Number    数值型
+        var lm_bool   = true;             // Boolean   布尔型
+        var lm_undef;                     // Undefined 未定义（声明未赋值）
+        var lm_null   = null;             // Null      空型
+        var lm_symbol = Symbol("id");     // Symbol    符号型（ES6）
+
+        // 引用数据类型（对比用）
+        var lm_obj = { name: "袁磊", age: 20 };
+
+        // ============ 控制台输出演示 ============
+        console.log(lm_str,    typeof lm_str);     // string
+        console.log(lm_num,    typeof lm_num);     // number
+        console.log(lm_bool,   typeof lm_bool);    // boolean
+        console.log(lm_undef,  typeof lm_undef);   // undefined
+        console.log(lm_null,   typeof lm_null);    // object（历史遗留 bug）
+        console.log(lm_symbol, typeof lm_symbol);  // symbol
+        console.log(lm_obj,    typeof lm_obj);     // object（引用类型）
+
+        // ============ 页面表格动态生成 ============
+        var lm_data = [
+            { type: "String",    cn: "字符串型", code: 'var lm_str = "袁磊";',        val: lm_str,    note: "引号包裹的文本" },
+            { type: "Number",    cn: "数值型",   code: "var lm_num = 20;",            val: lm_num,    note: "整数、小数" },
+            { type: "Boolean",   cn: "布尔型",   code: "var lm_bool = true;",         val: lm_bool,   note: "true / false" },
+            { type: "Undefined", cn: "未定义",   code: "var lm_undef;",               val: lm_undef,  note: "声明未赋值" },
+            { type: "Null",      cn: "空型",     code: "var lm_null = null;",         val: lm_null,   note: "空值，typeof 结果是 object（历史遗留）" },
+            { type: "Symbol",    cn: "符号型",   code: 'var lm_symbol = Symbol("id");', val: lm_symbol, note: "ES6 新增，独一无二的值" },
+            { type: "Object",    cn: "引用类型", code: 'var lm_obj = { name: "袁磊" };', val: lm_obj,  note: "对比：对象属于引用类型，不属于基本类型" }
+        ];
+
+        var lm_tbody = document.getElementById("lm_tbody");
+        var lm_html = "";
+        for (var lm_i = 0; lm_i < lm_data.length; lm_i++) {
+            var lm_row = lm_data[lm_i];
+            lm_html += "<tr>";
+            lm_html += '<td><span class="lm_type">' + lm_row.type + '</span> ' + lm_row.cn + '</td>';
+            lm_html += "<td><code>" + lm_row.code + "</code></td>";
+            lm_html += "<td><code>" + typeof lm_row.val + "</code></td>";
+            lm_html += "<td>" + lm_row.note + "</td>";
+            lm_html += "</tr>";
+        }
+        lm_tbody.innerHTML = lm_html;
+    </script>
+</body>
+</html>

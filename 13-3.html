@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>非遗文化 · 字体图标下导航</title>
+    <link rel="stylesheet" href="./font/iconfont.css">
+    <style>
+        :root {
+            --lv-primary: #a63a2b;
+            --lv-primary-light: #c05a4a;
+            --lv-bg: #f6f1e7;
+            --lv-card: #fffdf7;
+            --lv-text: #2b2b2b;
+            --lv-muted: #8a7f6a;
+            --lv-gold: #c9a063;
+            --lv-nav-bg: #fffdf7;
+            --lv-nav-border: #e8dfc8;
+            --lv-radius: 14px;
+            --lv-shadow: 0 4px 18px rgba(80, 50, 20, 0.08);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #e8e0cd;
+            color: var(--lv-text);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .lv_phone {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--lv-bg);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .lv_header {
+            background: linear-gradient(135deg, var(--lv-primary) 0%, #7e2a1e 100%);
+            color: #fff;
+            padding: 48px 20px 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .lv_header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: var(--lv-bg);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .lv_header h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 6px;
+            font-weight: 600;
+        }
+
+        .lv_header p {
+            margin: 8px 0 0;
+            font-size: 12px;
+            opacity: 0.85;
+            letter-spacing: 2px;
+        }
+
+        .lv_body {
+            padding: 16px 16px 110px;
+        }
+
+        .lv_section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--lv-primary);
+            margin: 8px 2px 12px;
+        }
+
+        .lv_section-title::before,
+        .lv_section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--lv-gold), transparent);
+        }
+
+        .lv_card {
+            background: var(--lv-card);
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 16px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .lv_card-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #fff;
+        }
+
+        .lv_card-thumb.red { background: linear-gradient(135deg, #c05a4a, #a63a2b); }
+        .lv_card-thumb.gold { background: linear-gradient(135deg, #d8b476, #c9a063); }
+        .lv_card-thumb.ink { background: linear-gradient(135deg, #4a4a4a, #2b2b2b); }
+
+        .lv_card-info { flex: 1; min-width: 0; }
+        .lv_card-info h3 { margin: 0 0 4px; font-size: 15px; }
+        .lv_card-info p { margin: 0; font-size: 12px; color: var(--lv-muted); line-height: 1.5; }
+
+        .lv_card-tag {
+            flex-shrink: 0;
+            font-size: 11px;
+            color: var(--lv-primary);
+            border: 1px solid var(--lv-primary-light);
+            border-radius: 20px;
+            padding: 3px 10px;
+        }
+
+        .lv_nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            background: var(--lv-nav-bg);
+            border-top: 1px solid var(--lv-nav-border);
+            box-shadow: 0 -4px 20px rgba(80, 50, 20, 0.08);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .lv_nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 8px 0 6px;
+            text-decoration: none;
+            color: var(--lv-muted);
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .lv_nav-item.active { color: var(--lv-primary); }
+
+        .lv_nav-item.active .lv_nav-text { font-weight: 600; }
+
+        .lv_nav-icon {
+            position: relative;
+            font-size: 24px;
+            line-height: 1;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lv_nav-icon .iconfont { font-size: 24px; }
+
+        .lv_nav-text { font-size: 11px; letter-spacing: 1px; }
+
+        .lv_dot {
+            position: absolute;
+            top: -2px;
+            right: -8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e63946;
+            border: 1.5px solid var(--lv-nav-bg);
+        }
+
+        .lv_badge {
+            position: absolute;
+            top: -6px;
+            right: -16px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            border-radius: 9px;
+            background: #e63946;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border: 1.5px solid var(--lv-nav-bg);
+        }
+
+        .lv_badge-num { right: -14px; }
+
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin: 18px auto 0;
+            max-width: 480px;
+            color: var(--lv-primary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .lv_back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="lv_phone">
+        <div class="lv_header">
+            <h1>非遗文化</h1>
+            <p>传承千年 · 匠心之美</p>
+        </div>
+
+        <div class="lv_body">
+            <div class="lv_section-title">热门技艺</div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb red">瓷</div>
+                <div class="lv_card-info">
+                    <h3>景德镇陶瓷</h3>
+                    <p>白如玉、明如镜、薄如纸、声如磬</p>
+                </div>
+                <span class="lv_card-tag">国家级</span>
+            </div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb gold">绣</div>
+                <div class="lv_card-info">
+                    <h3>苏绣</h3>
+                    <p>精细雅洁，图案秀丽，色彩和谐</p>
+                </div>
+                <span class="lv_card-tag">世界级</span>
+            </div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb ink">纸</div>
+                <div class="lv_card-info">
+                    <h3>宣纸制作</h3>
+                    <p>纸寿千年，墨韵万变</p>
+                </div>
+                <span class="lv_card-tag">世界级</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="lv_nav">
+        <a class="lv_nav-item active" href="javascript:void(0)">
+            <span class="lv_nav-icon"><span class="iconfont icon-shouye1"></span></span>
+            <span class="lv_nav-text">首页</span>
+        </a>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon">
+                <span class="iconfont icon-faxian-tongyong"></span>
+                <span class="lv_dot"></span>
+            </span>
+            <span class="lv_nav-text">分类</span>
+        </a>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon">
+                <span class="iconfont icon-a-wodedefuben2"></span>
+                <span class="lv_badge">3</span>
+            </span>
+            <span class="lv_nav-text">我的</span>
+        </a>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon">
+                <span class="iconfont icon-iconfontcog"></span>
+                <span class="lv_badge lv_badge-num">99+</span>
+            </span>
+            <span class="lv_nav-text">设置</span>
+        </a>
+    </nav>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+</body>
+</html>

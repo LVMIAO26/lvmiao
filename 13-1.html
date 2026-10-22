@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Font Awesome 字体图标</title>
+    <link rel="stylesheet" href="./cdn/css/all.min.css">
+    <style>
+        :root {
+            --lv-primary: #6c5ce7;
+            --lv-secondary: #00b894;
+            --lv-danger: #e17055;
+            --lv-warning: #fdcb6e;
+            --lv-bg: #f5f6fa;
+            --lv-card-bg: #ffffff;
+            --lv-text: #2d3436;
+            --lv-radius: 14px;
+            --lv-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: var(--lv-bg);
+            color: var(--lv-text);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--lv-primary);
+            font-size: 2.2em;
+            margin-bottom: 6px;
+        }
+
+        .lv_subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 28px;
+        }
+
+        .lv_name {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--lv-primary);
+            margin: 0 0 22px 0;
+            letter-spacing: 4px;
+        }
+
+        .lv_container { max-width: 960px; margin: 0 auto; }
+
+        .lv_card {
+            background: var(--lv-card-bg);
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 26px 28px;
+            margin-bottom: 22px;
+        }
+
+        .lv_card h2 {
+            margin-top: 0;
+            color: var(--lv-primary);
+            font-size: 1.25em;
+            border-bottom: 2px solid var(--lv-primary);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .lv_card p { line-height: 1.8; color: var(--lv-text); }
+
+        .lv_grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .lv_icon-box {
+            width: 92px;
+            padding: 14px 6px;
+            text-align: center;
+            border-radius: 10px;
+            background: var(--lv-bg);
+            transition: all 0.2s;
+        }
+
+        .lv_icon-box:hover { background: var(--lv-primary); transform: translateY(-3px); }
+        .lv_icon-box:hover i, .lv_icon-box:hover span { color: #fff; }
+        .lv_icon-box i { font-size: 26px; color: var(--lv-primary); display: block; margin-bottom: 6px; }
+        .lv_icon-box span { font-size: 12px; color: #636e72; }
+
+        .lv_size-row { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; margin-top: 16px; }
+        .lv-size-row div { text-align: center; }
+        .lv-size-row small { display: block; margin-top: 6px; color: #7f8c8d; font-size: 12px; }
+
+        .lv_color-row { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; font-size: 34px; }
+        .lv-color-row div { text-align: center; }
+        .lv-color-row small { display: block; font-size: 12px; color: #7f8c8d; margin-top: 4px; }
+
+        .lv_c1 { color: #6c5ce7; }
+        .lv_c2 { color: #00b894; }
+        .lv_c3 { color: #e17055; }
+        .lv_c4 { color: #e84393; }
+        .lv_c5 { color: #0984e3; }
+        .lv_c6 { color: #fdcb6e; }
+
+        .lv_anim-row { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 16px; font-size: 40px; color: var(--lv-primary); }
+        .lv_anim-row div { text-align: center; }
+        .lv_anim-row small { display: block; font-size: 12px; color: #7f8c8d; margin-top: 6px; }
+
+        .lv_stack-row { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 16px; }
+        .lv_stack-row div { text-align: center; }
+        .lv_stack-row small { display: block; font-size: 12px; color: #7f8c8d; margin-top: 6px; }
+
+        .lv_btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            margin: 6px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lv_btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.18); }
+        .lv_btn-primary { background: var(--lv-primary); }
+        .lv_btn-secondary { background: var(--lv-secondary); }
+        .lv_btn-danger { background: var(--lv-danger); }
+
+        .lv_list { list-style: none; padding: 0; margin: 16px 0 0 0; }
+        .lv_list li { padding: 9px 0; border-bottom: 1px solid #eee; font-size: 15px; }
+        .lv_list li i { color: var(--lv-secondary); width: 24px; margin-right: 8px; }
+
+        .lv_tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            margin: 4px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .lv-tag-primary { background: var(--lv-primary); }
+        .lv-tag-secondary { background: var(--lv-secondary); }
+        .lv-tag-danger { background: var(--lv-danger); }
+
+        .lv_code {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 18px 20px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+        .lv_code .lv_kw { color: #74b9ff; }
+        .lv_code .lv_attr { color: #55efc4; }
+        .lv_code .lv_val { color: #ffeaa7; }
+        .lv_code .lv_cm { color: #b2bec3; }
+
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin-top: 28px;
+            color: var(--lv-primary);
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .lv_back:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .lv_card { padding: 18px; }
+            h1 { font-size: 1.6em; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Awesome 字体图标</h1>
+    <p class="lv_subtitle">基于 Web Font 的图标方案 —— 通过 @font-face 加载字体，用 CSS 伪元素渲染图标</p>
+    <div class="lv_name">吕淼</div>
+
+    <div class="lv_container">
+        <div class="lv_card">
+            <h2>基础图标（Solid / Regular / Brands）</h2>
+            <p>Font Awesome 通过字体文件渲染图标，<code>fas</code> 为实心、<code>far</code> 为常规、<code>fab</code> 为品牌图标：</p>
+            <div class="lv_grid">
+                <div class="lv_icon-box"><i class="fas fa-home"></i><span>home</span></div>
+                <div class="lv_icon-box"><i class="fas fa-user"></i><span>user</span></div>
+                <div class="lv_icon-box"><i class="fas fa-heart"></i><span>heart</span></div>
+                <div class="lv_icon-box"><i class="fas fa-star"></i><span>star</span></div>
+                <div class="lv_icon-box"><i class="fas fa-cog"></i><span>cog</span></div>
+                <div class="lv_icon-box"><i class="fas fa-bell"></i><span>bell</span></div>
+                <div class="lv_icon-box"><i class="fas fa-envelope"></i><span>envelope</span></div>
+                <div class="lv_icon-box"><i class="fas fa-camera"></i><span>camera</span></div>
+                <div class="lv_icon-box"><i class="far fa-heart"></i><span>far heart</span></div>
+                <div class="lv_icon-box"><i class="far fa-star"></i><span>far star</span></div>
+                <div class="lv_icon-box"><i class="far fa-bell"></i><span>far bell</span></div>
+                <div class="lv_icon-box"><i class="fab fa-github"></i><span>github</span></div>
+                <div class="lv_icon-box"><i class="fab fa-weixin"></i><span>weixin</span></div>
+                <div class="lv_icon-box"><i class="fab fa-weibo"></i><span>weibo</span></div>
+                <div class="lv_icon-box"><i class="fab fa-qq"></i><span>qq</span></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>图标尺寸</h2>
+            <p>通过 <code>fa-xs</code> ~ <code>fa-10x</code> 类名无级缩放图标大小：</p>
+            <div class="lv_size-row">
+                <div><i class="fas fa-music fa-xs"></i><small>fa-xs</small></div>
+                <div><i class="fas fa-music fa-sm"></i><small>fa-sm</small></div>
+                <div><i class="fas fa-music fa-lg"></i><small>fa-lg</small></div>
+                <div><i class="fas fa-music fa-2x"></i><small>fa-2x</small></div>
+                <div><i class="fas fa-music fa-3x"></i><small>fa-3x</small></div>
+                <div><i class="fas fa-music fa-5x"></i><small>fa-5x</small></div>
+                <div><i class="fas fa-music fa-7x"></i><small>fa-7x</small></div>
+                <div><i class="fas fa-music fa-10x"></i><small>fa-10x</small></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>图标颜色</h2>
+            <p>图标本质是文字，可直接用 CSS <code>color</code> 控制颜色：</p>
+            <div class="lv_color-row">
+                <div><i class="fas fa-heart"></i><small>#6c5ce7</small></div>
+                <div><i class="fas fa-heart"></i><small>#00b894</small></div>
+                <div><i class="fas fa-heart"></i><small>#e17055</small></div>
+                <div><i class="fas fa-heart"></i><small>#e84393</small></div>
+                <div><i class="fas fa-heart"></i><small>#0984e3</small></div>
+                <div><i class="fas fa-heart"></i><small>#fdcb6e</small></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>旋转与动画</h2>
+            <p><code>fa-spin</code> 匀速旋转、<code>fa-pulse</code> 步进旋转，常用于加载状态：</p>
+            <div class="lv_anim-row">
+                <div><i class="fas fa-spinner fa-spin"></i><small>fa-spin</small></div>
+                <div><i class="fas fa-circle-notch fa-spin"></i><small>circle-notch</small></div>
+                <div><i class="fas fa-sync fa-spin"></i><small>sync</small></div>
+                <div><i class="fas fa-cog fa-spin"></i><small>cog</small></div>
+                <div><i class="fas fa-spinner fa-pulse"></i><small>fa-pulse</small></div>
+                <div><i class="fas fa-asterisk fa-pulse"></i><small>asterisk</small></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>堆叠图标</h2>
+            <p>使用 <code>fa-stack</code> 将多个图标叠加组合，常用于"禁止""删除"等复合语义：</p>
+            <div class="lv_stack-row">
+                <div>
+                    <span class="fa-stack fa-2x">
+                        <i class="fas fa-circle fa-stack-2x" style="color:#00b894"></i>
+                        <i class="fas fa-check fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <small>check</small>
+                </div>
+                <div>
+                    <span class="fa-stack fa-2x">
+                        <i class="fas fa-circle fa-stack-2x" style="color:#e17055"></i>
+                        <i class="fas fa-times fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <small>times</small>
+                </div>
+                <div>
+                    <span class="fa-stack fa-2x">
+                        <i class="fas fa-square fa-stack-2x" style="color:#636e72"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <small>github</small>
+                </div>
+                <div>
+                    <span class="fa-stack fa-2x">
+                        <i class="fas fa-camera fa-stack-1x"></i>
+                        <i class="fas fa-ban fa-stack-2x" style="color:#e17055"></i>
+                    </span>
+                    <small>ban</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>固定宽度与旋转翻转</h2>
+            <p><code>fa-fw</code> 让图标等宽对齐，<code>fa-rotate-*</code> / <code>fa-flip-*</code> 变换方向：</p>
+            <div class="lv_grid">
+                <div class="lv_icon-box"><i class="fas fa-align-left fa-fw"></i><span>align-left</span></div>
+                <div class="lv_icon-box"><i class="fas fa-align-center fa-fw"></i><span>align-center</span></div>
+                <div class="lv_icon-box"><i class="fas fa-align-right fa-fw"></i><span>align-right</span></div>
+                <div class="lv_icon-box"><i class="fas fa-arrow-right fa-rotate-90 fa-fw"></i><span>rotate-90</span></div>
+                <div class="lv_icon-box"><i class="fas fa-arrow-right fa-rotate-180 fa-fw"></i><span>rotate-180</span></div>
+                <div class="lv_icon-box"><i class="fas fa-arrow-right fa-rotate-270 fa-fw"></i><span>rotate-270</span></div>
+                <div class="lv_icon-box"><i class="fas fa-arrow-right fa-flip-horizontal fa-fw"></i><span>flip-h</span></div>
+                <div class="lv_icon-box"><i class="fas fa-arrow-right fa-flip-vertical fa-fw"></i><span>flip-v</span></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>按钮与标签中的图标</h2>
+            <p>图标与文字组合，提升按钮与标签的可识别性：</p>
+            <div style="margin-top:14px;">
+                <button class="lv_btn lv_btn-primary"><i class="fas fa-download"></i>下载文件</button>
+                <button class="lv_btn lv_btn-secondary"><i class="fas fa-check"></i>确认提交</button>
+                <button class="lv_btn lv_btn-danger"><i class="fas fa-trash"></i>删除</button>
+            </div>
+            <div style="margin-top:14px;">
+                <span class="lv_tag lv-tag-primary"><i class="fas fa-user"></i>用户</span>
+                <span class="lv-tag lv-tag-secondary"><i class="fas fa-check-circle"></i>已完成</span>
+                <span class="lv-tag lv-tag-danger"><i class="fas fa-exclamation-triangle"></i>警告</span>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>列表图标</h2>
+            <p>用 <code>fa-ul</code> / <code>fa-li</code> 快速替换列表项目符号：</p>
+            <ul class="lv_list">
+                <li><i class="fas fa-check"></i>字体图标通过 @font-face 加载</li>
+                <li><i class="fas fa-check"></i>支持 CSS 控制颜色、大小、动画</li>
+                <li><i class="fas fa-check"></i>矢量缩放，任意尺寸清晰锐利</li>
+                <li><i class="fas fa-check"></i>无需额外图片请求，性能优异</li>
+            </ul>
+        </div>
+
+        <div class="lv_card">
+            <h2>核心代码</h2>
+            <div class="lv_code"><span class="lv_cm">&lt;!-- 1. 引入字体图标 CSS（含 @font-face 字体声明） --&gt;</span>
+<span class="lv_kw">&lt;link</span> <span class="lv_attr">rel</span>=<span class="lv-val">"stylesheet"</span> <span class="lv_attr">href</span>=<span class="lv-val">"./cdn/css/all.min.css"</span><span class="lv_kw">&gt;</span>
+
+<span class="lv_cm">&lt;!-- 2. 使用 &lt;i&gt; 标签 + 类名渲染图标 --&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">class</span>=<span class="lv-val">"fas fa-heart"</span><span class="lv_kw">&gt;&lt;/i&gt;</span>  <span class="lv_cm">&lt;!-- 实心 --&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">class</span>=<span class="lv-val">"far fa-heart"</span><span class="lv_kw">&gt;&lt;/i&gt;</span>  <span class="lv_cm">&lt;!-- 常规 --&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">class</span>=<span class="lv-val">"fab fa-github"</span><span class="lv_kw">&gt;&lt;/i&gt;</span> <span class="lv_cm">&lt;!-- 品牌 --&gt;</span>
+
+<span class="lv_cm">&lt;!-- 3. 尺寸 / 颜色 / 动画 --&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">class</span>=<span class="lv-val">"fas fa-spinner fa-spin fa-3x"</span> <span class="lv_attr">style</span>=<span class="lv-val">"color:#6c5ce7"</span><span class="lv_kw">&gt;&lt;/i&gt;</span></div>
+        </div>
+    </div>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+</body>
+</html>

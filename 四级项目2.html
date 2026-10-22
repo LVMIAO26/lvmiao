@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>华夏非遗 · 移动端底部导航（仿App下导航）</title>
+    <link rel="stylesheet" href="./font/iconfont.css?v=2">
+    <style>
+        /* ============================================================
+           四级项目2：传统非遗文化 · 移动端固定底部导航
+           仿照 App 下导航（参考图）：5 个导航项，中间为凸起的
+           深青色圆形"发布"按钮；选中态深青色高亮（图标保持线条样式）。
+           图标使用 iconfont 字体图标；消息项带数字徽章，
+           我的项带右上角红点。
+           css 链接带 ?v=2 参数，防止浏览器缓存旧版图标样式。
+           ============================================================ */
+        :root {
+            --lv-primary: #1f4e4a;        /* 深青绿（取自参考图按钮色） */
+            --lv-primary-deep: #143632;
+            --lv-gray: #9aa6a3;           /* 未选中灰 */
+            --lv-text: #2b3230;
+            --lv-muted: #7d8a86;
+            --lv-bg: #f2f4f3;
+            --lv-card: #ffffff;
+            --lv-red: #e63946;            /* 红点 / 数字徽章 */
+            --lv-nav-bg: #ffffff;
+            --lv-nav-border: #e6ecea;
+            --lv-gold: #c9a063;
+            --lv-radius: 14px;
+            --lv-shadow: 0 4px 18px rgba(20, 54, 50, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #dde5e3;
+            color: var(--lv-text);
+            min-height: 100vh;
+        }
+
+        /* 手机画布：移动端自适应全屏宽度，桌面端居中限宽预览 */
+        .lv_phone {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--lv-bg);
+            position: relative;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.14);
+        }
+
+        /* ---------- 页头 ---------- */
+        .lv_header {
+            background: linear-gradient(135deg, var(--lv-primary) 0%, var(--lv-primary-deep) 100%);
+            color: #fff;
+            padding: 44px 20px 26px;
+            text-align: center;
+            position: relative;
+        }
+
+        .lv_header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 18px;
+            background: var(--lv-bg);
+            border-radius: 18px 18px 0 0;
+        }
+
+        .lv_header h1 {
+            font-size: 22px;
+            letter-spacing: 6px;
+            font-weight: 600;
+        }
+
+        .lv_header p {
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.85;
+            letter-spacing: 2px;
+        }
+
+        /* ---------- 主体内容 ---------- */
+        .lv_body {
+            padding: 18px 16px 130px;   /* 底部留出固定导航的高度 */
+        }
+
+        .lv_section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--lv-primary);
+            margin: 10px 2px 12px;
+        }
+
+        .lv_section-title::before,
+        .lv_section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--lv-gold), transparent);
+        }
+
+        .lv_intro {
+            background: var(--lv-card);
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--lv-muted);
+            margin-bottom: 16px;
+        }
+
+        .lv_intro strong { color: var(--lv-primary); }
+
+        .lv_card {
+            background: var(--lv-card);
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 16px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .lv_card-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .lv_card-thumb.teal { background: linear-gradient(135deg, #2c6b64, var(--lv-primary)); }
+        .lv_card-thumb.gold { background: linear-gradient(135deg, #d8b476, #b8894a); }
+        .lv_card-thumb.red  { background: linear-gradient(135deg, #c05a4a, #a63a2b); }
+        .lv_card-thumb.ink  { background: linear-gradient(135deg, #4a5452, #2b3230); }
+
+        .lv_card-info { flex: 1; min-width: 0; }
+        .lv_card-info h3 { font-size: 15px; margin-bottom: 4px; }
+        .lv_card-info p { font-size: 12px; color: var(--lv-muted); line-height: 1.5; }
+
+        .lv_card-tag {
+            flex-shrink: 0;
+            font-size: 11px;
+            color: var(--lv-primary);
+            border: 1px solid var(--lv-primary);
+            border-radius: 20px;
+            padding: 3px 10px;
+        }
+
+        /* ============================================================
+           固定底部导航（核心）
+           position: fixed 全屏宽度；flex 五等分；中间圆形发布按钮
+           凸出于导航栏之上（白色底座 + 深青色圆钮）
+           ============================================================ */
+        .lv_nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;           /* 移动端全屏宽度，桌面预览时限宽居中 */
+            margin: 0 auto;
+            display: flex;
+            align-items: stretch;
+            background: var(--lv-nav-bg);
+            border-top: 1px solid var(--lv-nav-border);
+            box-shadow: 0 -4px 20px rgba(20, 54, 50, 0.08);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .lv_nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 9px 0 8px;
+            text-decoration: none;
+            color: var(--lv-gray);
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .lv_nav-item.active { color: var(--lv-primary); }
+        .lv_nav-item.active .lv_nav-text { font-weight: 600; }
+
+        /* ---------- 字体图标：未选中=灰色线条，选中=深青色高亮 ---------- */
+        .lv_nav-icon {
+            position: relative;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lv_nav-icon .iconfont {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .lv_nav-text { font-size: 11px; letter-spacing: 1px; }
+
+        /* 右上角红点 */
+        .lv_dot {
+            position: absolute;
+            top: -2px;
+            right: -9px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--lv-red);
+            border: 1.5px solid var(--lv-nav-bg);
+        }
+
+        /* 数字徽章 */
+        .lv_badge {
+            position: absolute;
+            top: -7px;
+            right: -15px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            border-radius: 9px;
+            background: var(--lv-red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border: 1.5px solid var(--lv-nav-bg);
+        }
+
+        /* ---------- 中间凸起的发布按钮 ---------- */
+        .lv_nav-publish {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 白色底座：与导航栏连成一体，形成图中凸起效果 */
+        .lv_nav-publish::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 74px;
+            height: 30px;
+            background: var(--lv-nav-bg);
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* 盖住底座两侧的导航栏上边框线 */
+        .lv_nav-publish::after {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 76px;
+            height: 2px;
+            background: var(--lv-nav-bg);
+        }
+
+        .lv_publish-btn {
+            position: relative;
+            z-index: 2;
+            width: 56px;
+            height: 56px;
+            margin-top: -22px;          /* 凸出于导航栏之上 */
+            border-radius: 50%;
+            background: var(--lv-primary);
+            border: 4px solid var(--lv-nav-bg);
+            box-shadow: 0 6px 16px rgba(31, 78, 74, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            text-decoration: none;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .lv_publish-btn:active {
+            transform: scale(0.94);
+            background: var(--lv-primary-deep);
+        }
+
+        /* ---------- 返回首页 ---------- */
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin: 6px auto 0;
+            color: var(--lv-primary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .lv_back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="lv_phone">
+        <header class="lv_header">
+            <h1>华夏非遗</h1>
+            <p>指尖传承 · 移动端底部导航演示</p>
+        </header>
+
+        <main class="lv_body">
+            <div class="lv_intro">
+                本页面仿照 App 底部导航设计：共 <strong>5 个导航项</strong>，中间为凸起的深青色圆形
+                <strong>发布按钮</strong>；「消息」项带<strong>数字徽章</strong>，「我的」项图标带<strong>右上角红点</strong>。
+                导航使用 iconfont 字体图标，选中项为深青色高亮，
+                导航固定于页面底部、全屏宽度。
+            </div>
+
+            <div class="lv_section-title">热门非遗项目</div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb teal">瓷</div>
+                <div class="lv_card-info">
+                    <h3>景德镇陶瓷</h3>
+                    <p>白如玉、明如镜、薄如纸、声如磬</p>
+                </div>
+                <span class="lv_card-tag">国家级</span>
+            </div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb gold">绣</div>
+                <div class="lv_card-info">
+                    <h3>苏绣</h3>
+                    <p>精细雅洁，图案秀丽，色彩和谐</p>
+                </div>
+                <span class="lv_card-tag">世界级</span>
+            </div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb ink">纸</div>
+                <div class="lv_card-info">
+                    <h3>宣纸制作</h3>
+                    <p>纸寿千年，墨韵万变</p>
+                </div>
+                <span class="lv_card-tag">世界级</span>
+            </div>
+
+            <div class="lv_card">
+                <div class="lv_card-thumb red">昆</div>
+                <div class="lv_card-info">
+                    <h3>昆曲</h3>
+                    <p>百戏之祖，水磨雅韵六百年</p>
+                </div>
+                <span class="lv_card-tag">世界级</span>
+            </div>
+
+            <a class="lv_back" href="./index.html">← 返回首页</a>
+        </main>
+    </div>
+
+    <!-- 固定底部导航：首页 / 发现 / 发布 / 消息 / 我的（iconfont 字体图标） -->
+    <nav class="lv_nav">
+        <a class="lv_nav-item active" href="javascript:void(0)">
+            <span class="lv_nav-icon"><span class="iconfont icon-shouye1"></span></span>
+            <span class="lv_nav-text">首页</span>
+        </a>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon"><span class="iconfont icon-faxian-tongyong"></span></span>
+            <span class="lv_nav-text">发现</span>
+        </a>
+        <div class="lv_nav-publish">
+            <a class="lv_publish-btn" href="javascript:void(0)">
+                <span class="iconfont icon-tianjia1"></span>
+            </a>
+        </div>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon">
+                <span class="iconfont icon-xiaoxi"></span>
+                <span class="lv_badge">3</span>
+            </span>
+            <span class="lv_nav-text">消息</span>
+        </a>
+        <a class="lv_nav-item" href="javascript:void(0)">
+            <span class="lv_nav-icon">
+                <span class="iconfont icon-a-wodedefuben2"></span>
+                <span class="lv_dot"></span>
+            </span>
+            <span class="lv_nav-text">我的</span>
+        </a>
+    </nav>
+
+    <script>
+        // 点击切换选中态（lv_ 前缀变量）
+        var lv_navItems = document.querySelectorAll('.lv_nav-item');
+        lv_navItems.forEach(function (lv_item) {
+            lv_item.addEventListener('click', function () {
+                lv_navItems.forEach(function (lv_it) { lv_it.classList.remove('active'); });
+                lv_item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

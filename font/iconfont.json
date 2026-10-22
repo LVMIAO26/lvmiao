@@ -1,0 +1,65 @@
+{
+  "id": "5244826",
+  "name": "高网",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1486835",
+      "name": "首页",
+      "font_class": "shouye1",
+      "unicode": "e62f",
+      "unicode_decimal": 58927
+    },
+    {
+      "icon_id": "4880426",
+      "name": "添加",
+      "font_class": "tianjia1",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "8534574",
+      "name": "发现-通用",
+      "font_class": "faxian-tongyong",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "26648292",
+      "name": "我的",
+      "font_class": "a-wodedefuben2",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "28894093",
+      "name": "消息",
+      "font_class": "xiaoxi",
+      "unicode": "e781",
+      "unicode_decimal": 59265
+    },
+    {
+      "icon_id": "354415",
+      "name": "关闭",
+      "font_class": "iconfonticon2",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "385786",
+      "name": "iconfont-cog",
+      "font_class": "iconfontcog",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "41175572",
+      "name": "重新生成",
+      "font_class": "zhongxinshengcheng",
+      "unicode": "1497b",
+      "unicode_decimal": 84347
+    }
+  ]
+}

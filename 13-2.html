@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Lucide SVG 图标</title>
+    <script src="./cdn/lucide/lucide.min.js"></script>
+    <style>
+        :root {
+            --lv-primary: #6c5ce7;
+            --lv-secondary: #00b894;
+            --lv-danger: #e17055;
+            --lv-warning: #fdcb6e;
+            --lv-bg: #f5f6fa;
+            --lv-card-bg: #ffffff;
+            --lv-text: #2d3436;
+            --lv-radius: 14px;
+            --lv-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: var(--lv-bg);
+            color: var(--lv-text);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--lv-primary);
+            font-size: 2.2em;
+            margin-bottom: 6px;
+        }
+
+        .lv_subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 28px;
+        }
+
+        .lv_name {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--lv-primary);
+            margin: 0 0 22px 0;
+            letter-spacing: 4px;
+        }
+
+        .lv_container { max-width: 960px; margin: 0 auto; }
+
+        .lv_card {
+            background: var(--lv-card-bg);
+            border-radius: var(--lv-radius);
+            box-shadow: var(--lv-shadow);
+            padding: 26px 28px;
+            margin-bottom: 22px;
+        }
+
+        .lv_card h2 {
+            margin-top: 0;
+            color: var(--lv-primary);
+            font-size: 1.25em;
+            border-bottom: 2px solid var(--lv-primary);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .lv_card p { line-height: 1.8; color: var(--lv-text); }
+
+        .lv_grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .lv_icon-box {
+            width: 92px;
+            padding: 14px 6px;
+            text-align: center;
+            border-radius: 10px;
+            background: var(--lv-bg);
+            transition: all 0.2s;
+        }
+        .lv_icon-box:hover { background: var(--lv-primary); transform: translateY(-3px); }
+        .lv_icon-box:hover svg { color: #fff; stroke: #fff; }
+        .lv_icon-box svg { color: var(--lv-primary); display: block; margin: 0 auto 6px; }
+        .lv_icon-box span { font-size: 12px; color: #636e72; }
+
+        .lv_size-row { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; margin-top: 16px; }
+        .lv-size-row div { text-align: center; color: var(--lv-primary); }
+        .lv-size-row small { display: block; margin-top: 6px; color: #7f8c8d; font-size: 12px; }
+
+        .lv_color-row { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 16px; }
+        .lv_color-row div { text-align: center; }
+        .lv_color-row svg { display: block; margin: 0 auto; }
+        .lv_color-row small { display: block; font-size: 12px; color: #7f8c8d; margin-top: 4px; }
+
+        .lv_c1 { color: #6c5ce7; }
+        .lv_c2 { color: #00b894; }
+        .lv_c3 { color: #e17055; }
+        .lv_c4 { color: #e84393; }
+        .lv_c5 { color: #0984e3; }
+        .lv_c6 { color: #fdcb6e; }
+
+        .lv_btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            margin: 6px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lv_btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.18); }
+        .lv_btn svg { width: 18px; height: 18px; }
+        .lv_btn-primary { background: var(--lv-primary); }
+        .lv_btn-secondary { background: var(--lv-secondary); }
+        .lv_btn-danger { background: var(--lv-danger); }
+
+        .lv_code {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 18px 20px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+        .lv_code .lv_kw { color: #74b9ff; }
+        .lv_code .lv_attr { color: #55efc4; }
+        .lv_code .lv_val { color: #ffeaa7; }
+        .lv_code .lv_cm { color: #b2bec3; }
+
+        .lv_back {
+            display: block;
+            text-align: center;
+            margin-top: 28px;
+            color: var(--lv-primary);
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .lv_back:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .lv_card { padding: 18px; }
+            h1 { font-size: 1.6em; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lucide SVG 图标</h1>
+    <p class="lv_subtitle">基于内联 SVG 的图标方案 —— 通过 JS 将 &lt;i&gt; 标签替换为真正的 &lt;svg&gt; 元素</p>
+    <div class="lv_name">吕淼</div>
+
+    <div class="lv_container">
+        <div class="lv_card">
+            <h2>基础图标</h2>
+            <p>Lucide 图标由 JS 动态生成为内联 SVG，天然支持 CSS 着色与任意样式控制：</p>
+            <div class="lv_grid">
+                <div class="lv_icon-box"><i data-lucide="home"></i><span>home</span></div>
+                <div class="lv_icon-box"><i data-lucide="user"></i><span>user</span></div>
+                <div class="lv_icon-box"><i data-lucide="heart"></i><span>heart</span></div>
+                <div class="lv_icon-box"><i data-lucide="star"></i><span>star</span></div>
+                <div class="lv_icon-box"><i data-lucide="settings"></i><span>settings</span></div>
+                <div class="lv_icon-box"><i data-lucide="bell"></i><span>bell</span></div>
+                <div class="lv_icon-box"><i data-lucide="mail"></i><span>mail</span></div>
+                <div class="lv_icon-box"><i data-lucide="camera"></i><span>camera</span></div>
+                <div class="lv_icon-box"><i data-lucide="search"></i><span>search</span></div>
+                <div class="lv_icon-box"><i data-lucide="github"></i><span>github</span></div>
+                <div class="lv_icon-box"><i data-lucide="twitter"></i><span>twitter</span></div>
+                <div class="lv_icon-box"><i data-lucide="sun"></i><span>sun</span></div>
+                <div class="lv_icon-box"><i data-lucide="moon"></i><span>moon</span></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>尺寸控制</h2>
+            <p>通过 <code>width</code> / <code>height</code> 属性或 CSS 控制 SVG 图标大小：</p>
+            <div class="lv_size-row">
+                <div><i data-lucide="music" width="16" height="16"></i><small>16px</small></div>
+                <div><i data-lucide="music" width="24" height="24"></i><small>24px</small></div>
+                <div><i data-lucide="music" width="32" height="32"></i><small>32px</small></div>
+                <div><i data-lucide="music" width="48" height="48"></i><small>48px</small></div>
+                <div><i data-lucide="music" width="64" height="64"></i><small>64px</small></div>
+                <div><i data-lucide="music" width="96" height="96"></i><small>96px</small></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>颜色与描边</h2>
+            <p>SVG 图标通过 <code>color</code> 控制填充色、<code>stroke-width</code> 控制描边粗细：</p>
+            <div class="lv_color-row">
+                <div class="lv_c1"><i data-lucide="heart"></i><small>#6c5ce7</small></div>
+                <div class="lv_c2"><i data-lucide="heart"></i><small>#00b894</small></div>
+                <div class="lv_c3"><i data-lucide="heart"></i><small>#e17055</small></div>
+                <div class="lv_c4"><i data-lucide="heart"></i><small>#e84393</small></div>
+                <div class="lv_c5"><i data-lucide="heart"></i><small>#0984e3</small></div>
+                <div class="lv_c6"><i data-lucide="heart"></i><small>#fdcb6e</small></div>
+            </div>
+            <div class="lv_color-row" style="margin-top:22px;">
+                <div><i data-lucide="pen-tool" stroke-width="1"></i><small>stroke 1</small></div>
+                <div><i data-lucide="pen-tool" stroke-width="2"></i><small>stroke 2</small></div>
+                <div><i data-lucide="pen-tool" stroke-width="3"></i><small>stroke 3</small></div>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>按钮中的图标</h2>
+            <p>SVG 图标可继承按钮颜色，与文字完美对齐：</p>
+            <div style="margin-top:14px;">
+                <button class="lv_btn lv_btn-primary"><i data-lucide="download"></i>下载文件</button>
+                <button class="lv_btn lv_btn-secondary"><i data-lucide="check"></i>确认提交</button>
+                <button class="lv_btn lv_btn-danger"><i data-lucide="trash-2"></i>删除</button>
+            </div>
+        </div>
+
+        <div class="lv_card">
+            <h2>核心代码</h2>
+            <div class="lv_code"><span class="lv_cm">&lt;!-- 1. 引入 Lucide JS --&gt;</span>
+<span class="lv_kw">&lt;script</span> <span class="lv_attr">src</span>=<span class="lv-val">"./cdn/lucide/lucide.min.js"</span><span class="lv_kw">&gt;&lt;/script&gt;</span>
+
+<span class="lv_cm">&lt;!-- 2. 使用 data-lucide 声明图标 --&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">data-lucide</span>=<span class="lv-val">"heart"</span><span class="lv_kw">&gt;&lt;/i&gt;</span>
+<span class="lv_kw">&lt;i</span> <span class="lv_attr">data-lucide</span>=<span class="lv-val">"heart"</span> <span class="lv_attr">width</span>=<span class="lv-val">"32"</span> <span class="lv_attr">height</span>=<span class="lv-val">"32"</span> <span class="lv_attr">style</span>=<span class="lv-val">"color:#6c5ce7"</span><span class="lv_kw">&gt;&lt;/i&gt;</span>
+
+<span class="lv_cm">&lt;!-- 3. 调用 createIcons() 将 &lt;i&gt; 替换为内联 &lt;svg&gt; --&gt;</span>
+<span class="lv_kw">&lt;script&gt;</span>lucide.createIcons();<span class="lv_kw">&lt;/script&gt;</span></div>
+        </div>
+    </div>
+
+    <a class="lv_back" href="./index.html">← 返回首页</a>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>
