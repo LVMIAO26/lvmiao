@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-1 数7游戏 · 100个盒子演示</title>
+    <style>
+        /* 一、全局样式 */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #333;
+            background: #f5f7fa;
+            padding: 24px 16px 40px;
+        }
+
+        .lm_page {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #17458a;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        /* 二、标题区 */
+        .lm_header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .lm_title {
+            font-size: 26px;
+            color: #17458a;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+
+        .lm_author {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 2px;
+        }
+
+        .lm_author strong {
+            color: #b91c1c;
+        }
+
+        /* 三、规则说明 */
+        .lm_rules {
+            background: #fff;
+            border: 1px solid #e0e4ea;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .lm_rules b {
+            color: #17458a;
+        }
+
+        .lm_tag {
+            display: inline-block;
+            padding: 1px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .lm_tag--empty {
+            background: #fdecec;
+            color: #b91c1c;
+            border: 1px solid #e8b4b4;
+        }
+
+        .lm_tag--num {
+            background: #e8f0fb;
+            color: #17458a;
+            border: 1px solid #b9cdea;
+        }
+
+        /* 四、100 个盒子网格 */
+        .lm_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+
+        /* 不满足规则 → 盒子内部显示数字 */
+        .lm_box {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #d7dee8;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #17458a;
+            user-select: none;
+        }
+
+        /* 满足规则 → 空盒子（内部无内容） */
+        .lm_box--empty {
+            background: #fff5f5;
+            border: 2px dashed #d66a6a;
+        }
+
+        /* 五、统计与页脚 */
+        .lm_stats {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .lm_stats strong {
+            color: #b91c1c;
+            font-size: 18px;
+        }
+
+        .lm_footer {
+            text-align: center;
+            margin-top: 26px;
+            font-size: 13px;
+            color: #999;
+            letter-spacing: 1px;
+        }
+
+        /* 六、窄屏适配 */
+        @media (max-width: 640px) {
+            .lm_grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .lm_title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：袁磊，日期：2026-10-26，功能名称：数7游戏——100个盒子规则演示 -->
+    <div class="lm_page">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+
+        <header class="lm_header">
+            <h1 class="lm_title">数7游戏 · 100个盒子演示</h1>
+            <p class="lm_author">JavaScript 流程控制练习 · 制作：<strong>吕淼</strong></p>
+        </header>
+
+        <section class="lm_rules">
+            <b>数7规则：</b>从 1 数到 100，遇到 <b>7 的倍数</b>或<b>含数字 7 的数</b>（如 7、14、17、27、70…）要跳过，页面中显示为
+            <span class="lm_tag lm_tag--empty">空盒子</span>；其余数字正常说出口，显示为
+            <span class="lm_tag lm_tag--num">数字盒子</span>。
+        </section>
+
+        <div class="lm_grid" id="lm_grid"></div>
+
+        <p class="lm_stats" id="lm_stats"></p>
+
+        <footer class="lm_footer">15-1.html · 数7游戏演示 · 吕淼</footer>
+    </div>
+
+    <script>
+        // 生成 100 个盒子：满足数7规则（7的倍数 或 含数字7）输出空盒子，否则盒子内显示数字
+        var lm_grid = document.getElementById('lm_grid');
+        var lm_html = '';
+        var lm_emptyCount = 0;
+
+        for (var lm_i = 1; lm_i <= 100; lm_i++) {
+            var lm_isSkip = (lm_i % 7 === 0) || (String(lm_i).indexOf('7') !== -1);
+            if (lm_isSkip) {
+                lm_emptyCount++;
+                lm_html += '<div class="lm_box lm_box--empty" title="跳过：' + lm_i + '"></div>';
+            } else {
+                lm_html += '<div class="lm_box" title="说出口：' + lm_i + '">' + lm_i + '</div>';
+            }
+        }
+
+        lm_grid.innerHTML = lm_html;
+        document.getElementById('lm_stats').innerHTML =
+            '1~100 中满足数7规则的数共 <strong>' + lm_emptyCount + '</strong> 个（显示为空盒子），其余 ' +
+            (100 - lm_emptyCount) + ' 个正常显示数字。';
+    </script>
+</body>
+</html>
