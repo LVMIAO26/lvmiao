@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-2 JavaScript程序结构 · 条件与循环</title>
+    <style>
+        /* 一、全局样式 */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #333;
+            background: #f5f7fa;
+            padding: 24px 16px 40px;
+        }
+
+        .lm_page {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #17458a;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        /* 二、标题区 */
+        .lm_header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .lm_title {
+            font-size: 26px;
+            color: #17458a;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+
+        .lm_author {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 2px;
+        }
+
+        /* 三、演示卡片网格 */
+        .lm_grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .lm_card {
+            background: #fff;
+            border: 1px solid #e0e4ea;
+            border-radius: 8px;
+            padding: 18px 20px;
+        }
+
+        .lm_card--wide {
+            grid-column: 1 / -1;
+        }
+
+        .lm_card h2 {
+            font-size: 17px;
+            color: #17458a;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 4px solid #c9a45c;
+        }
+
+        .lm_desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        /* 四、代码片段 */
+        .lm_code {
+            background: #f0f4f9;
+            border: 1px solid #dfe6f0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #17458a;
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+
+        /* 五、交互区 */
+        .lm_demo {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lm_input {
+            width: 90px;
+            padding: 7px 10px;
+            border: 1px solid #c4cfdd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .lm_input:focus {
+            border-color: #17458a;
+        }
+
+        .lm_btn {
+            padding: 7px 16px;
+            background: #17458a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .lm_btn:hover {
+            background: #2563b0;
+        }
+
+        .lm_result {
+            flex-basis: 100%;
+            background: #eef4fc;
+            border: 1px solid #c9d9ef;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #17458a;
+        }
+
+        .lm_result--warn {
+            background: #fdecec;
+            border-color: #e8b4b4;
+            color: #b91c1c;
+        }
+
+        .lm_result b {
+            color: #b91c1c;
+        }
+
+        /* 六、九九乘法表 */
+        .lm_row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .lm_cell {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #eef4fc;
+            border: 1px solid #c9d9ef;
+            border-radius: 4px;
+            font-size: 12.5px;
+            font-family: Consolas, "Courier New", monospace;
+            color: #17458a;
+            white-space: nowrap;
+        }
+
+        /* 七、页脚 */
+        .lm_footer {
+            text-align: center;
+            margin-top: 26px;
+            font-size: 13px;
+            color: #999;
+            letter-spacing: 1px;
+        }
+
+        /* 八、窄屏适配 */
+        @media (max-width: 720px) {
+            .lm_grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lm_title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：袁磊，日期：2026-10-26，功能名称：JavaScript程序结构——条件与循环演示 -->
+    <div class="lm_page">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+
+        <header class="lm_header">
+            <h1 class="lm_title">JavaScript 程序结构 · 条件与循环</h1>
+            <p class="lm_author">15-2.html · 流程控制演示（点击按钮查看运行结果）</p>
+        </header>
+
+        <div class="lm_grid">
+            <!-- 一、if...else 条件分支 -->
+            <section class="lm_card">
+                <h2>一、条件语句 if...else</h2>
+                <p class="lm_desc">根据条件真假选择不同分支执行：输入分数 0~100，自动评定等级。</p>
+                <pre class="lm_code">if (lm_s &gt;= 90)      { lm_grade = "优秀"; }
+else if (lm_s &gt;= 80) { lm_grade = "良好"; }
+else if (lm_s &gt;= 60) { lm_grade = "及格"; }
+else                 { lm_grade = "不及格"; }</pre>
+                <div class="lm_demo">
+                    <input class="lm_input" id="lm_scoreInput" type="number" min="0" max="100" value="85">
+                    <button class="lm_btn" onclick="lm_judgeScore()">评定等级</button>
+                    <p class="lm_result" id="lm_scoreResult">等待评定…</p>
+                </div>
+            </section>
+
+            <!-- 二、switch 多分支 -->
+            <section class="lm_card">
+                <h2>二、条件语句 switch</h2>
+                <p class="lm_desc">多分支精确匹配，比连续 if...else 更清晰：输入 1~7 输出对应星期。</p>
+                <pre class="lm_code">switch (lm_n) {
+    case 1: lm_day = "星期一"; break;
+    case 2: lm_day = "星期二"; break;
+    ...
+    default: lm_day = "输入无效";
+}</pre>
+                <div class="lm_demo">
+                    <input class="lm_input" id="lm_dayInput" type="number" min="1" max="7" value="3">
+                    <button class="lm_btn" onclick="lm_switchDay()">查询星期</button>
+                    <p class="lm_result" id="lm_dayResult">等待查询…</p>
+                </div>
+            </section>
+
+            <!-- 三、for 循环 -->
+            <section class="lm_card">
+                <h2>三、循环语句 for</h2>
+                <p class="lm_desc">已知循环次数时使用：累加 1~100，求 1+2+3+…+100 的和。</p>
+                <pre class="lm_code">var lm_sum = 0;
+for (var lm_i = 1; lm_i &lt;= 100; lm_i++) {
+    lm_sum += lm_i;      // 循环累加 100 次
+}</pre>
+                <div class="lm_demo">
+                    <button class="lm_btn" onclick="lm_forSum()">计算 1~100 累加</button>
+                    <p class="lm_result" id="lm_forResult">等待计算…</p>
+                </div>
+            </section>
+
+            <!-- 四、while 循环 -->
+            <section class="lm_card">
+                <h2>四、循环语句 while</h2>
+                <p class="lm_desc">先判断后执行，条件为真就继续：用 while 计算阶乘 6! = 720。</p>
+                <pre class="lm_code">var lm_f = 1, lm_n = 6;
+while (lm_n &gt; 1) {
+    lm_f *= lm_n;        // 6*5*4*3*2*1
+    lm_n--;
+}</pre>
+                <div class="lm_demo">
+                    <button class="lm_btn" onclick="lm_whileFact()">计算 6 的阶乘</button>
+                    <p class="lm_result" id="lm_whileResult">等待计算…</p>
+                </div>
+            </section>
+
+            <!-- 五、do...while 循环 -->
+            <section class="lm_card">
+                <h2>五、循环语句 do...while</h2>
+                <p class="lm_desc">先执行一次再判断，循环体至少执行一次：输出 1~10。</p>
+                <pre class="lm_code">var lm_i = 1, lm_out = "";
+do {
+    lm_out += lm_i + " ";
+    lm_i++;
+} while (lm_i &lt;= 10);</pre>
+                <div class="lm_demo">
+                    <button class="lm_btn" onclick="lm_dowhileRun()">运行 do...while</button>
+                    <p class="lm_result" id="lm_dowhileResult">等待运行…</p>
+                </div>
+            </section>
+
+            <!-- 六、break 与 continue -->
+            <section class="lm_card">
+                <h2>六、break 与 continue</h2>
+                <p class="lm_desc">break 立即跳出整个循环；continue 跳过本次循环进入下一次。</p>
+                <pre class="lm_code">if (lm_i % 7 === 0) { break; }    // 找到即退出
+if (lm_i % 2 === 0) { continue; } // 跳过偶数</pre>
+                <div class="lm_demo">
+                    <button class="lm_btn" onclick="lm_breakDemo()">演示 break</button>
+                    <button class="lm_btn" onclick="lm_continueDemo()">演示 continue</button>
+                    <p class="lm_result" id="lm_bcResult">等待演示…</p>
+                </div>
+            </section>
+
+            <!-- 七、嵌套循环：九九乘法表 -->
+            <section class="lm_card lm_card--wide">
+                <h2>七、嵌套循环 · 九九乘法表</h2>
+                <p class="lm_desc">外层循环控制行（被乘数 1~9），内层循环控制列（乘数 1~行数），页面加载时自动渲染。</p>
+                <pre class="lm_code">for (var lm_i = 1; lm_i &lt;= 9; lm_i++) {        // 外层：行
+    for (var lm_j = 1; lm_j &lt;= lm_i; lm_j++) {  // 内层：列
+        lm_html += lm_j + "×" + lm_i + "=" + (lm_i * lm_j);
+    }
+}</pre>
+                <div id="lm_table99"></div>
+            </section>
+        </div>
+
+        <footer class="lm_footer">15-2.html · JavaScript 程序结构演示</footer>
+    </div>
+
+    <script>
+        // 一、if...else：分数等级评定
+        function lm_judgeScore() {
+            var lm_s = Number(document.getElementById('lm_scoreInput').value);
+            var lm_r = document.getElementById('lm_scoreResult');
+            if (isNaN(lm_s) || lm_s < 0 || lm_s > 100) {
+                lm_r.innerHTML = '请输入 0~100 之间的分数！';
+                lm_r.className = 'lm_result lm_result--warn';
+                return;
+            }
+            var lm_grade;
+            if (lm_s >= 90) { lm_grade = '优秀'; }
+            else if (lm_s >= 80) { lm_grade = '良好'; }
+            else if (lm_s >= 60) { lm_grade = '及格'; }
+            else { lm_grade = '不及格'; }
+            lm_r.innerHTML = '分数 ' + lm_s + ' → 等级：<b>' + lm_grade + '</b>';
+            lm_r.className = 'lm_result';
+        }
+
+        // 二、switch：数字转星期
+        function lm_switchDay() {
+            var lm_n = parseInt(document.getElementById('lm_dayInput').value, 10);
+            var lm_r = document.getElementById('lm_dayResult');
+            var lm_day;
+            switch (lm_n) {
+                case 1: lm_day = '星期一'; break;
+                case 2: lm_day = '星期二'; break;
+                case 3: lm_day = '星期三'; break;
+                case 4: lm_day = '星期四'; break;
+                case 5: lm_day = '星期五'; break;
+                case 6: lm_day = '星期六'; break;
+                case 7: lm_day = '星期日'; break;
+                default: lm_day = '';
+            }
+            if (lm_day === '') {
+                lm_r.innerHTML = '请输入 1~7 的整数！';
+                lm_r.className = 'lm_result lm_result--warn';
+            } else {
+                lm_r.innerHTML = 'switch(' + lm_n + ') → <b>' + lm_day + '</b>';
+                lm_r.className = 'lm_result';
+            }
+        }
+
+        // 三、for：1~100 累加
+        function lm_forSum() {
+            var lm_sum = 0;
+            for (var lm_i = 1; lm_i <= 100; lm_i++) {
+                lm_sum += lm_i;
+            }
+            document.getElementById('lm_forResult').innerHTML =
+                'for 循环累加：1+2+3+…+100 = <b>' + lm_sum + '</b>';
+        }
+
+        // 四、while：阶乘
+        function lm_whileFact() {
+            var lm_f = 1, lm_n = 6;
+            while (lm_n > 1) {
+                lm_f *= lm_n;
+                lm_n--;
+            }
+            document.getElementById('lm_whileResult').innerHTML =
+                'while 循环计算：6! = 6×5×4×3×2×1 = <b>' + lm_f + '</b>';
+        }
+
+        // 五、do...while：至少执行一次
+        function lm_dowhileRun() {
+            var lm_i = 1, lm_out = '';
+            do {
+                lm_out += lm_i + ' ';
+                lm_i++;
+            } while (lm_i <= 10);
+            document.getElementById('lm_dowhileResult').innerHTML =
+                'do...while 先执行后判断，输出：' + lm_out;
+        }
+
+        // 六、break 与 continue
+        function lm_breakDemo() {
+            var lm_hit = 0;
+            for (var lm_i = 1; lm_i <= 20; lm_i++) {
+                if (lm_i % 7 === 0) {
+                    lm_hit = lm_i;
+                    break;              // 找到第一个就跳出整个循环
+                }
+            }
+            document.getElementById('lm_bcResult').innerHTML =
+                'break：1~20 中第一个能被 7 整除的数是 <b>' + lm_hit + '</b>，循环随即结束';
+        }
+
+        function lm_continueDemo() {
+            var lm_out = '';
+            for (var lm_i = 1; lm_i <= 10; lm_i++) {
+                if (lm_i % 2 === 0) {
+                    continue;           // 跳过偶数，继续下一次循环
+                }
+                lm_out += lm_i + ' ';
+            }
+            document.getElementById('lm_bcResult').innerHTML =
+                'continue：跳过偶数，1~10 中的奇数有 ' + lm_out;
+        }
+
+        // 七、嵌套循环：页面加载时渲染九九乘法表
+        (function () {
+            var lm_html = '';
+            for (var lm_i = 1; lm_i <= 9; lm_i++) {
+                lm_html += '<div class="lm_row">';
+                for (var lm_j = 1; lm_j <= lm_i; lm_j++) {
+                    lm_html += '<span class="lm_cell">' + lm_j + '×' + lm_i + '=' + (lm_i * lm_j) + '</span>';
+                }
+                lm_html += '</div>';
+            }
+            document.getElementById('lm_table99').innerHTML = lm_html;
+        })();
+    </script>
+</body>
+</html>
