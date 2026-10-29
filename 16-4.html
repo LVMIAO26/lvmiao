@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-4 新浪排行榜组件</title>
+    <style>
+        /* 一、全局样式 */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "SimSun", "宋体", serif;
+            background: #fff;
+            color: #3d4a5c;
+            padding: 40px 16px;
+        }
+
+        .lm_page {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 18px;
+            font-size: 14px;
+            color: #2e6fe3;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        /* 二、组件外框：右侧浅灰竖边线 */
+        .lm_widget {
+            border-right: 1px solid #e4ebf1;
+            padding: 0 2px 10px 24px;
+        }
+
+        /* 三、头部：标题 + 选项卡 */
+        .lm_header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #dbe4f9;   /* 头部下方通栏浅蓝线 */
+        }
+
+        .lm_title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #07237a;                      /* 深蓝色标题 */
+            letter-spacing: 2px;
+            line-height: 1;
+            padding-bottom: 10px;
+        }
+
+        .lm_tabs {
+            display: flex;
+            align-items: flex-end;
+            border-top: 2px solid #dbe4f9;       /* 顶部浅蓝线，延伸到右缘 */
+        }
+
+        .lm_tab {
+            padding: 6px 15px 5px;
+            font-size: 17px;
+            color: #16367d;
+            background: #f8f9fb;
+            border: 1px solid #e2e7f0;
+            border-bottom: none;
+            margin-left: 10px;
+            margin-top: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.2;
+        }
+
+        .lm_tab:first-child {
+            margin-left: 0;
+        }
+
+        .lm_tab:hover {
+            color: #334fa0;
+        }
+
+        /* 选中选项卡：深蓝粗顶边压住顶部浅蓝线，底边与头部下划线相连 */
+        .lm_tab--active {
+            position: relative;
+            margin-top: -2px;
+            margin-bottom: -2px;
+            padding: 9px 20px 9px;
+            font-weight: bold;
+            color: #07237a;
+            background: #fff;
+            border: 1px solid #dbe4f9;
+            border-top: 3px solid #334fa0;
+        }
+
+        /* 四、排行榜列表 */
+        .lm_list {
+            list-style: none;
+            margin-top: 24px;
+        }
+
+        .lm_item {
+            display: flex;
+            align-items: center;
+            height: 36px;
+        }
+
+        .lm_rank {
+            flex-shrink: 0;
+            width: 21px;
+            height: 21px;
+            margin-right: 14px;
+            border-radius: 4px;
+            background: #e3e3e3;
+            color: #555;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 前三名红色徽章 */
+        .lm_rank--top {
+            background: #c0171f;
+            color: #fff;
+        }
+
+        .lm_item a {
+            color: #3d4a5c;
+            font-size: 16px;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lm_item a:hover {
+            color: #c0171f;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：袁磊，日期：2026-10-29，功能名称：新浪新闻排行榜组件 -->
+    <div class="lm_page">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+
+        <div class="lm_widget">
+            <div class="lm_header">
+                <h1 class="lm_title">排行榜</h1>
+                <div class="lm_tabs" id="lm_tabs">
+                    <span class="lm_tab lm_tab--active">新闻</span>
+                    <span class="lm_tab">证券</span>
+                    <span class="lm_tab">理财</span>
+                    <span class="lm_tab">博客</span>
+                </div>
+            </div>
+
+            <ul class="lm_list" id="lm_list">
+                <li class="lm_item"><span class="lm_rank lm_rank--top">1</span><a href="javascript:void(0)">构建“股市+债市”稳市机制！央行新工具来了</a></li>
+                <li class="lm_item"><span class="lm_rank lm_rank--top">2</span><a href="javascript:void(0)">美媒：美军已准备好再打击伊朗 特朗普或中期选举后</a></li>
+                <li class="lm_item"><span class="lm_rank lm_rank--top">3</span><a href="javascript:void(0)">姆巴佩发表涉中国不当言论，多家品牌终止合作，媒</a></li>
+                <li class="lm_item"><span class="lm_rank">4</span><a href="javascript:void(0)">东鹏饮料集团：零容忍伤害民族感情行为，终止与姆</a></li>
+                <li class="lm_item"><span class="lm_rank">5</span><a href="javascript:void(0)">300672，业绩暴增超5600%！10股业绩大增（附股）</a></li>
+                <li class="lm_item"><span class="lm_rank">6</span><a href="javascript:void(0)">史上最大IPO要来了！7位创始人身均超130亿美元</a></li>
+                <li class="lm_item"><span class="lm_rank">7</span><a href="javascript:void(0)">外交部：对英国警方任意、过度执法行为表示强烈不</a></li>
+                <li class="lm_item"><span class="lm_rank">8</span><a href="javascript:void(0)">1000000美元！特朗普重金悬赏</a></li>
+                <li class="lm_item"><span class="lm_rank">9</span><a href="javascript:void(0)">张一鸣以6700亿元刷新中国首富财富纪录！《2026胡</a></li>
+                <li class="lm_item"><span class="lm_rank">10</span><a href="javascript:void(0)">Gucci卖不动了 开云今年将关掉至少125家门店</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 四个选项卡的榜单数据（新闻为原图内容，其余三个为补充内容）
+        var lm_data = {
+            '新闻': [
+                '构建“股市+债市”稳市机制！央行新工具来了',
+                '美媒：美军已准备好再打击伊朗 特朗普或中期选举后',
+                '姆巴佩发表涉中国不当言论，多家品牌终止合作，媒',
+                '东鹏饮料集团：零容忍伤害民族感情行为，终止与姆',
+                '300672，业绩暴增超5600%！10股业绩大增（附股）',
+                '史上最大IPO要来了！7位创始人身均超130亿美元',
+                '外交部：对英国警方任意、过度执法行为表示强烈不',
+                '1000000美元！特朗普重金悬赏',
+                '张一鸣以6700亿元刷新中国首富财富纪录！《2026胡',
+                'Gucci卖不动了 开云今年将关掉至少125家门店'
+            ],
+            '证券': [
+                '三大指数集体收涨：沪指涨1.2%重回3300点',
+                '北向资金净买入超80亿，重点加仓这些板块',
+                '涨停复盘：逾60股涨停，算力概念掀涨停潮',
+                '证监会：进一步深化资本市场改革开放',
+                '10倍牛股提示风险：股价已严重偏离基本面',
+                '券商晨会精华：主线切换，关注两大方向',
+                '贵州茅台获主力资金净流入居首',
+                '可转债新规实施，这些变化要知道',
+                'IPO受理节奏加快，本周5家企业上会',
+                '港股恒生科技指数涨超3%，南向资金持续抄底'
+            ],
+            '理财': [
+                '存款利率再下调：三年定存进入“1时代”',
+                '银行理财规模重回30万亿元',
+                '储蓄国债开售即“秒空”，发行利率下调',
+                '货币基金收益率跌破1.5%，闲钱往哪去',
+                '黄金积存业务火爆，多家银行提示风险',
+                '个人养老金基金扩容至近200只',
+                '“固收+”产品回暖，近一年平均收益3.2%',
+                '大额存单额度紧张，抢购有攻略',
+                '公募费率改革落地，管理费降至1.2%以下',
+                '保险预定利率下调，储蓄型保险还值得买吗'
+            ],
+            '博客': [
+                '老股民三十年：从万元户到职业投资人',
+                '李大霄：A股底部特征越来越明显',
+                '如何看懂财报里的三大现金流量表',
+                '一个量化交易员的自我修养',
+                '房贷提前还款划不划算？帮你算一笔账',
+                '年轻人开始流行“报复性存钱”',
+                '基金定投十年，我踩过的那些坑',
+                '从都江堰看中华水利工程的智慧',
+                '非遗传承人的一天：守艺更是守心',
+                '读书随笔：《穷查理宝典》的多元思维模型'
+            ]
+        };
+
+        // 按选项卡渲染榜单：前三名红色徽章
+        function lm_render(lm_key) {
+            var lm_html = '';
+            for (var lm_i = 0; lm_i < lm_data[lm_key].length; lm_i++) {
+                var lm_cls = lm_i < 3 ? ' lm_rank--top' : '';
+                lm_html += '<li class="lm_item"><span class="lm_rank' + lm_cls + '">' + (lm_i + 1) +
+                    '</span><a href="javascript:void(0)">' + lm_data[lm_key][lm_i] + '</a></li>';
+            }
+            document.getElementById('lm_list').innerHTML = lm_html;
+        }
+
+        // 选项卡切换：更换选中态并渲染对应榜单
+        var lm_tabs = document.querySelectorAll('.lm_tab');
+        lm_tabs.forEach(function (lm_t) {
+            lm_t.addEventListener('click', function () {
+                lm_tabs.forEach(function (lm_x) { lm_x.classList.remove('lm_tab--active'); });
+                lm_t.classList.add('lm_tab--active');
+                lm_render(lm_t.innerHTML);
+            });
+        });
+    </script>
+</body>
+</html>
