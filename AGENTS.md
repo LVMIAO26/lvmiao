@@ -17,7 +17,7 @@ Static HTML/CSS coursework for "高级网页设计" (Advanced Web Design). No bu
 - CSS is written inline in `<style>` tags per-file; do not refactor into external sheets unless asked.
 - File names contain Chinese characters — always quote paths in shell commands.
 - All variable names, CSS class names, and id names must start with `lm_` (e.g., `lm_box`, `lm_title`, `lm_count`). This replaces the earlier `lv_` prefix rule — use `lm_` for all NEW code; do not mass-rename existing files unless asked.
-- Every new HTML file must include an author comment right after `<body>` (or at the top of the file): `<!-- 姓名：袁磊，日期：YYYY-MM-DD，功能名称：XXX -->` (fill in the actual date and the page's feature name).
+- Every new HTML file must include an author comment right after `<body>` (or at the top of the file): `<!-- 姓名：吕淼，日期：YYYY-MM-DD，功能名称：XXX -->` (fill in the actual date and the page's feature name).
 - Every new HTML file must include a hyperlink back to `index.html` (e.g., `<a class="lm_back" href="./index.html">← 返回首页</a>`).
 
 ## Tech constraints

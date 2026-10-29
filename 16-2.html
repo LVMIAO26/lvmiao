@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16-2 · JavaScript 对象与字符串图解</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        background: #f0f4f9;
+        color: #333;
+        min-height: 100vh;
+    }
+
+    /* ===== 顶部 ===== */
+    .lm_hero {
+        background: linear-gradient(135deg, #17458a, #2563b0);
+        color: #fff;
+        text-align: center;
+        padding: 44px 20px 40px;
+    }
+    .lm_hero h1 { font-size: 32px; letter-spacing: 3px; margin-bottom: 10px; }
+    .lm_hero p { font-size: 15px; opacity: .85; letter-spacing: 1px; }
+    .lm_hero code {
+        background: rgba(255,255,255,.15);
+        padding: 2px 8px; border-radius: 4px;
+        font-family: Consolas, monospace;
+    }
+
+    main { max-width: 1000px; margin: -20px auto 60px; padding: 0 20px; }
+
+    /* ===== Tab 切换 ===== */
+    .lm_tabs { display: flex; gap: 12px; margin-bottom: 16px; }
+    .lm_tabs button {
+        flex: 1;
+        font-size: 16px; font-weight: 700; letter-spacing: 2px;
+        padding: 13px 10px;
+        border: none; border-radius: 10px;
+        background: #dde6f2; color: #5a6b80;
+        cursor: pointer;
+        transition: all .25s ease;
+        font-family: inherit;
+    }
+    .lm_tabs button.lm_active {
+        background: #fff; color: #17458a;
+        box-shadow: 0 6px 18px rgba(23,69,138,.18);
+        transform: translateY(-2px);
+    }
+
+    /* ===== 演示舞台 ===== */
+    .lm_stage {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(23,69,138,.10);
+        padding: 28px 30px 30px;
+        margin-bottom: 26px;
+    }
+    .lm_stage-head { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+    .lm_badge {
+        background: #e8effa; color: #17458a;
+        font-size: 12px; letter-spacing: 2px;
+        padding: 4px 12px; border-radius: 20px;
+    }
+    .lm_stage-head h2 { font-size: 24px; color: #17458a; font-family: Consolas, monospace; }
+    .lm_syntax { font-family: Consolas, monospace; font-size: 13px; color: #888; margin-bottom: 14px; }
+    .lm_desc { font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+
+    .lm_code {
+        background: #1e293b; color: #e2e8f0;
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-family: Consolas, monospace;
+        font-size: 15px;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+    .lm_code .lm_kw { color: #7dd3fc; }
+    .lm_code .lm_str { color: #fca5a5; }
+    .lm_code .lm_cm  { color: #94a3b8; }
+    .lm_code .lm_tpl { color: #fde047; }
+
+    .lm_arr-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .lm_arr-label {
+        flex: 0 0 72px;
+        text-align: right;
+        font-size: 13px; color: #888;
+        padding-top: 22px;
+        letter-spacing: 1px;
+    }
+    .lm_arr-box {
+        flex: 1;
+        display: flex; flex-wrap: wrap;
+        gap: 10px;
+        min-height: 86px;
+        padding: 12px;
+        background: #f8fafc;
+        border: 2px dashed #dbe3ee;
+        border-radius: 10px;
+    }
+    .lm_arr-box .lm_empty { align-self: center; color: #aaa; font-size: 14px; padding: 6px; }
+
+    .lm_formula {
+        text-align: center;
+        font-family: Consolas, monospace;
+        font-size: 15px; color: #b45309;
+        background: #fef3c7;
+        border-radius: 8px;
+        padding: 8px 14px;
+        margin: 4px 0 14px;
+        display: none;
+    }
+    .lm_formula.lm_show { display: block; animation: fadeIn .4s ease; }
+
+    .lm_ret {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        min-height: 20px;
+    }
+    .lm_note {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #92600a;
+        background: #fef9c3;
+        border-radius: 8px;
+        padding: 8px 14px;
+        display: none;
+    }
+    .lm_note.lm_show { display: block; }
+
+    /* ===== 通用格子（字符串字符 / 数组值） ===== */
+    .lm_cell {
+        position: relative;
+        min-width: 46px; height: 62px;
+        display: flex; align-items: center; justify-content: center;
+        background: #fff;
+        border: 2px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 20px;
+        font-family: Consolas, monospace;
+        font-weight: 700;
+        color: #334155;
+        padding: 4px 6px;
+        animation: popIn .35s ease both;
+        animation-delay: var(--d, 0s);
+    }
+    .lm_cell .lm_idx {
+        position: absolute; top: -9px; left: 50%;
+        transform: translateX(-50%);
+        background: #94a3b8; color: #fff;
+        font-size: 10px; line-height: 1;
+        padding: 2px 6px; border-radius: 8px;
+        font-family: Consolas, monospace;
+    }
+    .lm_cell.lm_space { background: #f1f5f9; color: #b6c2d1; font-size: 14px; }
+
+    .lm_cell.lm_matched  { background: #dcfce7; border-color: #16a34a; animation: pulseG 1.1s ease 2 both; animation-delay: var(--d,0s); }
+    .lm_cell.lm_added    { background: #dcfce7; border-color: #16a34a; animation: popBig .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: var(--d,0s); }
+    .lm_cell.lm_changed  { background: #dbeafe; border-color: #2563b0; animation: popBig .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: var(--d,0s); }
+    .lm_cell.lm_removed  { background: #fee2e2; border-color: #dc2626; animation: shake .55s ease both; animation-delay: var(--d,0s); }
+    .lm_cell.lm_inrange  { border-color: #2563b0; box-shadow: 0 0 0 3px rgba(37,99,176,.25); }
+    .lm_cell.lm_dimmed   { opacity: .35; }
+    .lm_cell.lm_dimmed::after { content: "✕"; position: absolute; color: #dc2626; font-size: 26px; font-weight: 700; }
+    .lm_cell.lm_seq { animation: pulseB .55s ease both; animation-delay: calc(var(--i,0) * .28s); }
+
+    /* ===== 对象键值对卡片 ===== */
+    .lm_pair {
+        position: relative;
+        display: flex; flex-direction: column; align-items: center; gap: 6px;
+        min-width: 96px;
+        padding: 14px 14px 10px;
+        background: #fff;
+        border: 2px solid #cbd5e1;
+        border-radius: 10px;
+        animation: popIn .35s ease both;
+        animation-delay: var(--d, 0s);
+    }
+    .lm_pair .lm_k {
+        font-family: Consolas, monospace;
+        font-size: 12px; font-weight: 700;
+        color: #17458a;
+        background: #e8effa;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+    .lm_pair .lm_v {
+        font-size: 15px; font-weight: 700; color: #334155;
+        font-family: Consolas, monospace;
+        max-width: 150px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .lm_pair.lm_matched { background: #dcfce7; border-color: #16a34a; animation: pulseG 1.1s ease 2 both; animation-delay: var(--d,0s); }
+    .lm_pair.lm_added   { background: #dcfce7; border-color: #16a34a; animation: popBig .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: var(--d,0s); }
+    .lm_pair.lm_changed { background: #dbeafe; border-color: #2563b0; animation: popBig .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: var(--d,0s); }
+    .lm_pair.lm_removed { background: #fee2e2; border-color: #dc2626; animation: shake .55s ease both; animation-delay: var(--d,0s); }
+    .lm_pair.lm_seq { animation: pulseB .55s ease both; animation-delay: calc(var(--i,0) * .28s); }
+
+    /* ===== 芯片（keys/values/entries） ===== */
+    .lm_chip {
+        display: flex; align-items: center; gap: 8px;
+        padding: 8px 14px;
+        background: #fff;
+        border: 2px solid #cbd5e1;
+        border-radius: 20px;
+        font-family: Consolas, monospace;
+        font-size: 14px; font-weight: 700; color: #334155;
+        animation: popIn .35s ease both;
+        animation-delay: var(--d, 0s);
+    }
+    .lm_chip .lm_ck { color: #17458a; background: #e8effa; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
+    .lm_chip.lm_added   { background: #dcfce7; border-color: #16a34a; }
+    .lm_chip.lm_changed { background: #dbeafe; border-color: #2563b0; }
+
+    /* ===== 方法面板 ===== */
+    .lm_panel {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(23,69,138,.10);
+        padding: 24px 28px;
+    }
+    .lm_panel h3 { font-size: 18px; color: #17458a; margin-bottom: 18px; letter-spacing: 2px; }
+    .lm_group { margin-bottom: 20px; }
+    .lm_group-title {
+        font-size: 13px; color: #888;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .lm_group-title::before {
+        content: ""; width: 4px; height: 14px;
+        background: #2563b0; border-radius: 2px;
+    }
+    .lm_btns { display: flex; flex-wrap: wrap; gap: 10px; }
+    .lm_btns button {
+        font-family: Consolas, monospace;
+        font-size: 14px; font-weight: 700;
+        color: #17458a;
+        background: #f0f5fc;
+        border: 1px solid #c9d8ee;
+        border-radius: 8px;
+        padding: 9px 18px;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    .lm_btns button:hover { background: #dbe7f7; transform: translateY(-2px); }
+    .lm_btns button.lm_active {
+        background: linear-gradient(135deg, #17458a, #2563b0);
+        color: #fff; border-color: transparent;
+        box-shadow: 0 4px 12px rgba(23,69,138,.35);
+    }
+    .lm_panel-box { display: none; }
+    .lm_panel-box.lm_show { display: block; }
+
+    footer { text-align: center; font-size: 12px; color: #999; padding-bottom: 30px; }
+
+    /* ===== 动画 ===== */
+    @keyframes popIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+    @keyframes popBig { 0% { opacity: 0; transform: scale(.4); } 60% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        20% { transform: translateX(-6px); } 40% { transform: translateX(6px); }
+        60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+    }
+    @keyframes pulseG { 0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,.4); } 50% { box-shadow: 0 0 0 8px rgba(22,163,74,0); } }
+    @keyframes pulseB { 0%,100% { box-shadow: 0 0 0 0 rgba(37,99,176,.45); } 50% { box-shadow: 0 0 0 8px rgba(37,99,176,0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (max-width: 640px) {
+        .lm_arr-row { flex-direction: column; gap: 6px; }
+        .lm_arr-label { text-align: left; padding-top: 0; }
+        .lm_hero h1 { font-size: 22px; }
+        .lm_stage { padding: 20px 16px; }
+    }
+
+
+    /* 返回首页链接 */
+    .lm_back {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #fff;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.35);
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        transition: background .2s ease;
+    }
+    .lm_back:hover { background: rgba(255,255,255,.32); }
+</style><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16-2 · JavaScript 对象与字符串图解</title>
+
+</head>
+<body>
+    <!-- 姓名：袁磊，日期：2026-10-29，功能名称：JavaScript 对象与字符串图解 -->
+
+<header class="lm_hero">
+    <h1>JavaScript 对象与字符串图解</h1>
+    <p>对象是<b>信息卡</b>，字符串是<b>字符格子</b> —— 点击下方方法，看它们如何被操作</p>
+</header>
+
+<main>
+    <div class="lm_tabs">
+        <button id="lm_tabObj" class="lm_active">📦 对象 Object</button>
+        <button id="lm_tabStr">✂️ 字符串 String</button>
+    </div>
+
+    <!-- 演示舞台 -->
+    <section class="lm_stage">
+        <div class="lm_stage-head">
+            <span class="lm_badge" id="lm_catBadge">等待演示</span>
+            <h2 id="lm_methodName">请选择一个操作</h2>
+        </div>
+        <p class="lm_syntax" id="lm_methodSyntax"></p>
+        <p class="lm_desc" id="lm_methodDesc">点击下方按钮，这里会展示该操作的语法、说明与运行效果。</p>
+
+        <pre class="lm_code" id="lm_methodCode"><span class="lm_cm">// 示例代码将显示在这里</span></pre>
+
+        <div class="lm_arr-row">
+            <div class="lm_arr-label">执行前</div>
+            <div class="lm_arr-box" id="lm_beforeBox"><div class="lm_empty">← 点击按钮开始演示</div></div>
+        </div>
+        <div class="lm_arr-row">
+            <div class="lm_arr-label">执行后</div>
+            <div class="lm_arr-box" id="lm_afterBox"></div>
+        </div>
+
+        <div class="lm_formula" id="lm_formulaBox"></div>
+        <div class="lm_ret" id="lm_retBox"></div>
+        <div class="lm_note" id="lm_noteBox"></div>
+    </section>
+
+    <!-- 方法面板 -->
+    <section class="lm_panel">
+        <div id="lm_objGroups" class="lm_panel-box lm_show">
+            <h3>对象操作（点击演示）</h3>
+            <div id="lm_objGroupsInner"></div>
+        </div>
+        <div id="lm_strGroups" class="lm_panel-box">
+            <h3>字符串操作（点击演示）</h3>
+            <div id="lm_strGroupsInner"></div>
+        </div>
+    </section>
+</main>
+
+<footer><a class="lm_back" href="./index.html">← 返回首页</a>16-2.html · JavaScript 对象与字符串可视化演示</footer>
+
+<script>
+/* =====================================================================
+   演示数据结构
+   每个 demo：
+   type: 'obj' | 'lm_str'          执行前渲染方式
+   name/lm_group/lm_syntax/lm_desc/lm_code  文案
+   init                         初始数据（对象或字符串）
+   before                       执行前标记
+   out: { kind, data, marks }   执行后（kind: obj|flat|str）
+   lm_ret / lm_note / lm_formula         返回值、知识点、过程公式
+===================================================================== */
+
+const lm_OBJ_GROUPS = ["对象 · 基础操作", "对象 · 遍历与检测", "对象 · 方法与合并"];
+const lm_STR_GROUPS = ["字符串 · 基础信息", "字符串 · 查找判断", "字符串 · 变换重组"];
+
+const lm_objDemos = [
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "{ } 创建对象",
+        lm_syntax: "const obj = { key1: value1, key2: value2 }",
+        lm_desc: "对象就像一张信息卡：每个属性都是【属性名 + 属性值】的组合。看这张“学生卡”——",
+        lm_code: `const person = { name: '小明', age: 18, city: '北京' };`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京" }, marks: {} },
+        lm_ret: "一个对象（3 个属性：name / age / city）",
+        lm_note: "对象用花括号包裹，键值对之间用逗号分隔。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "obj.key 点访问",
+        lm_syntax: "obj.propertyName",
+        lm_desc: "用【点】读出属性值，就像在卡片上直接看某一行。绿色卡片就是被读取的属性。",
+        lm_code: `person.name;  <span class="lm_cm">// 读出 '小明'</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: { lm_matched: ["name"] },
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京" }, marks: { lm_matched: ["name"] } },
+        lm_ret: `"<b>小明</b>"（name 属性的值）`,
+        lm_note: "属性不存在时返回 undefined，不会报错。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "obj['key'] 方括号",
+        lm_syntax: "obj['propertyName']",
+        lm_desc: "方括号也能访问属性，而且键名可以放在变量里【动态决定】。",
+        lm_code: `const key = 'city';\nperson[key];    <span class="lm_cm">// 相当于 person.city → '北京'</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: { lm_matched: ["city"] },
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京" }, marks: { lm_matched: ["city"] } },
+        lm_ret: `"<b>北京</b>"`,
+        lm_note: "点表示法做不到动态键：person.key 找的是名为 'key' 的属性。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "添加属性",
+        lm_syntax: "obj.newKey = value",
+        lm_desc: "直接赋值就能给对象【新增】一个属性——卡片上多了一行。",
+        lm_code: `person.hobby = '篮球';  <span class="lm_cm">// 新增 hobby 属性</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京", hobby: "篮球" }, marks: { lm_added: ["hobby"] } },
+        lm_ret: `"篮球"（并返回整个对象）`,
+        lm_note: "给不存在的属性赋值 = 新增；给存在的属性赋值 = 修改。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "修改属性",
+        lm_syntax: "obj.key = newValue",
+        lm_desc: "给已有属性重新赋值即可覆盖旧值——蓝色卡片就是刚被改写的。",
+        lm_code: `person.age = 19;  <span class="lm_cm">// 18 → 19</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "obj", data: { name: "小明", age: 19, city: "北京" }, marks: { lm_changed: ["age"] } },
+        lm_ret: "<b>19</b>（age 属性的新值）",
+        lm_note: "对象的属性是可变的（const 只锁住“引用”不锁内容）。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 基础操作",
+        name: "delete 删除",
+        lm_syntax: "delete obj.key",
+        lm_desc: "delete 操作符把一个属性从卡片上【撕掉】——红色卡片即将消失。",
+        lm_code: `delete person.city;  <span class="lm_cm">// 移除 city</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: { lm_removed: ["city"] },
+        out: { kind: "obj", data: { name: "小明", age: 18 }, marks: {} },
+        lm_ret: "<b>true</b>（删除成功）",
+        lm_note: "删除后再访问 person.city 得到 undefined。"
+    },
+
+    {
+        type: "obj", lm_group: "对象 · 遍历与检测",
+        name: "'key' in obj",
+        lm_syntax: "'propertyName' in obj",
+        lm_desc: "in 操作符检查某个属性【是否存在】于对象中——存在的卡片会发光。",
+        lm_code: `'age' in person;  <span class="lm_cm">// 有 age 这一行吗？</span>`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: { lm_matched: ["age"] },
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京" }, marks: { lm_matched: ["age"] } },
+        lm_ret: "<b>true</b>",
+        lm_note: "in 也会检查继承的属性；只查自身的用 hasOwnProperty()。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 遍历与检测",
+        name: "Object.keys()",
+        lm_syntax: "Object.keys(obj)",
+        lm_desc: "把对象所有的【属性名】抽出来，排成一排。",
+        lm_code: `Object.keys(person);`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "flat", data: [["name"],["age"],["city"]], marks: { lm_changed: [0,1,2] } },
+        lm_ret: `[<b>"name", "age", "city"</b>]（属性名数组）`,
+        lm_note: "返回的是数组，可以继续用 map / forEach 处理。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 遍历与检测",
+        name: "Object.values()",
+        lm_syntax: "Object.values(obj)",
+        lm_desc: "把对象所有的【属性值】抽出来，排成一排。",
+        lm_code: `Object.values(person);`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "flat", data: [["小明"],["18"],["北京"]], marks: { lm_changed: [0,1,2] } },
+        lm_ret: `[<b>"小明", 18, "北京"</b>]（属性值数组）`,
+        lm_note: "与 Object.keys() 一一对应、顺序一致。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 遍历与检测",
+        name: "Object.entries()",
+        lm_syntax: "Object.entries(obj)",
+        lm_desc: "把每个属性变成【[键, 值] 对】，键和值一起带走。",
+        lm_code: `Object.entries(person);`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: {},
+        out: { kind: "flat", data: [["name","小明"],["age","18"],["city","北京"]], marks: { lm_changed: [0,1,2] } },
+        lm_ret: `[<b>["name","小明"], ["age","18"], ["city","北京"]</b>]`,
+        lm_note: "常配合 forEach 解构：Object.entries(o).forEach(([k,v])=>...)"
+    },
+    {
+        type: "obj", lm_group: "对象 · 遍历与检测",
+        name: "for...in 遍历",
+        lm_syntax: "for (const key in obj) { ... }",
+        lm_desc: "逐个访问对象的每个属性名——看，检查者正在逐张卡片走动！",
+        lm_code: `for (const key in person) {\n  console.log(key, person[key]);\n}`,
+        init: { name: "小明", age: 18, city: "北京" },
+        before: { lm_seq: ["name", "age", "city"] },
+        out: { kind: "obj", data: { name: "小明", age: 18, city: "北京" }, marks: {} },
+        lm_ret: "依次输出：name 小明 / age 18 / city 北京",
+        lm_note: "for...in 也会遍历继承的可枚举属性，纯自身属性建议用 Object.keys。"
+    },
+
+    {
+        type: "obj", lm_group: "对象 · 方法与合并",
+        name: "方法与 this",
+        lm_syntax: "obj.method()  →  this 指向 obj",
+        lm_desc: "属性的值如果是函数，就叫【方法】。方法里的 this 指向所属对象——就是“我这张卡片”。",
+        lm_code: `const person = {\n  name: '小明',\n  greet() { return '大家好，我是' + this.name; }\n};\nperson.greet();`,
+        init: { name: "小明", greet: "greet() 方法" },
+        before: { lm_matched: ["greet"] },
+        out: { kind: "lm_str", data: "大家好，我是小明", marks: { lm_changed: [0] } },
+        lm_ret: `"<b>大家好，我是小明</b>"`,
+        lm_note: "this 在被调用时才确定：person.greet() 中 this === person。"
+    },
+    {
+        type: "obj", lm_group: "对象 · 方法与合并",
+        name: "... 展开合并",
+        lm_syntax: "{ ...obj1, ...obj2 }",
+        lm_desc: "展开运算符把两张卡片【摊开合并】成一张新卡；同名键后者覆盖前者。",
+        lm_code: `const info = { ...person, grade: '高三' };`,
+        init: { name: "小明", age: 18 },
+        before: {},
+        out: { kind: "obj", data: { name: "小明", age: 18, grade: "高三" }, marks: { lm_added: ["grade"] } },
+        lm_ret: "合并后的新对象（原对象不受影响）",
+        lm_note: "展开是浅拷贝；嵌套对象仍是同一个引用。"
+    }
+];
+
+const lm_strDemos = [
+    {
+        type: "lm_str", lm_group: "字符串 · 基础信息",
+        name: ".length 长度",
+        lm_syntax: "str.length",
+        lm_desc: "字符串就是一排字符格子，length 告诉你一共有几格。",
+        lm_code: `'Hello World'.length;`,
+        init: "Hello World",
+        before: {},
+        out: { kind: "lm_str", data: "Hello World", marks: { lm_changed: [0,1,2,3,4,5,6,7,8,9,10] } },
+        lm_ret: "<b>11</b>（共 11 个字符，空格也算一格）",
+        lm_note: "length 是属性不是方法，不要写成 length()。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 基础信息",
+        name: "str[i] 访问字符",
+        lm_syntax: "str[index]  /  str.charAt(index)",
+        lm_desc: "用索引取出某一个字符，和数组取值一样。",
+        lm_code: `'Hello World'[0];   <span class="lm_cm">// 第 0 格</span>\n'Hello World'.charAt(6);`,
+        init: "Hello World",
+        before: { lm_matched: [0], lm_inrange: [6] },
+        out: { kind: "lm_str", data: "Hello World", marks: { lm_matched: [0] } },
+        lm_ret: `"<b>H</b>"（charAt(6) 则得到 "W"）`,
+        lm_note: "越界访问 str[99] 返回 undefined，charAt(99) 返回空串。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 查找判断",
+        name: "indexOf()",
+        lm_syntax: "str.indexOf(searchValue)",
+        lm_desc: "查找子串第一次出现的位置——绿色格子就是命中的起点。",
+        lm_code: `'Hello World'.indexOf('o');`,
+        init: "Hello World",
+        before: { lm_matched: [4] },
+        out: { kind: "lm_str", data: "Hello World", marks: { lm_matched: [4] } },
+        lm_ret: "<b>4</b>（第一次出现 o 的索引）",
+        lm_note: "找不到返回 -1；找最后一次出现用 lastIndexOf()。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 查找判断",
+        name: "includes()",
+        lm_syntax: "str.includes(searchString)",
+        lm_desc: "判断字符串里是否【包含】某段文字，返回 true / false。",
+        lm_code: `'Hello World'.includes('World');`,
+        init: "Hello World",
+        before: { lm_matched: [6,7,8,9,10] },
+        out: { kind: "lm_str", data: "Hello World", marks: { lm_matched: [6,7,8,9,10] } },
+        lm_ret: "<b>true</b>",
+        lm_note: "ES6 新增；类似的还有 startsWith() 和 endsWith()。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 查找判断",
+        name: "startsWith()",
+        lm_syntax: "str.startsWith(searchString)",
+        lm_desc: "检查字符串是否以某段文字【开头】（endsWith 则检查结尾）。",
+        lm_code: `'Hello World'.startsWith('Hello');  <span class="lm_cm">// true</span>\n'Hello World'.endsWith('World');    <span class="lm_cm">// true</span>`,
+        init: "Hello World",
+        before: { lm_matched: [0,1,2,3,4] },
+        out: { kind: "lm_str", data: "Hello World", marks: { lm_matched: [0,1,2,3,4] } },
+        lm_ret: "<b>true</b>",
+        lm_note: "两者都可传第二个参数指定起始/结束位置。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "slice() 截取",
+        lm_syntax: "str.slice(start, end)  // 不含 end",
+        lm_desc: "切出字符串的一段，蓝框就是“刀”的范围：[6, 11) → 第 6 格到结尾。",
+        lm_code: `'Hello World'.slice(6);   <span class="lm_cm">// 'World'</span>\n'Hello World'.slice(0, 5); <span class="lm_cm">// 'Hello'</span>`,
+        init: "Hello World",
+        before: { lm_inrange: [6,7,8,9,10], lm_dimmed: [0,1,2,3,4,5] },
+        out: { kind: "lm_str", data: "World", marks: { lm_changed: [0,1,2,3,4] } },
+        lm_ret: `"<b>World</b>"（新字符串，原串不变）`,
+        lm_note: "支持负索引：slice(-5) 表示从倒数第 5 格切到结尾。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "toUpperCase / toLowerCase",
+        lm_syntax: "str.toUpperCase()  /  str.toLowerCase()",
+        lm_desc: "整串转大写或小写——每个字母格子都换了新装。",
+        lm_code: `'Hello World'.toUpperCase();\n<span class="lm_cm">// 'HELLO WORLD'</span>`,
+        init: "Hello World",
+        before: {},
+        out: { kind: "lm_str", data: "HELLO WORLD", marks: { lm_changed: [0,1,2,3,4,5,6,7,8,9,10] } },
+        lm_ret: `"<b>HELLO WORLD</b>"`,
+        lm_note: "字符串是不可变的：所有方法都返回新串，原串永远不变。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "trim() 去空格",
+        lm_syntax: "str.trim()",
+        lm_desc: "掐掉首尾两端的空格——灰掉✕的空格格子被修剪掉了。",
+        lm_code: `'   JS 真有趣   '.trim();`,
+        init: "   JS 真有趣   ",
+        before: { lm_dimmed: [0,1,2,9,10,11] },
+        out: { kind: "lm_str", data: "JS 真有趣", marks: { lm_changed: [0,1,2,3,4,5] } },
+        lm_ret: `"<b>JS 真有趣</b>"（两端的空格没了）`,
+        lm_note: "只去两端、不动中间；trimStart() / trimEnd() 只处理单侧。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "replace() 替换",
+        lm_syntax: "str.replace(old, new)",
+        lm_desc: "把匹配到的部分换成新文字——红色是被换掉的，绿色是换上的。",
+        lm_code: `'Hello World'.replace('World', 'JS');`,
+        init: "Hello World",
+        before: { lm_removed: [6,7,8,9,10] },
+        out: { kind: "lm_str", data: "Hello JS", marks: { lm_added: [6,7] } },
+        lm_ret: `"<b>Hello JS</b>"`,
+        lm_note: "只替换第一处；全部替换用 replaceAll() 或正则 /g。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "split() 分割",
+        lm_syntax: "str.split(separator)",
+        lm_desc: "按分隔符把字符串“剪”开，变成数组——一格一格散开！",
+        lm_code: `'Hello World'.split(' ');\n<span class="lm_cm">// ['Hello', 'World']</span>`,
+        init: "Hello World",
+        before: { lm_inrange: [5] },
+        out: { kind: "flat", data: [["Hello"], ["World"]], marks: { lm_changed: [0,1] } },
+        lm_ret: `[<b>"Hello", "World"</b>]（字符串数组）`,
+        lm_note: "split('') 按字符剪开；split() 不传参则整串作为单元素数组。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "padStart() 补位",
+        lm_syntax: "str.padStart(len, padStr)",
+        lm_desc: "在开头补字符直到达到目标长度——做编号补零神器。绿色是补进来的。",
+        lm_code: `'42'.padStart(8, '0');\n<span class="lm_cm">// '00000042'</span>`,
+        init: "42",
+        before: {},
+        out: { kind: "lm_str", data: "00000042", marks: { lm_added: [0,1,2,3,4,5] } },
+        lm_ret: `"<b>00000042</b>"`,
+        lm_note: "对应还有 padEnd() 从尾部补；repeat(n) 则是把整串重复 n 遍。"
+    },
+    {
+        type: "lm_str", lm_group: "字符串 · 变换重组",
+        name: "模板字符串 ``",
+        lm_syntax: "`文本 ${变量} 文本`",
+        lm_desc: "反引号 + ${} 可以把变量直接“嵌”进文字里，拼接从此告别加号。",
+        lm_code: `<span class="lm_tpl">\`你好，\${person.name}，今年 \${person.age} 岁\`</span>`,
+        init: { name: "小明", age: 18 },
+        before: {},
+        out: { kind: "lm_str", data: "你好，小明，今年 18 岁", marks: { lm_changed: [0,1,2,3,4,5,6,7,8,9,10] } },
+        lm_ret: `"<b>你好，小明，今年 18 岁</b>"`,
+        lm_note: "${} 里可以放任意表达式，甚至再嵌一个对象访问。"
+    }
+];
+
+/* ===================== 渲染函数 ===================== */
+const lm_$ = id => document.getElementById(id);
+const lm_entriesOf = o => Object.entries(o);
+
+function lm_baseCell(cls, i) {
+    const el = document.createElement("div");
+    el.className = cls;
+    el.style.setProperty("--d", (i * 0.05) + "s");
+    const idx = document.createElement("span");
+    idx.className = "lm_idx";
+    idx.textContent = i;
+    el.appendChild(idx);
+    return el;
+}
+
+/* 字符串 → 字符格子 */
+function lm_renderStrBox(box, str, marks = {}) {
+    box.innerHTML = "";
+    const chars = [...str];
+    if (!chars.length) { box.innerHTML = '<div class="lm_empty">（空字符串 ""）</div>'; return; }
+    chars.forEach((ch, i) => {
+        let cls = "lm_cell";
+        if (ch === " ") cls += " lm_space";
+        ["lm_matched","lm_added","lm_changed","lm_removed","lm_inrange","lm_dimmed"].forEach(k => {
+            if (marks[k]?.includes(i)) cls += " " + k;
+        });
+        const el = lm_baseCell(cls, i);
+        if (marks.lm_seq?.includes(i)) { cls += " lm_seq"; el.className = cls; el.style.setProperty("--i", i); }
+        el.textContent = ch === " " ? "␣" : ch;
+        box.appendChild(el);
+    });
+}
+
+/* 对象 → 键值卡片 */
+function lm_renderObjBox(box, pairs, marks = {}) {
+    box.innerHTML = "";
+    if (!pairs.length) { box.innerHTML = '<div class="lm_empty">（空对象 {}）</div>'; return; }
+    pairs.forEach(([k, v], i) => {
+        let cls = "lm_pair";
+        ["lm_matched","lm_added","lm_changed","lm_removed"].forEach(m => {
+            if (marks[m]?.includes(k)) cls += " " + m;
+        });
+        if (marks.lm_seq?.includes(k)) { cls += " lm_seq"; }
+        const el = lm_baseCell(cls, i);
+        if (marks.lm_seq?.includes(k)) el.style.setProperty("--i", i);
+        el.innerHTML = `<span class="lm_k">${k}</span><span class="lm_v">${v}</span>`;
+        box.appendChild(el);
+    });
+}
+
+/* 芯片（keys / values / entries 结果） */
+function lm_renderFlatBox(box, items, marks = {}) {
+    box.innerHTML = "";
+    items.forEach((item, i) => {
+        let cls = "lm_chip";
+        if (marks.lm_added?.includes(i)) cls += " lm_added";
+        if (marks.lm_changed?.includes(i)) cls += " lm_changed";
+        const el = document.createElement("div");
+        el.className = cls;
+        el.style.setProperty("--d", (i * 0.05) + "s");
+        if (item.length === 2) el.innerHTML = `<span class="lm_ck">${item[0]}</span><span>${item[1]}</span>`;
+        else el.textContent = item[0];
+        box.appendChild(el);
+    });
+}
+
+/* 统一渲染入口 */
+function lm_renderOut(box, out) {
+    if (out.kind === "obj")  lm_renderObjBox(box, lm_entriesOf(out.data), out.marks);
+    else if (out.kind === "flat") lm_renderFlatBox(box, out.data, out.marks);
+    else lm_renderStrBox(box, out.data, out.marks);
+}
+
+/* ===================== 演示控制 ===================== */
+function lm_showDemo(d) {
+    lm_$("lm_catBadge").textContent = d.lm_group;
+    lm_$("lm_methodName").textContent = d.name;
+    lm_$("lm_methodSyntax").textContent = "语法：" + d.lm_syntax;
+    lm_$("lm_methodDesc").textContent = d.lm_desc;
+    lm_$("lm_methodCode").innerHTML = d.lm_code;
+    lm_$("lm_retBox").innerHTML = "<b>返回值：</b>" + d.lm_ret;
+
+    const lm_note = lm_$("lm_noteBox"), fBox = lm_$("lm_formulaBox");
+    if (d.lm_note) { lm_note.textContent = "💡 " + d.lm_note; lm_note.classList.add("lm_show"); }
+    else lm_note.classList.remove("lm_show");
+    fBox.classList.remove("lm_show");
+
+    // 执行前
+    if (d.type === "obj") lm_renderObjBox(lm_$("lm_beforeBox"), lm_entriesOf(d.init), d.before || {});
+    else lm_renderStrBox(lm_$("lm_beforeBox"), d.init, d.before || {});
+
+    // 执行后（延迟呈现）
+    lm_$("lm_afterBox").innerHTML = '<div class="lm_empty">⏳ 正在执行…</div>';
+    setTimeout(() => {
+        lm_renderOut(lm_$("lm_afterBox"), d.out);
+        if (d.lm_formula) { fBox.textContent = d.lm_formula; fBox.classList.add("lm_show"); }
+    }, 550);
+}
+
+/* ===================== 生成按钮 ===================== */
+function lm_buildGroups(container, groups, lm_demos) {
+    groups.forEach(g => {
+        const sec = document.createElement("div");
+        sec.className = "lm_group";
+        sec.innerHTML = `<div class="lm_group-title">${g}</div>`;
+        const btns = document.createElement("div");
+        btns.className = "lm_btns";
+        lm_demos.filter(d => d.lm_group === g).forEach(d => {
+            const b = document.createElement("button");
+            b.textContent = d.name;
+            b.onclick = () => {
+                document.querySelectorAll(".lm_btns button").forEach(x => x.classList.remove("lm_active"));
+                b.classList.add("lm_active");
+                lm_showDemo(d);
+            };
+            btns.appendChild(b);
+        });
+        sec.appendChild(btns);
+        container.appendChild(sec);
+    });
+}
+lm_buildGroups(lm_$("lm_objGroupsInner"), lm_OBJ_GROUPS, lm_objDemos);
+lm_buildGroups(lm_$("lm_strGroupsInner"), lm_STR_GROUPS, lm_strDemos);
+
+/* Tab 切换 */
+lm_$("lm_tabObj").onclick = () => lm_switchTab("obj");
+lm_$("lm_tabStr").onclick = () => lm_switchTab("lm_str");
+function lm_switchTab(which) {
+    const isObj = which === "obj";
+    lm_$("lm_tabObj").classList.toggle("lm_active", isObj);
+    lm_$("lm_tabStr").classList.toggle("lm_active", !isObj);
+    lm_$("lm_objGroups").classList.toggle("lm_show", isObj);
+    lm_$("lm_strGroups").classList.toggle("lm_show", !isObj);
+}
+
+/* 默认演示：对象创建 */
+document.querySelector("#lm_objGroupsInner .lm_btns button").click();
+</script>
+</body>
+</html>
