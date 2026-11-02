@@ -199,6 +199,92 @@
             font-size: 15px;
             line-height: 1.8;
         }
+
+        /* 评论区 */
+        .lm_comments {
+            margin-top: 18px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(30, 50, 80, 0.08);
+            padding: 22px 28px;
+        }
+
+        .lm_comments h2 {
+            font-size: 19px;
+            color: #17367d;
+            border-left: 4px solid #2e6fe3;
+            padding-left: 10px;
+            margin-bottom: 16px;
+        }
+
+        .lm_comments h2 span {
+            font-size: 14px;
+            color: #7b8794;
+            font-weight: normal;
+            margin-left: 8px;
+        }
+
+        .lm_comment {
+            display: flex;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px dashed #e3e8ef;
+        }
+
+        .lm_comment:last-child {
+            border-bottom: none;
+        }
+
+        .lm_avatar {
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #2e6fe3;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lm_comment_body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lm_comment_head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .lm_cname {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .lm_stars {
+            font-size: 13px;
+            color: #e67e22;
+            letter-spacing: 2px;
+        }
+
+        .lm_cdate {
+            margin-left: auto;
+            font-size: 12px;
+            color: #9aa5b1;
+        }
+
+        .lm_ctext {
+            margin-top: 6px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #55606e;
+        }
     </style>
 </head>
 <body>
@@ -274,9 +360,36 @@
                         '</div>' +
                         '<div class="lm_tags">' + lm_tagHtml + '</div>' +
                     '</div>' +
-                '</div>';
+                '</div>' + lm_commentsHtml(lm_p.reviews);
 
-            // 点击缩略图切换主图
+        // 四、渲染评论区：reviews 数组来自接口返回的商品数据
+        function lm_commentsHtml(lm_reviews) {
+            if (!lm_reviews || lm_reviews.length === 0) {
+                return '<div class="lm_comments"><h2>用户评论<span>暂无评论</span></h2></div>';
+            }
+            var lm_html = '<div class="lm_comments"><h2>用户评论<span>共 ' + lm_reviews.length + ' 条</span></h2>';
+            for (var lm_i = 0; lm_i < lm_reviews.length; lm_i++) {
+                var lm_r = lm_reviews[lm_i];
+                var lm_stars = '';
+                for (var lm_s = 1; lm_s <= 5; lm_s++) {
+                    lm_stars += lm_s <= Math.round(lm_r.rating) ? '★' : '☆';
+                }
+                var lm_date = new Date(lm_r.date).toLocaleDateString('zh-CN');
+                lm_html += '<div class="lm_comment">' +
+                    '<div class="lm_avatar">' + lm_r.reviewerName.charAt(0).toUpperCase() + '</div>' +
+                    '<div class="lm_comment_body">' +
+                        '<div class="lm_comment_head">' +
+                            '<span class="lm_cname">' + lm_r.reviewerName + '</span>' +
+                            '<span class="lm_stars">' + lm_stars + '</span>' +
+                            '<span class="lm_cdate">' + lm_date + '</span>' +
+                        '</div>' +
+                        '<div class="lm_ctext">' + lm_r.comment + '</div>' +
+                    '</div></div>';
+            }
+            return lm_html + '</div>';
+        }
+
+        // 点击缩略图切换主图
             var lm_thumbs = document.getElementById('lm_thumbs');
             lm_thumbs.addEventListener('click', function (lm_e) {
                 if (lm_e.target.tagName === 'IMG') {

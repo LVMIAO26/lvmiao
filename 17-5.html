@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-5 · JavaScript 定时器</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef3fb 0%, #faf7f2 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 420px;
+            height: 420px;
+            left: -120px;
+            top: -80px;
+            background: radial-gradient(circle, #c39bd3 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            right: -150px;
+            bottom: -120px;
+            background: radial-gradient(circle, #7fb0f5 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #2e6fe3;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #17367d;
+            margin-bottom: 6px;
+        }
+
+        .lm_sub {
+            text-align: center;
+            color: #7b8794;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* 语法说明区 */
+        .lm_syntax {
+            background: #1f2733;
+            color: #d8e2ef;
+            border-radius: 10px;
+            padding: 18px 22px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.9;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(30, 50, 80, 0.12);
+        }
+
+        .lm_syntax b {
+            color: #7fd8a4;
+        }
+
+        .lm_syntax em {
+            color: #f0b76a;
+            font-style: normal;
+        }
+
+        .lm_syntax span {
+            color: #8fa3bd;
+        }
+
+        /* 两个演示面板 */
+        .lm_two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 760px) {
+            .lm_two {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .lm_panel {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(30, 50, 80, 0.08);
+            padding: 20px 22px;
+        }
+
+        .lm_panel h2 {
+            font-size: 18px;
+            color: #17367d;
+            margin-bottom: 4px;
+        }
+
+        .lm_desc {
+            font-size: 13px;
+            color: #7b8794;
+            margin-bottom: 14px;
+            line-height: 1.7;
+        }
+
+        .lm_screen {
+            background: #101722;
+            border-radius: 8px;
+            color: #7fd8a4;
+            font-family: Consolas, monospace;
+            font-size: 40px;
+            text-align: center;
+            padding: 22px 10px;
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lm_screen.lm_done {
+            color: #f0b76a;
+        }
+
+        .lm_screen.lm_run {
+            color: #6fc3ff;
+        }
+
+        .lm_log {
+            background: #f6f8fb;
+            border: 1px solid #e2e9f2;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #5a6a7e;
+            font-family: Consolas, monospace;
+            padding: 10px 12px;
+            height: 96px;
+            overflow-y: auto;
+            margin-top: 12px;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .lm_row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .lm_btn {
+            flex: 1;
+            min-width: 84px;
+            padding: 10px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .lm_btn:disabled {
+            background: #b6c2cf;
+            cursor: not-allowed;
+        }
+
+        .lm_btn--go {
+            background: #16a085;
+        }
+
+        .lm_btn--go:hover:not(:disabled) {
+            background: #10806a;
+        }
+
+        .lm_btn--stop {
+            background: #c0171f;
+        }
+
+        .lm_btn--stop:hover:not(:disabled) {
+            background: #9b1218;
+        }
+
+        .lm_btn--reset {
+            background: #2e6fe3;
+        }
+
+        .lm_btn--reset:hover:not(:disabled) {
+            background: #1f57bd;
+        }
+
+        .lm_delay {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #c6d6ea;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .lm_delay:focus {
+            outline: none;
+            border-color: #2e6fe3;
+        }
+
+        footer {
+            text-align: center;
+            color: #9aa7b5;
+            font-size: 13px;
+            margin-top: 26px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-02，功能名称：JavaScript 两种定时器演示（setTimeout / setInterval） -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>JavaScript 的两种定时器</h1>
+        <p class="lm_sub">setTimeout 只执行一次 · setInterval 周期性重复执行，配套 clearTimeout / clearInterval 取消</p>
+
+        <div class="lm_syntax">
+            <b>setTimeout</b>(回调函数, <em>延迟毫秒数</em>)  <span>// 延迟到时后执行【一次】</span><br>
+            <b>setInterval</b>(回调函数, <em>间隔毫秒数</em>)  <span>// 每隔该时长执行【一次，反复执行】</span><br>
+            <b>clearTimeout</b>(id) / <b>clearInterval</b>(id)  <span>// 用返回的 id 取消定时器</span>
+        </div>
+
+        <div class="lm_two">
+            <!-- 面板一：setTimeout 一次性定时器 -->
+            <div class="lm_panel">
+                <h2>① setTimeout 一次性定时器</h2>
+                <p class="lm_desc">设定延迟后只触发一次，倒计时由递归 setTimeout 实现（每次结束后再排下一次），可随时 clearTimeout 取消。</p>
+
+                <input class="lm_delay" id="lm_delayIn" type="number" min="1" max="60" value="5">
+                <div class="lm_screen" id="lm_out1">待开始</div>
+                <div class="lm_row">
+                    <button class="lm_btn lm_btn--go" id="lm_start1">开始倒计时</button>
+                    <button class="lm_btn lm_btn--stop" id="lm_cancel1" disabled>取消 clearTimeout</button>
+                </div>
+                <div class="lm_log" id="lm_log1">日志：</div>
+            </div>
+
+            <!-- 面板二：setInterval 周期定时器 -->
+            <div class="lm_panel">
+                <h2>② setInterval 周期定时器</h2>
+                <p class="lm_desc">每隔固定间隔重复执行一次（这里 50ms 刷新一次秒表），直到 clearInterval 被调用为止。</p>
+
+                <div class="lm_screen lm_run" id="lm_out2">00:00.0</div>
+                <div class="lm_row">
+                    <button class="lm_btn lm_btn--go" id="lm_start2">启动 setInterval</button>
+                    <button class="lm_btn lm_btn--stop" id="lm_stop2" disabled>停止 clearInterval</button>
+                    <button class="lm_btn lm_btn--reset" id="lm_reset2">清零</button>
+                </div>
+                <div class="lm_log" id="lm_log2">日志：</div>
+            </div>
+        </div>
+
+        <footer>© 2026 吕淼 · 高级网页设计课堂实践 17-5</footer>
+    </div>
+
+    <script>
+        /* ============ 通用：写日志 ============ */
+        function lm_writeLog(lm_box, lm_msg) {
+            var lm_d = new Date();
+            var lm_t = ('0' + lm_d.getMinutes()).slice(-2) + ':' + ('0' + lm_d.getSeconds()).slice(-2);
+            lm_box.textContent = '日志：\n' + lm_t + ' ' + lm_msg;
+        }
+
+        /* ============ 面板一：setTimeout 一次性定时器（递归倒计时） ============ */
+        var lm_timer1 = null;          // 保存 setTimeout 返回的 id
+        var lm_left = 0;               // 剩余秒数
+        var lm_out1 = document.getElementById('lm_out1');
+        var lm_start1 = document.getElementById('lm_start1');
+        var lm_cancel1 = document.getElementById('lm_cancel1');
+        var lm_delayIn = document.getElementById('lm_delayIn');
+        var lm_log1 = document.getElementById('lm_log1');
+
+        function lm_tick() {
+            if (lm_left > 0) {
+                lm_out1.textContent = lm_left + ' 秒';
+                lm_out1.className = 'lm_screen lm_run';
+                lm_writeLog(lm_log1, 'setTimeout 触发 → 剩余 ' + lm_left + ' 秒');
+                lm_left--;
+                lm_timer1 = setTimeout(lm_tick, 1000);   // 1 秒后再排下一次
+            } else {
+                lm_out1.textContent = '时间到！';
+                lm_out1.className = 'lm_screen lm_done';
+                lm_writeLog(lm_log1, '倒计时结束（最后一次 setTimeout 触发）');
+                lm_start1.disabled = false;
+                lm_cancel1.disabled = true;
+                lm_timer1 = null;
+            }
+        }
+
+        lm_start1.onclick = function () {
+            if (lm_timer1 !== null) { clearTimeout(lm_timer1); }   // 防止重复开始
+            lm_left = parseInt(lm_delayIn.value, 10);
+            if (isNaN(lm_left) || lm_left < 1) { lm_left = 5; }
+            lm_start1.disabled = true;
+            lm_cancel1.disabled = false;
+            lm_writeLog(lm_log1, 'setTimeout(lm_tick, 1000) 已排定，共 ' + lm_left + ' 秒');
+            lm_left--;
+            lm_timer1 = setTimeout(lm_tick, 1000);
+        };
+
+        lm_cancel1.onclick = function () {
+            if (lm_timer1 !== null) {
+                var lm_id = lm_timer1;
+                clearTimeout(lm_id);                     // 取消尚未触发的定时器
+                lm_timer1 = null;
+                lm_out1.textContent = '已取消';
+                lm_out1.className = 'lm_screen';
+                lm_writeLog(lm_log1, 'clearTimeout(' + lm_id + ') → 定时器已取消');
+                lm_start1.disabled = false;
+                lm_cancel1.disabled = true;
+            }
+        };
+
+        /* ============ 面板二：setInterval 周期定时器（秒表） ============ */
+        var lm_timer2 = null;          // 保存 setInterval 返回的 id
+        var lm_ms = 0;                 // 累计毫秒
+        var lm_ticks = 0;              // 触发次数
+        var lm_out2 = document.getElementById('lm_out2');
+        var lm_start2 = document.getElementById('lm_start2');
+        var lm_stop2 = document.getElementById('lm_stop2');
+        var lm_reset2 = document.getElementById('lm_reset2');
+        var lm_log2 = document.getElementById('lm_log2');
+
+        function lm_fmt(lm_v) {
+            var lm_m = Math.floor(lm_v / 60000);
+            var lm_s = Math.floor(lm_v % 60000 / 1000);
+            var lm_tenth = Math.floor(lm_v % 1000 / 100);
+            return ('0' + lm_m).slice(-2) + ':' + ('0' + lm_s).slice(-2) + '.' + lm_tenth;
+        }
+
+        lm_start2.onclick = function () {
+            if (lm_timer2 !== null) { return; }          // 已在运行
+            lm_timer2 = setInterval(function () {
+                lm_ms += 50;
+                lm_ticks++;
+                lm_out2.textContent = lm_fmt(lm_ms);
+                if (lm_ticks % 20 === 0) {               // 每 1 秒记一条日志
+                    lm_writeLog(lm_log2, 'setInterval 第 ' + lm_ticks + ' 次触发 → ' + lm_fmt(lm_ms));
+                }
+            }, 50);
+            lm_start2.disabled = true;
+            lm_stop2.disabled = false;
+            lm_writeLog(lm_log2, 'setInterval 已启动，每 50ms 触发一次');
+        };
+
+        lm_stop2.onclick = function () {
+            if (lm_timer2 !== null) {
+                clearInterval(lm_timer2);                // 停止周期执行
+                lm_timer2 = null;
+                lm_start2.disabled = false;
+                lm_stop2.disabled = true;
+                lm_writeLog(lm_log2, 'clearInterval → 已停止，共触发 ' + lm_ticks + ' 次');
+            }
+        };
+
+        lm_reset2.onclick = function () {
+            if (lm_timer2 !== null) { clearInterval(lm_timer2); lm_timer2 = null; }
+            lm_ms = 0;
+            lm_ticks = 0;
+            lm_out2.textContent = '00:00.0';
+            lm_start2.disabled = false;
+            lm_stop2.disabled = true;
+            lm_writeLog(lm_log2, '已清零');
+        };
+    </script>
+</body>
+</html>

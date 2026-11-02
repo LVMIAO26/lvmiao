@@ -206,6 +206,34 @@
 **Model:** GLM-5.3-Flash
 **Prompt:** 首页序号按我创建文件的先后顺序来。好的，推送吧
 
+## 2026-11-02-16-08
+**Model:** GLM-5.3-Flash
+**Prompt:** 17-3别人的都有评论，我咋没有
+
+## 2026-11-02-16-22
+**Model:** GLM-5.3-Flash
+**Prompt:** 完成17-4.html，对远程数据接口进行测试，支持get、post等，显示返回的数据和错误提示信息。示例post接口：https://jsonplaceholder.typicode.com/posts
+
+## 2026-11-02-16-40
+**Model:** GLM-5.3-Flash
+**Prompt:** 完成17-5.html，展示javascript的两种定时器。
+
+## 2026-11-02-16-55
+**Model:** GLM-5.3-Flash
+**Prompt:** 完成17-6.html，使用promise和async完成异步操作的演示包饺子的流程。先买原料（线上线下同时购买，完成任何一个即可进行下一步），取原料，买完原料之后同时和面、和馅，两个活动都完成之后包饺子，包完饺子煮饺子，然后吃饺子。使用setTimeout模拟每一个流程，如买原料6s。在页面上显示流程。
+
+## 2026-11-02-17-05
+**Model:** GLM-5.3-Flash
+**Prompt:** 你把我的页面都写好看一点
+
+## 2026-11-02-17-25
+**Model:** GLM-5.3-Flash
+**Prompt:** 我是告诉吗，发送后显示的是404
+
+## 2026-11-02-17-30
+**Model:** GLM-5.3-Flash
+**Prompt:** 推送吧
+
 ---
 时间戳: 2026-10-29-16-06
 模型: GLM-5.3-Flash

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-4 · 接口测试工具</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef3fb 0%, #faf7f2 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 420px;
+            height: 420px;
+            left: -120px;
+            top: -80px;
+            background: radial-gradient(circle, #f5b97f 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            right: -150px;
+            bottom: -120px;
+            background: radial-gradient(circle, #7fb0f5 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #2e6fe3;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #e67e22, #c0392b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #e67e22, #c0392b);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 24px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #f0e3d3;
+            border-radius: 999px;
+            color: #8b7a66;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(23, 54, 125, 0.05);
+        }
+
+        /* 请求编辑区 */
+        .lm_panel {
+            background: #fff;
+            border: 1px solid #edf0f5;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(23, 54, 125, 0.06), 0 1px 3px rgba(23, 54, 125, 0.08);
+            padding: 22px 24px;
+            margin-bottom: 18px;
+        }
+
+        .lm_row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .lm_method {
+            width: 120px;
+            padding: 10px 12px;
+            border: 1px solid #c6d6ea;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #17367d;
+            background: #eef3fa;
+            cursor: pointer;
+        }
+
+        .lm_url {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #c6d6ea;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: Consolas, monospace;
+            color: #2c3e50;
+            min-width: 0;
+        }
+
+        .lm_url:focus,
+        .lm_body:focus {
+            outline: none;
+            border-color: #2e6fe3;
+            box-shadow: 0 0 0 3px rgba(46, 111, 227, 0.15);
+        }
+
+        .lm_send {
+            padding: 10px 32px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #16a085, #10806a);
+            color: #fff;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(22, 160, 133, 0.3);
+            transition: all 0.2s;
+        }
+
+        .lm_send:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(22, 160, 133, 0.4);
+        }
+
+        .lm_send:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .lm_send:disabled {
+            background: #9ab8b2;
+            cursor: wait;
+        }
+
+        .lm_body {
+            width: 100%;
+            height: 110px;
+            padding: 10px 14px;
+            border: 1px solid #c6d6ea;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: Consolas, monospace;
+            resize: vertical;
+            color: #2c3e50;
+        }
+
+        .lm_bodylabel {
+            font-size: 13px;
+            color: #7b8794;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .lm_bodywrap.off {
+            display: none;
+        }
+
+        /* 预设按钮 */
+        .lm_presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .lm_group {
+            font-size: 12px;
+            font-weight: bold;
+            color: #8e44ad;
+            background: #f4ecf9;
+            border-radius: 4px;
+            padding: 3px 8px;
+        }
+
+        .lm_preset {
+            padding: 6px 14px;
+            border: 1px solid #c6d6ea;
+            border-radius: 20px;
+            background: #fff;
+            color: #2e6fe3;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lm_preset:hover {
+            background: #fff7ef;
+            border-color: #e67e22;
+            color: #c0611a;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(230, 126, 34, 0.2);
+        }
+
+        /* 响应区 */
+        .lm_meta {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .lm_code {
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 3px 10px;
+            font-family: Consolas, monospace;
+        }
+
+        .lm_code--ok {
+            background: #e8f7f2;
+            color: #16a085;
+        }
+
+        .lm_code--err {
+            background: #fdf0ef;
+            color: #c0392b;
+        }
+
+        .lm_time {
+            color: #7b8794;
+            font-family: Consolas, monospace;
+        }
+
+        .lm_resp {
+            background: #1b2433;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #e8edf4;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            border-radius: 12px;
+            padding: 16px 18px;
+            overflow: auto;
+            white-space: pre;
+            max-height: 420px;
+        }
+
+        .lm_resp::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .lm_resp::-webkit-scrollbar-thumb {
+            background: #3a4a5f;
+            border-radius: 4px;
+        }
+
+        .lm_resp::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .lm_resp--err {
+            background: #3a2226;
+            color: #ffb3ad;
+        }
+
+        /* 状态码解释提示 */
+        .lm_hint {
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #8a5a2a;
+            background: #fdf6ec;
+            border: 1px solid #f3ddba;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .lm_key   { color: #7ec9ff; }
+        .lm_str   { color: #a8e08a; }
+        .lm_num   { color: #ffb86c; }
+        .lm_bool  { color: #ff8fa3; }
+        .lm_null  { color: #c792ea; }
+        .lm_punct { color: #8899aa; }
+
+        .lm_tip {
+            text-align: center;
+            color: #9aa5b1;
+            font-size: 14px;
+            padding: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-02，功能名称：远程接口测试工具（GET/POST/PUT/DELETE，显示返回数据与错误信息） -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+
+        <h1>接口测试工具</h1>
+        <p class="lm_sub">原生 fetch 实现 · 示例接口 <code style="font-family:Consolas">https://jsonplaceholder.typicode.com/posts</code></p>
+
+        <div class="lm_panel">
+            <div class="lm_row">
+                <select class="lm_method" id="lm_method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <input class="lm_url" id="lm_url" value="https://jsonplaceholder.typicode.com/posts/1" spellcheck="false">
+                <button class="lm_send" id="lm_send">发送</button>
+            </div>
+            <div class="lm_bodywrap off" id="lm_bodywrap">
+                <div class="lm_bodylabel"><span>请求体（JSON）</span><span>Content-Type: application/json</span></div>
+                <textarea class="lm_body" id="lm_body" spellcheck="false">{
+  "title": "吕淼的测试文章",
+  "body": "这是通过 POST 新建的内容",
+  "userId": 1
+}</textarea>
+            </div>
+            <div class="lm_presets">
+                <span class="lm_group">jsonplaceholder</span>
+                <button class="lm_preset" data-m="GET" data-u="https://jsonplaceholder.typicode.com/posts">GET 文章列表</button>
+                <button class="lm_preset" data-m="POST" data-u="https://jsonplaceholder.typicode.com/posts" data-b='{
+  "title": "吕淼的测试文章",
+  "body": "这是通过 POST 新建的内容",
+  "userId": 1
+}'>POST 新建文章</button>
+                <button class="lm_preset" data-m="PUT" data-u="https://jsonplaceholder.typicode.com/posts/1">PUT 修改文章</button>
+                <button class="lm_preset" data-m="DELETE" data-u="https://jsonplaceholder.typicode.com/posts/1">DELETE 删除文章</button>
+                <button class="lm_preset" data-m="GET" data-u="https://jsonplaceholder.typicode.com/posts/99999">GET 404 错误演示</button>
+            </div>
+            <div class="lm_presets" style="margin-top:8px">
+                <span class="lm_group">dummyjson（访问更稳）</span>
+                <button class="lm_preset" data-m="GET" data-u="https://dummyjson.com/products?limit=5">GET 商品列表</button>
+                <button class="lm_preset" data-m="POST" data-u="https://dummyjson.com/products/add" data-b='{
+  "title": "吕淼的测试商品",
+  "price": 9.9
+}'>POST 新建商品</button>
+                <button class="lm_preset" data-m="PUT" data-u="https://dummyjson.com/products/1">PUT 修改商品</button>
+                <button class="lm_preset" data-m="DELETE" data-u="https://dummyjson.com/products/1">DELETE 删除商品</button>
+                <button class="lm_preset" data-m="GET" data-u="https://dummyjson.com/products/99999">GET 404 错误演示</button>
+            </div>
+        </div>
+
+        <div class="lm_panel">
+            <div class="lm_meta" id="lm_meta" style="display:none">
+                <span class="lm_code" id="lm_code"></span>
+                <span class="lm_time" id="lm_time"></span>
+            </div>
+            <div class="lm_resp" id="lm_resp">填写请求后点击「发送」，或直接点击上方预设按钮……</div>
+            <div class="lm_hint" id="lm_hint" style="display:none"></div>
+        </div>
+    </div>
+
+    <script>
+        var lm_methodEl = document.getElementById('lm_method');
+        var lm_urlEl = document.getElementById('lm_url');
+        var lm_bodywrapEl = document.getElementById('lm_bodywrap');
+        var lm_bodyEl = document.getElementById('lm_body');
+        var lm_respEl = document.getElementById('lm_resp');
+        var lm_metaEl = document.getElementById('lm_meta');
+        var lm_sendEl = document.getElementById('lm_send');
+
+        // JSON 语法高亮
+        function lm_highlight(lm_text) {
+            lm_text = lm_text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            lm_text = lm_text.replace(/"([^"]+)"(\s*:)/g, '<span class="lm_key">"$1"</span><span class="lm_punct">$2</span>');
+            lm_text = lm_text.replace(/: "([^"]*)"/g, ': <span class="lm_str">"$1"</span>');
+            lm_text = lm_text.replace(/: (-?\d+\.?\d*)/g, ': <span class="lm_num">$1</span>');
+            lm_text = lm_text.replace(/: (true|false)/g, ': <span class="lm_bool">$1</span>');
+            lm_text = lm_text.replace(/: null/g, ': <span class="lm_null">null</span>');
+            return lm_text;
+        }
+
+        // 切换方法时显示/隐藏请求体
+        lm_methodEl.addEventListener('change', function () {
+            var lm_need = this.value === 'POST' || this.value === 'PUT';
+            lm_bodywrapEl.className = lm_need ? 'lm_bodywrap' : 'lm_bodywrap off';
+        });
+
+        // 预设按钮：一键填入方法、地址（POST 预设还自带请求体），然后直接发送
+        document.querySelectorAll('.lm_preset').forEach(function (lm_b) {
+            lm_b.addEventListener('click', function () {
+                lm_methodEl.value = this.getAttribute('data-m');
+                lm_urlEl.value = this.getAttribute('data-u');
+                if (this.getAttribute('data-b')) {
+                    lm_bodyEl.value = this.getAttribute('data-b');
+                }
+                lm_methodEl.dispatchEvent(new Event('change'));
+                lm_send();
+            });
+        });
+
+        // 发送请求（15 秒无响应自动取消，避免一直卡在"发送中"）
+        var lm_timer = null;
+        var lm_hintEl = document.getElementById('lm_hint');
+
+        // 常见状态码解释
+        var lm_tips = {
+            404: '提示：404 = 服务器上没有这个地址。注意 —— POST 新建资源要请求集合地址（如 .../posts，结尾不带 /1）；带 /1 的单条地址只支持 GET、PUT、DELETE。点上方「POST 新建文章」预设可自动填对。',
+            401: '提示：401 = 未授权，通常需要登录或携带令牌（Token）。',
+            403: '提示：403 = 已连接服务器，但没有权限访问该资源。',
+            405: '提示：405 = 该地址不支持这种请求方法，换一个方法试试。',
+            500: '提示：500 = 服务器内部错误，问题在服务端，与你的请求参数无关。'
+        };
+
+        function lm_send() {
+            var lm_method = lm_methodEl.value;
+            var lm_url = lm_urlEl.value.trim();
+            if (!lm_url) { return; }
+
+            var lm_ctrl = new AbortController();
+            lm_timer = setTimeout(function () { lm_ctrl.abort(); }, 15000);
+
+            var lm_opt = {
+                method: lm_method,
+                headers: { 'Content-Type': 'application/json' },
+                signal: lm_ctrl.signal
+            };
+            if (lm_method === 'POST' || lm_method === 'PUT') {
+                lm_opt.body = lm_bodyEl.value;
+            }
+
+            lm_sendEl.disabled = true;
+            lm_respEl.textContent = '请求发送中……';
+            lm_metaEl.style.display = 'none';
+            lm_hintEl.style.display = 'none';
+            var lm_start = performance.now();
+
+            fetch(lm_url, lm_opt)
+                .then(function (lm_res) {
+                    var lm_ms = Math.round(performance.now() - lm_start);
+                    var lm_codeEl = document.getElementById('lm_code');
+                    var lm_ok = lm_res.ok;
+                    lm_codeEl.textContent = 'HTTP ' + lm_res.status + ' ' + lm_res.statusText;
+                    lm_codeEl.className = 'lm_code ' + (lm_ok ? 'lm_code--ok' : 'lm_code--err');
+                    document.getElementById('lm_time').textContent = '耗时 ' + lm_ms + ' ms · ' + lm_method + ' ' + lm_url;
+                    lm_metaEl.style.display = 'flex';
+                    if (!lm_ok && lm_tips[lm_res.status]) {
+                        lm_hintEl.textContent = lm_tips[lm_res.status];
+                        lm_hintEl.style.display = 'block';
+                    }
+                    return lm_res.text().then(function (lm_t) {
+                        return { ok: lm_ok, text: lm_t };
+                    });
+                })
+                .then(function (lm_out) {
+                    clearTimeout(lm_timer);
+                    lm_sendEl.disabled = false;
+                    // 尝试按 JSON 格式化并高亮，失败则原样显示
+                    try {
+                        var lm_obj = JSON.parse(lm_out.text);
+                        lm_respEl.className = 'lm_resp';
+                        lm_respEl.innerHTML = lm_highlight(JSON.stringify(lm_obj, null, 2));
+                    } catch (lm_e) {
+                        lm_respEl.className = 'lm_resp';
+                        lm_respEl.textContent = lm_out.text || '（空响应体）';
+                    }
+                })
+                .catch(function (lm_err) {
+                    // 网络错误、断网、CORS 拦截、超时取消都会进入这里
+                    clearTimeout(lm_timer);
+                    lm_sendEl.disabled = false;
+                    lm_respEl.className = 'lm_resp lm_resp--err';
+                    if (lm_err.name === 'AbortError') {
+                        lm_respEl.textContent = '✗ 请求超时\n\n15 秒内接口没有任何响应，已自动取消本次请求。\n\n常见原因：断网、接口服务器宕机、当前网络无法访问该站点。\n可改点下方「dummyjson」一组的预设按钮重试。';
+                    } else {
+                        lm_respEl.textContent = '✗ 请求失败\n\n错误类型：' + lm_err.name +
+                            '\n错误信息：' + lm_err.message +
+                            '\n\n常见原因：断网、接口地址写错、跨域被拦截、防火墙拦截。';
+                    }
+                });
+        }
+
+        lm_sendEl.addEventListener('click', lm_send);
+    </script>
+</body>
+</html>

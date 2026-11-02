@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-6 · Promise + async 包饺子</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f3f5f8;
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+        }
+
+        .lm_wrap {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #2e6fe3;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #17367d;
+            margin-bottom: 6px;
+        }
+
+        .lm_sub {
+            text-align: center;
+            color: #7b8794;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .lm_main {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 820px) {
+            .lm_main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 流程图面板 */
+        .lm_panel {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(30, 50, 80, 0.08);
+            padding: 20px 22px;
+        }
+
+        .lm_flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lm_node {
+            width: 230px;
+            text-align: center;
+            padding: 12px 10px;
+            border-radius: 8px;
+            border: 2px solid #cfd9e4;
+            background: #f6f8fb;
+            color: #8b99a9;
+            font-size: 15px;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .lm_node small {
+            display: block;
+            font-size: 11px;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+
+        .lm_node.lm_run {
+            border-color: #2e6fe3;
+            background: #e8f1fd;
+            color: #17367d;
+        }
+
+        .lm_node.lm_run::after {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2e6fe3;
+            margin-left: 6px;
+            animation: lm_blink 0.8s infinite;
+        }
+
+        @keyframes lm_blink {
+            50% {
+                opacity: 0.15;
+            }
+        }
+
+        .lm_node.lm_done {
+            border-color: #16a085;
+            background: #e6f6f2;
+            color: #10806a;
+        }
+
+        .lm_node.lm_done::before {
+            content: '✓ ';
+        }
+
+        /* 分支行：两个并行节点 + 中间的关系标签 */
+        .lm_branch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lm_branch .lm_node {
+            width: 165px;
+            font-size: 13px;
+        }
+
+        .lm_vs {
+            width: 92px;
+            text-align: center;
+            font-size: 11px;
+            font-family: Consolas, monospace;
+            color: #fff;
+            background: #8e44ad;
+            border-radius: 10px;
+            padding: 3px 0;
+            line-height: 1.5;
+        }
+
+        .lm_arrow {
+            width: 2px;
+            height: 22px;
+            background: #cfd9e4;
+        }
+
+        .lm_btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .lm_btn {
+            padding: 10px 34px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .lm_btn:disabled {
+            background: #b6c2cf;
+            cursor: not-allowed;
+        }
+
+        .lm_btn--go {
+            background: #16a085;
+        }
+
+        .lm_btn--go:hover:not(:disabled) {
+            background: #10806a;
+        }
+
+        .lm_btn--reset {
+            background: #2e6fe3;
+        }
+
+        .lm_btn--reset:hover:not(:disabled) {
+            background: #1f57bd;
+        }
+
+        /* 右侧：代码思路 + 日志 */
+        .lm_code {
+            background: #1f2733;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.9;
+            color: #d8e2ef;
+            white-space: pre;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .lm_code b {
+            color: #7fd8a4;
+        }
+
+        .lm_code em {
+            color: #f0b76a;
+            font-style: normal;
+        }
+
+        .lm_log {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(30, 50, 80, 0.08);
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: #5a6a7e;
+            height: 300px;
+            overflow-y: auto;
+            line-height: 1.9;
+            white-space: pre-line;
+        }
+
+        .lm_log .lm_hi {
+            color: #16a085;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: #9aa7b5;
+            font-size: 13px;
+            margin-top: 26px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-02，功能名称：Promise + async/await 异步流程演示（包饺子） -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>Promise + async 包饺子流程演示</h1>
+        <p class="lm_sub">线上/线下买原料 → Promise.race（完成任一即可）· 和面 + 和馅 → Promise.all（全部完成才继续）· 其余步骤顺序 await</p>
+
+        <div class="lm_main">
+            <!-- 左：流程图 -->
+            <div class="lm_panel">
+                <div class="lm_flow">
+                    <div class="lm_node" id="lm_n_buy">买原料<small>线上 6s ｜ 线下 4s，同时进行</small></div>
+                    <div class="lm_arrow" id="lm_a1"></div>
+                    <div class="lm_branch">
+                        <div class="lm_node" id="lm_n_online">线上下单</div>
+                        <div class="lm_vs">Promise<br>.race</div>
+                        <div class="lm_node" id="lm_n_offline">线下超市</div>
+                    </div>
+                    <div class="lm_arrow" id="lm_a2"></div>
+                    <div class="lm_node" id="lm_n_take">取原料<small>约 2s</small></div>
+                    <div class="lm_arrow" id="lm_a3"></div>
+                    <div class="lm_branch">
+                        <div class="lm_node" id="lm_n_dough">和面</div>
+                        <div class="lm_vs">Promise<br>.all</div>
+                        <div class="lm_node" id="lm_n_filling">和馅</div>
+                    </div>
+                    <div class="lm_arrow" id="lm_a4"></div>
+                    <div class="lm_node" id="lm_n_wrap">包饺子<small>约 4s</small></div>
+                    <div class="lm_arrow" id="lm_a5"></div>
+                    <div class="lm_node" id="lm_n_boil">煮饺子<small>约 5s</small></div>
+                    <div class="lm_arrow" id="lm_a6"></div>
+                    <div class="lm_node" id="lm_n_eat">吃饺子 🥟</div>
+                </div>
+                <div class="lm_btns">
+                    <button class="lm_btn lm_btn--go" id="lm_start">开始包饺子</button>
+                    <button class="lm_btn lm_btn--reset" id="lm_reset">重 置</button>
+                </div>
+            </div>
+
+            <!-- 右：核心代码 + 日志 -->
+            <div>
+                <div class="lm_code"><b>async function</b> 包饺子() {
+  <em>await</em> <b>Promise.race</b>([线上买, 线下买]);
+  <em>await</em> 取原料;
+  <em>await</em> <b>Promise.all</b>([和面, 和馅]);
+  <em>await</em> 包饺子;
+  <em>await</em> 煮饺子;
+  <em>await</em> 吃饺子;
+}</div>
+                <div class="lm_log" id="lm_log">流水账：</div>
+            </div>
+        </div>
+
+        <footer>© 2026 吕淼 · 高级网页设计课堂实践 17-6</footer>
+    </div>
+
+    <script>
+        /* ============ 工具：把 setTimeout 包装成 Promise（异步模拟） ============ */
+        function lm_wait(lm_ms) {
+            return new Promise(function (lm_resolve) {
+                setTimeout(lm_resolve, lm_ms);
+            });
+        }
+
+        /* ============ 节点状态控制 ============ */
+        var lm_log = document.getElementById('lm_log');
+        var lm_startBtn = document.getElementById('lm_start');
+        var lm_resetBtn = document.getElementById('lm_reset');
+        var lm_t0 = 0;
+
+        function lm_set(lm_id, lm_state, lm_text) {
+            var lm_el = document.getElementById(lm_id);
+            lm_el.className = 'lm_node' + (lm_state ? ' lm_' + lm_state : '');
+            if (lm_text) { lm_el.childNodes[0].nodeValue = lm_text; }
+        }
+
+        function lm_logLine(lm_msg, lm_hi) {
+            var lm_s = Math.round((performance.now() - lm_t0) / 100) / 10;
+            var lm_cls = lm_hi ? ' class="lm_hi"' : '';
+            lm_log.innerHTML += '<div><span' + lm_cls + '>[ ' + lm_s.toFixed(1) + 's ]</span> ' + lm_msg + '</div>';
+            lm_log.scrollTop = lm_log.scrollHeight;
+        }
+
+        /* ============ 各步骤（setTimeout 模拟耗时） ============ */
+        var lm_stepOnline = function () { return lm_wait(6000); };   // 线上买原料 6s
+        var lm_stepOffline = function () { return lm_wait(4000); };  // 线下买原料 4s
+        var lm_stepTake = function () { return lm_wait(2000); };     // 取原料 2s
+        var lm_stepDough = function () { return lm_wait(5000); };    // 和面 5s
+        var lm_stepFilling = function () { return lm_wait(3000); };  // 和馅 3s
+        var lm_stepWrap = function () { return lm_wait(4000); };     // 包饺子 4s
+        var lm_stepBoil = function () { return lm_wait(5000); };     // 煮饺子 5s
+        var lm_stepEat = function () { return lm_wait(1000); };      // 吃饺子 1s
+
+        /* ============ 主流程：async / await ============ */
+        async function lm_makeDumplings() {
+            lm_log.innerHTML = '流水账：\n';
+            lm_t0 = performance.now();
+
+            /* 1. 买原料：线上、线下同时购买，Promise.race 完成任一即可 */
+            lm_set('lm_n_buy', 'run');
+            lm_set('lm_n_online', 'run');
+            lm_set('lm_n_offline', 'run');
+            lm_logLine('开始购买原料：线上下单、线下超市同时出发……');
+
+            var lm_first = await Promise.race([lm_stepOnline(), lm_stepOffline()]);
+            lm_logLine('Promise.race：先完成的一方胜出（另一个仍在进行，不阻塞流程）', true);
+
+            /* 2. 取原料（买完即可取） */
+            lm_set('lm_n_buy', 'done');
+            lm_set('lm_n_take', 'run');
+            lm_logLine('原料到手，开始取原料……');
+            await lm_stepTake();
+            lm_set('lm_n_online', 'done');
+            lm_set('lm_n_offline', 'done');
+            lm_set('lm_n_take', 'done');
+            lm_logLine('取原料完成！');
+
+            /* 3. 和面 + 和馅：Promise.all 两个都完成才能包 */
+            lm_set('lm_n_dough', 'run');
+            lm_set('lm_n_filling', 'run');
+            lm_logLine('同时开始：和面（5s）、和馅（3s）……');
+            await Promise.all([lm_stepDough(), lm_stepFilling()]);
+            lm_set('lm_n_dough', 'done');
+            lm_set('lm_n_filling', 'done');
+            lm_logLine('Promise.all：面和馅都准备好了！', true);
+
+            /* 4. 包饺子 */
+            lm_set('lm_n_wrap', 'run');
+            lm_logLine('开始包饺子……');
+            await lm_stepWrap();
+            lm_set('lm_n_wrap', 'done');
+            lm_logLine('饺子包好了！');
+
+            /* 5. 煮饺子 */
+            lm_set('lm_n_boil', 'run');
+            lm_logLine('下锅煮饺子……');
+            await lm_stepBoil();
+            lm_set('lm_n_boil', 'done');
+            lm_logLine('饺子煮熟出锅！');
+
+            /* 6. 吃饺子 */
+            lm_set('lm_n_eat', 'run');
+            await lm_stepEat();
+            lm_set('lm_n_eat', 'done');
+            lm_logLine('开吃！饺子真香 🥟 全流程结束！', true);
+
+            lm_startBtn.disabled = false;
+        }
+
+        /* ============ 按钮 ============ */
+        lm_startBtn.onclick = function () {
+            lm_startBtn.disabled = true;
+            lm_makeDumplings();
+        };
+
+        lm_resetBtn.onclick = function () {
+            ['lm_n_buy', 'lm_n_online', 'lm_n_offline', 'lm_n_take', 'lm_n_dough',
+             'lm_n_filling', 'lm_n_wrap', 'lm_n_boil', 'lm_n_eat'].forEach(function (lm_id) {
+                document.getElementById(lm_id).className = 'lm_node';
+            });
+            ['lm_a1', 'lm_a2', 'lm_a3', 'lm_a4', 'lm_a5', 'lm_a6'].forEach(function (lm_id) {
+                document.getElementById(lm_id).className = 'lm_arrow';
+            });
+            lm_log.innerHTML = '流水账：\n';
+            lm_startBtn.disabled = false;
+        };
+    </script>
+</body>
+</html>
