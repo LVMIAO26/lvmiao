@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-4 · ECharts 数据可视化</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef3fb 0%, #f4f8f1 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 440px;
+            height: 440px;
+            left: -130px;
+            top: -90px;
+            background: radial-gradient(circle, #a5c8ff 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 480px;
+            height: 480px;
+            right: -150px;
+            bottom: -110px;
+            background: radial-gradient(circle, #b9e8c9 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 1060px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #4f6bed;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #4f6bed, #22a06b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #4f6bed, #22a06b);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 22px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #dfe9f7;
+            border-radius: 999px;
+            color: #64748b;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(23, 54, 125, 0.05);
+        }
+
+        /* 图表面板 */
+        .lm_panel {
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(23, 54, 125, 0.07), 0 1px 3px rgba(23, 54, 125, 0.05);
+            padding: 18px 20px 10px;
+            margin-bottom: 20px;
+        }
+
+        .lm_panel__head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 4px 6px;
+        }
+
+        .lm_panel__title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .lm_panel__title i {
+            font-style: normal;
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: normal;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+        }
+
+        .lm_panel__desc {
+            margin-top: 5px;
+            font-size: 12.5px;
+            color: #7b8794;
+        }
+
+        .lm_btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lm_btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4f6bed, #22a06b);
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(79, 107, 237, 0.25);
+            transition: all 0.2s;
+        }
+
+        .lm_btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(79, 107, 237, 0.35);
+        }
+
+        .lm_btn:active {
+            transform: translateY(0);
+        }
+
+        .lm_btn--ghost {
+            background: #fff;
+            color: #475569;
+            border: 1px solid #dbe3ee;
+            box-shadow: none;
+        }
+
+        .lm_btn--ghost:hover {
+            border-color: #4f6bed;
+            color: #3450c8;
+            box-shadow: 0 4px 10px rgba(79, 107, 237, 0.15);
+        }
+
+        .lm_chart {
+            width: 100%;
+            height: 420px;
+        }
+
+        .lm_chart--race {
+            height: 470px;
+        }
+
+        .lm_note {
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-left: 4px solid #4f6bed;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #5b6b7f;
+            box-shadow: 0 4px 16px rgba(23, 54, 125, 0.05);
+        }
+
+        .lm_note b {
+            color: #0f172a;
+        }
+
+        .lm_note code {
+            padding: 2px 6px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            color: #3450c8;
+            font-size: 12.5px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 23px;
+                line-height: 1.4;
+            }
+
+            .lm_chart {
+                height: 340px;
+            }
+
+            .lm_chart--race {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：ECharts 散点聚合与动态排序柱状图 -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>ECharts 数据可视化</h1>
+        <p class="lm_sub">原生 ECharts · 本地 cdn 目录加载 · 两张动态图</p>
+
+        <!-- 图一：散点聚合为柱状图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">散点图聚合为柱状图动画<i>Aggregate Scatter to Bar</i></div>
+                    <div class="lm_panel__desc">蓝、绿两簇样本按 x 轴每 6 个单位分箱，散点淡出、柱状图生长，循环演示聚合过程。</div>
+                </div>
+                <div class="lm_btns">
+                    <button class="lm_btn" id="lm_toggle_bar">切换到柱状图</button>
+                    <button class="lm_btn lm_btn--ghost" id="lm_pause_agg">暂停自动演示</button>
+                </div>
+            </div>
+            <div class="lm_chart" id="lm_chart_agg"></div>
+        </div>
+
+        <!-- 图二：动态排序柱状图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">动态排序柱状图 · 人均收入<i>Bar Race · 1920—2018</i></div>
+                    <div class="lm_panel__desc">11 个国家的人均收入随时间推移此消彼长，柱子实时排序换位（单位：美元）。</div>
+                </div>
+                <div class="lm_btns">
+                    <button class="lm_btn" id="lm_race_play">暂停</button>
+                    <button class="lm_btn lm_btn--ghost" id="lm_race_restart">重新播放</button>
+                </div>
+            </div>
+            <div class="lm_chart lm_chart--race" id="lm_chart_race"></div>
+        </div>
+
+        <p class="lm_note">
+            <b>实现说明：</b>页面使用 <code>echarts.min.js</code>，已从 CDN 下载到本地 <code>cdn/</code> 目录，
+            通过相对路径 <code>./cdn/echarts.min.js</code> 引入，不依赖外网，离线也能打开。
+            第一张图用两个重叠的 grid：散点用数值坐标轴（x 140–200、y 60–120），柱状图用隐藏的分类坐标轴，
+            切换时更新 <code>series.data</code> 与坐标轴显隐，由 ECharts 的过渡动画完成聚合效果。
+            第二张图由 <code>realtimeSort</code> 加定时 <code>setOption</code> 实现排序换位，
+            年份水印用 <code>graphic</code> 组件逐帧更新。
+        </p>
+    </div>
+
+    <script src="./cdn/echarts.min.js"></script>
+    <script>
+        (function () {
+            var lm_blueColor = '#5470c6';
+            var lm_greenColor = '#91cc75';
+
+            /* ---------- 工具：可复现的伪随机 ---------- */
+            var lm_seed = 20261105;
+
+            function lm_rnd() {
+                lm_seed = (lm_seed * 1103515245 + 12345) % 2147483648;
+                return lm_seed / 2147483648;
+            }
+
+            function lm_gauss() {
+                var lm_u = lm_rnd() || 0.000001;
+                var lm_v = lm_rnd();
+                return Math.sqrt(-2 * Math.log(lm_u)) * Math.cos(2 * Math.PI * lm_v);
+            }
+
+            /* ---------- 图一：散点数据 ---------- */
+            var lm_blue = [];
+            var lm_green = [];
+            var lm_binCount = 10;
+            var lm_binW = 6;
+            var lm_binStart = 140;
+            var lm_bins = [];
+
+            for (var lm_i = 0; lm_i < lm_binCount; lm_i++) {
+                lm_bins.push(String(lm_binStart + lm_i * lm_binW) + '–' + String(lm_binStart + (lm_i + 1) * lm_binW));
+            }
+
+            // 拒绝采样：落在坐标轴范围外的点直接重采样，避免截断产生“贴边假线”
+            function lm_samplePoint(lm_cx, lm_sx, lm_corr, lm_yBase, lm_sy, lm_xMin, lm_xMax, lm_yMin, lm_yMax) {
+                for (var lm_try = 0; lm_try < 8; lm_try++) {
+                    var lm_px = lm_cx + lm_gauss() * lm_sx;
+                    var lm_py = lm_yBase + (lm_px - lm_cx) * lm_corr + lm_gauss() * lm_sy;
+                    if (lm_px >= lm_xMin && lm_px <= lm_xMax && lm_py >= lm_yMin && lm_py <= lm_yMax) {
+                        return [Number(lm_px.toFixed(1)), Number(lm_py.toFixed(1))];
+                    }
+                }
+                return null;
+            }
+
+            for (var lm_j = 0; lm_j < 420; lm_j++) {
+                var lm_pt1 = lm_samplePoint(158, 8.5, 0.45, 74, 6.5, 140, 181, 62, 106);
+                if (lm_pt1) lm_blue.push(lm_pt1);
+            }
+
+            for (var lm_k = 0; lm_k < 380; lm_k++) {
+                var lm_pt2 = lm_samplePoint(184, 7.5, 0.35, 88, 7, 162, 200, 66, 116);
+                if (lm_pt2) lm_green.push(lm_pt2);
+            }
+
+            function lm_binIdx(lm_v) {
+                return Math.min(lm_binCount - 1, Math.max(0, Math.floor((lm_v - lm_binStart) / lm_binW)));
+            }
+
+            var lm_blueCounts = new Array(lm_binCount);
+            var lm_greenCounts = new Array(lm_binCount);
+            var lm_binTotal = new Array(lm_binCount);
+            var lm_zeros = new Array(lm_binCount);
+
+            for (var lm_b = 0; lm_b < lm_binCount; lm_b++) {
+                lm_blueCounts[lm_b] = 0;
+                lm_greenCounts[lm_b] = 0;
+                lm_zeros[lm_b] = 0;
+            }
+            for (var lm_p = 0; lm_p < lm_blue.length; lm_p++) {
+                lm_blueCounts[lm_binIdx(lm_blue[lm_p][0])]++;
+            }
+            for (var lm_q = 0; lm_q < lm_green.length; lm_q++) {
+                lm_greenCounts[lm_binIdx(lm_green[lm_q][0])]++;
+            }
+
+            var lm_maxCount = 0;
+            for (var lm_m = 0; lm_m < lm_binCount; lm_m++) {
+                lm_binTotal[lm_m] = lm_blueCounts[lm_m] + lm_greenCounts[lm_m];
+                if (lm_binTotal[lm_m] > lm_maxCount) lm_maxCount = lm_binTotal[lm_m];
+            }
+
+            var lm_aggChart = echarts.init(document.getElementById('lm_chart_agg'));
+            var lm_isBar = false;
+
+            var lm_axisLabel = { color: '#8a95a5', fontSize: 11 };
+            var lm_splitLine = { lineStyle: { color: 'rgba(148, 163, 184, 0.22)', type: 'dashed' } };
+            var lm_axisLine = { lineStyle: { color: '#d6dee9' } };
+            var lm_axisTick = { show: false };
+
+            var lm_aggOption = {
+                animationDuration: 900,
+                animationDurationUpdate: 900,
+                animationEasing: 'cubicOut',
+                animationEasingUpdate: 'cubicInOut',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderWidth: 0,
+                    textStyle: { color: '#e8eef7', fontSize: 12 },
+                    formatter: function (lm_p) {
+                        if (lm_p.seriesType === 'scatter') {
+                            return '样本坐标<br/>x: ' + lm_p.value[0] + '<br/>y: ' + lm_p.value[1];
+                        }
+                        return lm_p.seriesName + '：' + lm_p.value + ' 个';
+                    }
+                },
+                grid: [
+                    { left: 58, right: 26, top: 26, bottom: 44 },
+                    { left: 58, right: 26, top: 26, bottom: 44 }
+                ],
+                xAxis: [
+                    {
+                        type: 'value',
+                        gridIndex: 0,
+                        min: 140,
+                        max: 200,
+                        interval: 10,
+                        axisLine: lm_axisLine,
+                        axisTick: lm_axisTick,
+                        axisLabel: lm_axisLabel,
+                        splitLine: lm_splitLine
+                    },
+                    {
+                        type: 'category',
+                        gridIndex: 1,
+                        show: false,
+                        boundaryGap: true,
+                        data: lm_bins,
+                        axisLine: lm_axisLine,
+                        axisTick: lm_axisTick,
+                        axisLabel: { color: '#8a95a5', fontSize: 11 },
+                        splitLine: { show: false }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        gridIndex: 0,
+                        min: 60,
+                        max: 120,
+                        interval: 10,
+                        axisLine: lm_axisLine,
+                        axisTick: lm_axisTick,
+                        axisLabel: lm_axisLabel,
+                        splitLine: lm_splitLine
+                    },
+                    {
+                        type: 'value',
+                        gridIndex: 1,
+                        show: false,
+                        min: 0,
+                        max: Math.ceil((lm_maxCount + 4) / 5) * 5,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: lm_axisLabel,
+                        splitLine: lm_splitLine
+                    }
+                ],
+                series: [
+                    {
+                        name: 'A 簇样本',
+                        type: 'scatter',
+                        xAxisIndex: 0,
+                        yAxisIndex: 0,
+                        symbolSize: 6,
+                        itemStyle: { color: lm_blueColor, opacity: 0.9 },
+                        emphasis: { itemStyle: { opacity: 1, borderColor: '#fff', borderWidth: 1 } },
+                        data: lm_blue,
+                        z: 10
+                    },
+                    {
+                        name: 'B 簇样本',
+                        type: 'scatter',
+                        xAxisIndex: 0,
+                        yAxisIndex: 0,
+                        symbolSize: 6,
+                        itemStyle: { color: lm_greenColor, opacity: 0.9 },
+                        emphasis: { itemStyle: { opacity: 1, borderColor: '#fff', borderWidth: 1 } },
+                        data: lm_green,
+                        z: 10
+                    },
+                    {
+                        name: 'A 簇数量',
+                        type: 'bar',
+                        xAxisIndex: 1,
+                        yAxisIndex: 1,
+                        stack: 'lm_total',
+                        barWidth: 34,
+                        itemStyle: { color: lm_blueColor, opacity: 0.85, borderRadius: [3, 3, 0, 0] },
+                        data: lm_zeros.slice()
+                    },
+                    {
+                        name: 'B 簇数量',
+                        type: 'bar',
+                        xAxisIndex: 1,
+                        yAxisIndex: 1,
+                        stack: 'lm_total',
+                        barWidth: 34,
+                        itemStyle: { color: lm_greenColor, opacity: 0.85, borderRadius: [3, 3, 0, 0] },
+                        label: {
+                            show: false,
+                            position: 'top',
+                            fontSize: 11,
+                            color: '#475569',
+                            formatter: function (lm_p) {
+                                return lm_binTotal[lm_p.dataIndex];
+                            }
+                        },
+                        data: lm_zeros.slice()
+                    }
+                ]
+            };
+
+            lm_aggChart.setOption(lm_aggOption);
+
+            var lm_toggleBtn = document.getElementById('lm_toggle_bar');
+            var lm_pauseBtn = document.getElementById('lm_pause_agg');
+            var lm_aggTimer = null;
+
+            function lm_setBarState(lm_flag) {
+                lm_isBar = lm_flag;
+
+                lm_aggChart.setOption({
+                    xAxis: [{ show: !lm_flag }, { show: lm_flag }],
+                    yAxis: [{ show: !lm_flag }, { show: lm_flag }],
+                    series: [
+                        { itemStyle: { opacity: lm_flag ? 0 : 0.9 } },
+                        { itemStyle: { opacity: lm_flag ? 0 : 0.9 } },
+                        { data: lm_flag ? lm_blueCounts.slice() : lm_zeros.slice() },
+                        { data: lm_flag ? lm_greenCounts.slice() : lm_zeros.slice(), label: { show: lm_flag } }
+                    ]
+                });
+
+                lm_toggleBtn.textContent = lm_flag ? '还原为散点图' : '切换到柱状图';
+            }
+
+            function lm_startAggTimer() {
+                if (lm_aggTimer) clearInterval(lm_aggTimer);
+                lm_aggTimer = setInterval(function () {
+                    lm_setBarState(!lm_isBar);
+                }, 4200);
+            }
+
+            lm_toggleBtn.addEventListener('click', function () {
+                lm_setBarState(!lm_isBar);
+                if (lm_aggTimer) lm_startAggTimer();
+            });
+
+            lm_pauseBtn.addEventListener('click', function () {
+                if (lm_aggTimer) {
+                    clearInterval(lm_aggTimer);
+                    lm_aggTimer = null;
+                    lm_pauseBtn.textContent = '继续自动演示';
+                } else {
+                    lm_startAggTimer();
+                    lm_pauseBtn.textContent = '暂停自动演示';
+                }
+            });
+
+            lm_startAggTimer();
+
+            /* ---------- 图二：动态排序柱状图（人均收入） ---------- */
+            var lm_countries = [
+                { name: '🇳🇿 New Zealand', short: 'New Zealand', color: '#1f3a93', start: 9268.6, end: 42000 },
+                { name: '🇺🇸 United States', short: 'United States', color: '#d64545', start: 6087.4, end: 63000 },
+                { name: '🇬🇧 United Kingdom', short: 'United Kingdom', color: '#a41e2d', start: 6311.9, end: 43000 },
+                { name: '🇦🇺 Australia', short: 'Australia', color: '#2f6fb3', start: 8132.9, end: 57000 },
+                { name: '🇨🇦 Canada', short: 'Canada', color: '#e2564d', start: 6545.0, end: 46000 },
+                { name: '🇳🇴 Norway', short: 'Norway', color: '#e8833a', start: 5187.1, end: 82000 },
+                { name: '🇩🇪 Germany', short: 'Germany', color: '#2b2b2b', start: 5782.3, end: 48000 },
+                { name: '🇫🇷 France', short: 'France', color: '#c0392b', start: 4547.0, end: 43000 },
+                { name: '🇨🇺 Cuba', short: 'Cuba', color: '#24467a', start: 3733.1, end: 9000 },
+                { name: '🇫🇮 Finland', short: 'Finland', color: '#3d6fb4', start: 5127.2, end: 50000 },
+                { name: '🇵🇱 Poland', short: 'Poland', color: '#b8323f', start: 5135.5, end: 17000 }
+            ];
+
+            var lm_years = [];
+            for (var lm_y = 1920; lm_y <= 2015; lm_y += 5) {
+                lm_years.push(lm_y);
+            }
+            lm_years.push(2018);
+
+            function lm_valueAt(lm_c, lm_year, lm_idx) {
+                var lm_t = (lm_year - 1920) / 98;
+                var lm_wave = Math.sin((lm_idx + 1) * 3.1 + lm_year / 9) * 0.035 * lm_t;
+                var lm_v = lm_c.start + (lm_c.end - lm_c.start) * Math.pow(lm_t, 1.55) * (1 + lm_wave);
+                return Math.max(0, Math.round(lm_v));
+            }
+
+            function lm_raceRows(lm_year) {
+                var lm_rows = [];
+                for (var lm_i = 0; lm_i < lm_countries.length; lm_i++) {
+                    lm_rows.push({
+                        name: lm_countries[lm_i].name,
+                        value: lm_valueAt(lm_countries[lm_i], lm_year, lm_i),
+                        itemStyle: { color: lm_countries[lm_i].color }
+                    });
+                }
+                lm_rows.sort(function (lm_a, lm_b) {
+                    return lm_b.value - lm_a.value;
+                });
+                return lm_rows;
+            }
+
+            var lm_raceChart = echarts.init(document.getElementById('lm_chart_race'));
+            var lm_raceIdx = 0;
+
+            var lm_raceOption = {
+                animationDuration: 0,
+                animationDurationUpdate: 1200,
+                animationEasing: 'linear',
+                animationEasingUpdate: 'linear',
+                grid: { top: 14, left: 168, right: 78, bottom: 32 },
+                xAxis: {
+                    type: 'value',
+                    max: 'dataMax',
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.18)' } },
+                    axisLabel: {
+                        color: '#8492a6',
+                        fontSize: 11,
+                        formatter: function (lm_v) {
+                            return lm_v.toLocaleString('en-US');
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    inverse: true,
+                    max: 10,
+                    animationDuration: 300,
+                    animationDurationUpdate: 300,
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: '#334155', fontSize: 12 }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        realtimeSort: true,
+                        barWidth: 20,
+                        itemStyle: { borderRadius: [0, 3, 3, 0] },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            valueAnimation: true,
+                            color: '#475569',
+                            fontSize: 11,
+                            formatter: function (lm_p) {
+                                return Number(lm_p.value).toLocaleString('en-US');
+                            }
+                        },
+                        data: []
+                    }
+                ],
+                graphic: [
+                    {
+                        type: 'text',
+                        left: 'center',
+                        top: 'middle',
+                        silent: true,
+                        style: {
+                            text: '1920',
+                            fill: 'rgba(148, 163, 184, 0.18)',
+                            fontSize: 96,
+                            fontWeight: 'bold',
+                            fontFamily: 'Microsoft YaHei'
+                        }
+                    }
+                ]
+            };
+
+            lm_raceChart.setOption(lm_raceOption);
+
+            function lm_raceFrame(lm_index) {
+                var lm_year = lm_years[lm_index];
+                var lm_rows = lm_raceRows(lm_year);
+
+                lm_raceChart.setOption({
+                    yAxis: [{ data: lm_rows.map(function (lm_r) { return lm_r.name; }) }],
+                    series: [{ data: lm_rows }],
+                    graphic: [{ style: { text: String(lm_year) } }]
+                });
+            }
+
+            lm_raceFrame(0);
+
+            var lm_raceTimer = null;
+            var lm_raceRunning = true;
+            var lm_racePlayBtn = document.getElementById('lm_race_play');
+
+            function lm_startRace() {
+                if (lm_raceTimer) clearInterval(lm_raceTimer);
+                lm_raceTimer = setInterval(function () {
+                    lm_raceIdx++;
+                    if (lm_raceIdx >= lm_years.length) lm_raceIdx = 0;
+                    lm_raceFrame(lm_raceIdx);
+                }, 1500);
+                lm_raceRunning = true;
+                lm_racePlayBtn.textContent = '暂停';
+            }
+
+            function lm_stopRace() {
+                if (lm_raceTimer) clearInterval(lm_raceTimer);
+                lm_raceTimer = null;
+                lm_raceRunning = false;
+                lm_racePlayBtn.textContent = '继续';
+            }
+
+            lm_racePlayBtn.addEventListener('click', function () {
+                if (lm_raceRunning) {
+                    lm_stopRace();
+                } else {
+                    lm_startRace();
+                }
+            });
+
+            document.getElementById('lm_race_restart').addEventListener('click', function () {
+                lm_raceIdx = 0;
+                lm_raceFrame(0);
+                lm_startRace();
+            });
+
+            lm_startRace();
+
+            /* ---------- 自适应 ---------- */
+            window.addEventListener('resize', function () {
+                lm_aggChart.resize();
+                lm_raceChart.resize();
+            });
+        })();
+    </script>
+</body>
+</html>

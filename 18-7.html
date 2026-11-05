@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-7 · Three.js 三维图表</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef3fb 0%, #f3f0fa 55%, #edf8f3 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(64px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 460px;
+            height: 460px;
+            left: -140px;
+            top: -100px;
+            background: radial-gradient(circle, #b9c9ff 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            right: -160px;
+            bottom: -120px;
+            background: radial-gradient(circle, #b8ecd5 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #4f6bed;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #4f6bed, #16a085);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #4f6bed, #16a085);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 22px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #e0e6f5;
+            border-radius: 999px;
+            color: #64748b;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(23, 54, 125, 0.05);
+        }
+
+        .lm_panel {
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(23, 54, 125, 0.07), 0 1px 3px rgba(23, 54, 125, 0.05);
+            padding: 18px 20px 12px;
+            margin-bottom: 20px;
+        }
+
+        .lm_panel__head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 4px 10px;
+        }
+
+        .lm_panel__title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .lm_panel__title i {
+            font-style: normal;
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: normal;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+        }
+
+        .lm_panel__desc {
+            margin-top: 5px;
+            font-size: 12.5px;
+            color: #7b8794;
+            line-height: 1.7;
+        }
+
+        .lm_btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lm_btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4f6bed, #16a085);
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(79, 107, 237, 0.25);
+            transition: all 0.2s;
+        }
+
+        .lm_btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(79, 107, 237, 0.35);
+        }
+
+        .lm_btn:active {
+            transform: translateY(0);
+        }
+
+        .lm_btn--ghost {
+            background: #fff;
+            color: #475569;
+            border: 1px solid #dbe3ee;
+            box-shadow: none;
+        }
+
+        .lm_btn--ghost:hover {
+            border-color: #4f6bed;
+            color: #3450c8;
+            box-shadow: 0 4px 10px rgba(79, 107, 237, 0.15);
+        }
+
+        .lm_stage {
+            position: relative;
+            width: 100%;
+            height: 470px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f7f9fd 0%, #eef2f9 100%);
+            cursor: grab;
+        }
+
+        .lm_stage:active {
+            cursor: grabbing;
+        }
+
+        .lm_stage canvas {
+            display: block;
+        }
+
+        .lm_tooltip {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.92);
+            border-radius: 8px;
+            color: #e8eef7;
+            font-size: 12px;
+            line-height: 1.7;
+            white-space: nowrap;
+            transform: translate(-50%, calc(-100% - 12px));
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .lm_tooltip b {
+            color: #ffd8a8;
+        }
+
+        .lm_legend {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding: 6px 4px 4px;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
+        .lm_legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lm_legend i {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .lm_note {
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-left: 4px solid #4f6bed;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #5b6b7f;
+            box-shadow: 0 4px 16px rgba(23, 54, 125, 0.05);
+        }
+
+        .lm_note b {
+            color: #0f172a;
+        }
+
+        .lm_note code {
+            padding: 2px 6px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            color: #3450c8;
+            font-size: 12.5px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 23px;
+                line-height: 1.4;
+            }
+
+            .lm_stage {
+                height: 360px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：基于 Three.js 的三维柱状图与三维散点图 -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>Three.js 三维图表</h1>
+        <p class="lm_sub">WebGL 渲染 · 本地 cdn 目录加载 · 拖拽旋转 · 滚轮缩放</p>
+
+        <!-- 图一：三维柱状图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">全年销售额 · 三维柱状图<i>3D Bar Chart</i></div>
+                    <div class="lm_panel__desc">12 个月 × 线上 / 线下两组系列的立体柱体，悬停查看数值，拖拽旋转、滚轮缩放。</div>
+                </div>
+                <div class="lm_btns">
+                    <button class="lm_btn lm_btn--ghost" id="lm_btn_grow">重新生长</button>
+                </div>
+            </div>
+            <div class="lm_stage" id="lm_stage_bar"></div>
+            <div class="lm_legend">
+                <span><i style="background:#4f6bed"></i>线上销售额（万元）</span>
+                <span><i style="background:#22a06b"></i>线下销售额（万元）</span>
+            </div>
+        </div>
+
+        <!-- 图二：三维散点图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">客户分群 · 三维散点图<i>3D Scatter Plot</i></div>
+                    <div class="lm_panel__desc">三个客户群簇在「消费频次 / 客单价 / 活跃度」三维空间中的分布，悬停查看样本坐标。</div>
+                </div>
+                <div class="lm_btns">
+                    <button class="lm_btn lm_btn--ghost" id="lm_btn_scatter">重新生成点云</button>
+                </div>
+            </div>
+            <div class="lm_stage" id="lm_stage_scatter"></div>
+            <div class="lm_legend">
+                <span><i style="background:#5470c6"></i>高价值群</span>
+                <span><i style="background:#91cc75"></i>潜力成长群</span>
+                <span><i style="background:#ee6666"></i>沉睡唤回群</span>
+            </div>
+        </div>
+
+        <p class="lm_note">
+            <b>实现说明：</b><code>three.min.js</code>（r128）已从 CDN 下载到本地 <code>cdn/</code> 目录，
+            通过相对路径 <code>./cdn/three.min.js</code> 引入，离线可用，全部由 WebGL 渲染。
+            柱状图用 <code>BoxGeometry</code> 构建立体柱（几何体原点平移到底部便于生长动画），
+            <code>GridHelper</code> 铺底面、Canvas 贴图 <code>Sprite</code> 做月份与刻度文字，
+            <code>Raycaster</code> 实现悬停高亮与数值提示。
+            散点图用 <code>BufferGeometry + Points</code> 一次绘制近千个样本点（高斯分簇），
+            簇中心用 <code>SphereGeometry</code> 标记。
+            两张图都支持鼠标拖拽旋转视角、滚轮缩放距离，空闲时自动缓慢旋转。
+        </p>
+    </div>
+
+    <script src="./cdn/three.min.js"></script>
+    <script>
+        (function () {
+            /* ---------- 可复现伪随机 ---------- */
+            var lm_seed = 20261105;
+
+            function lm_rnd() {
+                lm_seed = (lm_seed * 1103515245 + 12345) % 2147483648;
+                return lm_seed / 2147483648;
+            }
+
+            function lm_gauss() {
+                var lm_u = lm_rnd() || 0.000001;
+                var lm_v = lm_rnd();
+                return Math.sqrt(-2 * Math.log(lm_u)) * Math.cos(2 * Math.PI * lm_v);
+            }
+
+            /* ---------- 通用：Canvas 文字精灵 ---------- */
+            function lm_textSprite(lm_text, lm_color, lm_fontSize) {
+                var lm_scale = 3;
+                var lm_canvas = document.createElement('canvas');
+                var lm_ctx = lm_canvas.getContext('2d');
+                lm_ctx.font = lm_fontSize * lm_scale + 'px "Microsoft YaHei", sans-serif';
+                var lm_w = Math.ceil(lm_ctx.measureText(lm_text).width) + 16;
+                var lm_h = lm_fontSize * lm_scale + 20;
+                lm_canvas.width = lm_w;
+                lm_canvas.height = lm_h;
+
+                lm_ctx = lm_canvas.getContext('2d');
+                lm_ctx.font = lm_fontSize * lm_scale + 'px "Microsoft YaHei", sans-serif';
+                lm_ctx.textBaseline = 'middle';
+                lm_ctx.fillStyle = lm_color;
+                lm_ctx.fillText(lm_text, 8, lm_h / 2);
+
+                var lm_texture = new THREE.CanvasTexture(lm_canvas);
+                lm_texture.minFilter = THREE.LinearFilter;
+                var lm_material = new THREE.SpriteMaterial({ map: lm_texture, transparent: true });
+                var lm_sprite = new THREE.Sprite(lm_material);
+                lm_sprite.scale.set(lm_w / lm_scale / 2.6, lm_h / lm_scale / 2.6, 1);
+                return lm_sprite;
+            }
+
+            /* ---------- 通用：拖拽旋转 + 滚轮缩放 + 自动旋转 ---------- */
+            function lm_bindOrbit(lm_stage, lm_camera, lm_targetGroup, lm_opt) {
+                var lm_state = { drag: false, px: 0, py: 0, dist: lm_opt.dist };
+                var lm_auto = true;
+
+                lm_stage.addEventListener('mousedown', function (lm_e) {
+                    lm_state.drag = true;
+                    lm_auto = false;
+                    lm_state.px = lm_e.clientX;
+                    lm_state.py = lm_e.clientY;
+                });
+
+                window.addEventListener('mouseup', function () {
+                    lm_state.drag = false;
+                    setTimeout(function () { lm_auto = true; }, 2200);
+                });
+
+                window.addEventListener('mousemove', function (lm_e) {
+                    if (!lm_state.drag) return;
+                    var lm_dx = lm_e.clientX - lm_state.px;
+                    var lm_dy = lm_e.clientY - lm_state.py;
+                    lm_state.px = lm_e.clientX;
+                    lm_state.py = lm_e.clientY;
+                    lm_targetGroup.rotation.y += lm_dx * 0.006;
+                    lm_targetGroup.rotation.x = Math.max(-0.5, Math.min(0.55, lm_targetGroup.rotation.x + lm_dy * 0.004));
+                });
+
+                lm_stage.addEventListener('wheel', function (lm_e) {
+                    lm_e.preventDefault();
+                    lm_state.dist = Math.max(lm_opt.min, Math.min(lm_opt.max, lm_state.dist + lm_e.deltaY * 0.012));
+                }, { passive: false });
+
+                return {
+                    tick: function () {
+                        if (lm_auto) lm_targetGroup.rotation.y += lm_opt.spin;
+                        var lm_y = Math.sin(lm_opt.pitch) * lm_state.dist;
+                        var lm_r = Math.cos(lm_opt.pitch) * lm_state.dist;
+                        lm_camera.position.set(lm_r, lm_y, lm_r);
+                        lm_camera.lookAt(lm_opt.center.x, lm_opt.center.y, lm_opt.center.z);
+                    }
+                };
+            }
+
+            function lm_makeRenderer(lm_stage) {
+                var lm_renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                lm_renderer.setPixelRatio(window.devicePixelRatio || 1);
+                lm_renderer.setSize(lm_stage.clientWidth, lm_stage.clientHeight);
+                lm_stage.appendChild(lm_renderer.domElement);
+                return lm_renderer;
+            }
+
+            /* ================= 图一：三维柱状图 ================= */
+            var lm_months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            var lm_online = [86, 74, 95, 108, 122, 118, 132, 141, 126, 138, 156, 171];
+            var lm_offline = [64, 58, 70, 82, 88, 79, 92, 96, 85, 94, 105, 118];
+            var lm_maxVal = 180;
+            var lm_heightScale = 4.2;
+            var lm_blueColor = 0x4f6bed;
+            var lm_greenColor = 0x22a06b;
+
+            var lm_barStage = document.getElementById('lm_stage_bar');
+            var lm_barTip = document.createElement('div');
+            lm_barTip.className = 'lm_tooltip';
+            lm_barStage.appendChild(lm_barTip);
+
+            var lm_barScene = new THREE.Scene();
+            var lm_barCamera = new THREE.PerspectiveCamera(42, lm_barStage.clientWidth / lm_barStage.clientHeight, 0.1, 200);
+            var lm_barGroup = new THREE.Group();
+            lm_barScene.add(lm_barGroup);
+
+            // 地面网格
+            var lm_floor = new THREE.GridHelper(13, 13, 0xb6c2d6, 0xdde5f0);
+            lm_floor.position.y = 0;
+            lm_barGroup.add(lm_floor);
+
+            // 坐标轴线
+            function lm_axisLine(lm_from, lm_to, lm_color) {
+                var lm_geo = new THREE.BufferGeometry().setFromPoints([lm_from, lm_to]);
+                var lm_mat = new THREE.LineBasicMaterial({ color: lm_color });
+                return new THREE.Line(lm_geo, lm_mat);
+            }
+
+            lm_barGroup.add(lm_axisLine(new THREE.Vector3(-6.5, 0.01, 2), new THREE.Vector3(6.5, 0.01, 2), 0x9fb0c8));
+            lm_barGroup.add(lm_axisLine(new THREE.Vector3(-6.5, 0.01, -1.2), new THREE.Vector3(-6.5, 0.01, 2), 0x9fb0c8));
+            lm_barGroup.add(lm_axisLine(new THREE.Vector3(-6.5, 0, 2), new THREE.Vector3(-6.5, lm_maxVal / lm_maxVal * lm_heightScale, 2), 0x9fb0c8));
+
+            // 数值刻度
+            var lm_ticks = [0, 45, 90, 135, 180];
+            for (var lm_t = 0; lm_t < lm_ticks.length; lm_t++) {
+                var lm_tv = lm_ticks[lm_t];
+                var lm_ty = lm_tv / lm_maxVal * lm_heightScale;
+                if (lm_tv > 0) {
+                    lm_barGroup.add(lm_axisLine(
+                        new THREE.Vector3(-6.5, lm_ty, 2),
+                        new THREE.Vector3(-6.1, lm_ty, 2),
+                        0xb8c4d6
+                    ));
+                    lm_barGroup.add(lm_axisLine(
+                        new THREE.Vector3(-6.5, lm_ty, 2),
+                        new THREE.Vector3(6.5, lm_ty, 2),
+                        0xe3eaf3
+                    ));
+                }
+                var lm_tickSprite = lm_textSprite(String(lm_tv), '#8a95a5', 12);
+                lm_tickSprite.position.set(-7.0, lm_ty, 2);
+                lm_barGroup.add(lm_tickSprite);
+            }
+
+            // 月份标签 + 柱体
+            var lm_barMeshes = [];
+
+            function lm_buildBars() {
+                for (var lm_i = lm_barMeshes.length - 1; lm_i >= 0; lm_i--) {
+                    lm_barGroup.remove(lm_barMeshes[lm_i]);
+                }
+                lm_barMeshes.length = 0;
+
+                var lm_geoBar = new THREE.BoxGeometry(0.52, 1, 0.62);
+                lm_geoBar.translate(0, 0.5, 0);
+
+                for (var lm_m = 0; lm_m < 12; lm_m++) {
+                    var lm_x = lm_m - 5.5;
+
+                    var lm_label = lm_textSprite(lm_months[lm_m], '#5a6a80', 13);
+                    lm_label.position.set(lm_x, 0.35, 2.55);
+                    lm_barGroup.add(lm_label);
+
+                    var lm_datas = [
+                        { v: lm_online[lm_m], color: lm_blueColor, name: '线上', z: -0.55 },
+                        { v: lm_offline[lm_m], color: lm_greenColor, name: '线下', z: 0.45 }
+                    ];
+                    for (var lm_s = 0; lm_s < 2; lm_s++) {
+                        var lm_d = lm_datas[lm_s];
+                        var lm_h = lm_d.v / lm_maxVal * lm_heightScale;
+                        var lm_mat = new THREE.MeshLambertMaterial({ color: lm_d.color, transparent: true, opacity: 0.94 });
+                        var lm_mesh = new THREE.Mesh(lm_geoBar, lm_mat);
+                        lm_mesh.position.set(lm_x, 0, lm_d.z);
+                        lm_mesh.scale.y = 0.001;
+                        lm_mesh.userData = { month: lm_months[lm_m], series: lm_d.name, value: lm_d.v, height: lm_h };
+                        lm_barGroup.add(lm_mesh);
+                        lm_barMeshes.push(lm_mesh);
+                    }
+                }
+            }
+
+            lm_buildBars();
+
+            // 灯光
+            lm_barScene.add(new THREE.AmbientLight(0xffffff, 0.72));
+            var lm_barLight = new THREE.DirectionalLight(0xffffff, 0.75);
+            lm_barLight.position.set(9, 13, 7);
+            lm_barScene.add(lm_barLight);
+
+            var lm_barOrbit = lm_bindOrbit(lm_barStage, lm_barCamera, lm_barGroup, {
+                dist: 17, min: 9, max: 30, spin: 0.0032, pitch: 0.52,
+                center: { x: 0, y: 1.6, z: 0.4 }
+            });
+
+            // 生长动画
+            var lm_growStart = 0;
+
+            function lm_startGrow() {
+                lm_growStart = performance.now();
+            }
+
+            function lm_updateBars(lm_now) {
+                if (!lm_growStart) return;
+                for (var lm_i = 0; lm_i < lm_barMeshes.length; lm_i++) {
+                    var lm_mesh = lm_barMeshes[lm_i];
+                    var lm_delay = (lm_i % 2) * 90 + Math.floor(lm_i / 2) * 55;
+                    var lm_p = (lm_now - lm_growStart - lm_delay) / 900;
+                    if (lm_p <= 0) {
+                        lm_mesh.scale.y = 0.001;
+                    } else if (lm_p >= 1) {
+                        lm_mesh.scale.y = lm_mesh.userData.height;
+                    } else {
+                        var lm_e = 1 - Math.pow(1 - lm_p, 3);
+                        lm_mesh.scale.y = Math.max(0.001, lm_mesh.userData.height * lm_e);
+                    }
+                }
+            }
+
+            // 悬停拾取
+            var lm_barRay = new THREE.Raycaster();
+            var lm_barMouse = new THREE.Vector2();
+            var lm_barHover = null;
+
+            lm_barStage.addEventListener('mousemove', function (lm_e) {
+                var lm_rect = lm_barStage.getBoundingClientRect();
+                lm_barMouse.x = ((lm_e.clientX - lm_rect.left) / lm_rect.width) * 2 - 1;
+                lm_barMouse.y = -((lm_e.clientY - lm_rect.top) / lm_rect.height) * 2 + 1;
+            });
+
+            function lm_pickBars() {
+                lm_barRay.setFromCamera(lm_barMouse, lm_barCamera);
+                var lm_hits = lm_barRay.intersectObjects(lm_barMeshes);
+                var lm_hit = lm_hits.length ? lm_hits[0].object : null;
+
+                if (lm_barHover && lm_barHover !== lm_hit) {
+                    lm_barHover.material.emissive.setHex(0x000000);
+                    lm_barHover = null;
+                }
+                if (lm_hit) {
+                    if (lm_barHover !== lm_hit) {
+                        lm_barHover = lm_hit;
+                        lm_barHover.material.emissive.setHex(0x333333);
+                    }
+                    var lm_u = lm_barHover.userData;
+                    lm_barTip.innerHTML = '<b>' + lm_u.month + ' · ' + lm_u.series + '</b><br/>销售额：' + lm_u.value + ' 万元';
+                    lm_barTip.style.left = lm_barHover.position.x >= 0 ? '62%' : '38%';
+                    lm_barTip.style.top = Math.max(24, (1 - lm_u.value / lm_maxVal) * lm_barStage.clientHeight * 0.62) + 'px';
+                    lm_barTip.style.opacity = '1';
+                } else {
+                    lm_barTip.style.opacity = '0';
+                }
+            }
+
+            var lm_barRenderer = lm_makeRenderer(lm_barStage);
+            lm_startGrow();
+
+            document.getElementById('lm_btn_grow').addEventListener('click', function () {
+                lm_seed = (lm_seed + 7919) % 2147483648;
+                lm_startGrow();
+            });
+
+            /* ================= 图二：三维散点图 ================= */
+            var lm_scatterStage = document.getElementById('lm_stage_scatter');
+            var lm_scatterTip = document.createElement('div');
+            lm_scatterTip.className = 'lm_tooltip';
+            lm_scatterStage.appendChild(lm_scatterTip);
+
+            var lm_scatterScene = new THREE.Scene();
+            var lm_scatterCamera = new THREE.PerspectiveCamera(45, lm_scatterStage.clientWidth / lm_scatterStage.clientHeight, 0.1, 200);
+            var lm_scatterGroup = new THREE.Group();
+            lm_scatterScene.add(lm_scatterGroup);
+
+            var lm_clusters = [
+                { name: '高价值群', color: 0x5470c6, center: [-3.6, 2.2, -1.2], spread: 1.35, n: 300 },
+                { name: '潜力成长群', color: 0x91cc75, center: [1.4, 3.0, 1.6], spread: 1.5, n: 280 },
+                { name: '沉睡唤回群', color: 0xee6666, center: [3.4, 0.8, -2.4], spread: 1.15, n: 260 }
+            ];
+
+            var lm_pointClouds = [];
+            var lm_centroids = [];
+
+            // 参考网格与坐标轴
+            var lm_refGrid = new THREE.GridHelper(11, 11, 0xc4cede, 0xe4eaf2);
+            lm_scatterGroup.add(lm_refGrid);
+            lm_scatterGroup.add(new THREE.AxesHelper(4.2));
+
+            function lm_buildScatter() {
+                for (var lm_i = 0; lm_i < lm_pointClouds.length; lm_i++) {
+                    lm_scatterGroup.remove(lm_pointClouds[lm_i]);
+                }
+                for (var lm_c = 0; lm_c < lm_centroids.length; lm_c++) {
+                    lm_scatterGroup.remove(lm_centroids[lm_c]);
+                }
+                lm_pointClouds.length = 0;
+                lm_centroids.length = 0;
+
+                for (var lm_k = 0; lm_k < lm_clusters.length; lm_k++) {
+                    var lm_cl = lm_clusters[lm_k];
+                    var lm_positions = new Float32Array(lm_cl.n * 3);
+                    var lm_colors = new Float32Array(lm_cl.n * 3);
+                    var lm_base = new THREE.Color(lm_cl.color);
+
+                    for (var lm_p = 0; lm_p < lm_cl.n; lm_p++) {
+                        var lm_px = lm_cl.center[0] + lm_gauss() * lm_cl.spread;
+                        var lm_py = Math.max(0.06, lm_cl.center[1] + lm_gauss() * lm_cl.spread * 0.72);
+                        var lm_pz = lm_cl.center[2] + lm_gauss() * lm_cl.spread;
+                        lm_positions[lm_p * 3] = lm_px;
+                        lm_positions[lm_p * 3 + 1] = lm_py;
+                        lm_positions[lm_p * 3 + 2] = lm_pz;
+                        lm_colors[lm_p * 3] = lm_base.r;
+                        lm_colors[lm_p * 3 + 1] = lm_base.g;
+                        lm_colors[lm_p * 3 + 2] = lm_base.b;
+                    }
+
+                    var lm_geo = new THREE.BufferGeometry();
+                    lm_geo.setAttribute('position', new THREE.BufferAttribute(lm_positions, 3));
+                    lm_geo.setAttribute('color', new THREE.BufferAttribute(lm_colors, 3));
+                    var lm_mat = new THREE.PointsMaterial({
+                        size: 0.16,
+                        vertexColors: true,
+                        transparent: true,
+                        opacity: 0.85,
+                        sizeAttenuation: true
+                    });
+                    var lm_points = new THREE.Points(lm_geo, lm_mat);
+                    lm_scatterGroup.add(lm_points);
+                    lm_pointClouds.push(lm_points);
+
+                    var lm_ball = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.22, 20, 20),
+                        new THREE.MeshLambertMaterial({ color: lm_cl.color, emissive: lm_cl.color, emissiveIntensity: 0.35 })
+                    );
+                    lm_ball.position.set(lm_cl.center[0], lm_cl.center[1], lm_cl.center[2]);
+                    lm_scatterGroup.add(lm_ball);
+                    lm_centroids.push(lm_ball);
+                }
+            }
+
+            lm_buildScatter();
+
+            lm_scatterScene.add(new THREE.AxesHelper(0.001)); // 占位避免空场景警告
+            lm_scatterScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+
+            var lm_scatterOrbit = lm_bindOrbit(lm_scatterStage, lm_scatterCamera, lm_scatterGroup, {
+                dist: 13.5, min: 6, max: 26, spin: 0.004, pitch: 0.5,
+                center: { x: 0, y: 1.6, z: 0 }
+            });
+
+            // 悬停拾取（点云）
+            var lm_scatterRay = new THREE.Raycaster();
+            lm_scatterRay.params.Points = { threshold: 0.22 };
+            var lm_scatterMouse = new THREE.Vector2();
+            var lm_rectCache = null;
+
+            lm_scatterStage.addEventListener('mousemove', function (lm_e) {
+                lm_rectCache = lm_scatterStage.getBoundingClientRect();
+                lm_scatterMouse.x = ((lm_e.clientX - lm_rectCache.left) / lm_rectCache.width) * 2 - 1;
+                lm_scatterMouse.y = -((lm_e.clientY - lm_rectCache.top) / lm_rectCache.height) * 2 + 1;
+            });
+
+            function lm_pickScatter() {
+                if (!lm_rectCache) return;
+                lm_scatterRay.setFromCamera(lm_scatterMouse, lm_scatterCamera);
+                var lm_best = null;
+                var lm_bestIdx = -1;
+                var lm_bestCloud = null;
+                for (var lm_i = 0; lm_i < lm_pointClouds.length; lm_i++) {
+                    var lm_hits = lm_scatterRay.intersectObject(lm_pointClouds[lm_i]);
+                    if (lm_hits.length && (!lm_best || lm_hits[0].distanceToRay < lm_best.distanceToRay)) {
+                        lm_best = lm_hits[0];
+                        lm_bestIdx = lm_hits[0].index;
+                        lm_bestCloud = lm_i;
+                    }
+                }
+                if (lm_best && lm_bestCloud >= 0) {
+                    var lm_pos = lm_pointClouds[lm_bestCloud].geometry.attributes.position;
+                    lm_scatterTip.innerHTML =
+                        '<b>' + lm_clusters[lm_bestCloud].name + '</b><br/>样本 #' + lm_bestIdx +
+                        '<br/>频次 ' + lm_pos.getX(lm_bestIdx).toFixed(2) +
+                        ' · 客单价 ' + lm_pos.getY(lm_bestIdx).toFixed(2) +
+                        ' · 活跃度 ' + lm_pos.getZ(lm_bestIdx).toFixed(2);
+                    lm_scatterTip.style.left = '50%';
+                    lm_scatterTip.style.top = '14%';
+                    lm_scatterTip.style.opacity = '1';
+                } else {
+                    lm_scatterTip.style.opacity = '0';
+                }
+            }
+
+            var lm_scatterRenderer = lm_makeRenderer(lm_scatterStage);
+
+            document.getElementById('lm_btn_scatter').addEventListener('click', function () {
+                lm_seed = (lm_seed + 104729) % 2147483648;
+                lm_buildScatter();
+            });
+
+            /* ---------- 渲染循环 ---------- */
+            function lm_animate(lm_now) {
+                lm_updateBars(lm_now);
+                lm_barOrbit.tick();
+                lm_scatterOrbit.tick();
+                lm_pickBars();
+                lm_pickScatter();
+                lm_barRenderer.render(lm_barScene, lm_barCamera);
+                lm_scatterRenderer.render(lm_scatterScene, lm_scatterCamera);
+                requestAnimationFrame(lm_animate);
+            }
+
+            requestAnimationFrame(lm_animate);
+
+            window.addEventListener('resize', function () {
+                lm_barRenderer.setSize(lm_barStage.clientWidth, lm_barStage.clientHeight);
+                lm_barCamera.aspect = lm_barStage.clientWidth / lm_barStage.clientHeight;
+                lm_barCamera.updateProjectionMatrix();
+
+                lm_scatterRenderer.setSize(lm_scatterStage.clientWidth, lm_scatterStage.clientHeight);
+                lm_scatterCamera.aspect = lm_scatterStage.clientWidth / lm_scatterStage.clientHeight;
+                lm_scatterCamera.updateProjectionMatrix();
+            });
+        })();
+    </script>
+</body>
+</html>

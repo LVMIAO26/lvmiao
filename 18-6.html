@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-6 · Mermaid 智能客服系统</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #f0f4fd 0%, #f7f4fb 55%, #eef8f2 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(64px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 460px;
+            height: 460px;
+            left: -140px;
+            top: -100px;
+            background: radial-gradient(circle, #b9c9ff 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            right: -160px;
+            bottom: -120px;
+            background: radial-gradient(circle, #b8ecd5 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #5b4bd6;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #5b4bd6, #16a085);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #5b4bd6, #16a085);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 20px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #e2e4f7;
+            border-radius: 999px;
+            color: #64748b;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(91, 75, 214, 0.06);
+        }
+
+        .lm_toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .lm_btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #5b4bd6, #16a085);
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(91, 75, 214, 0.24);
+            transition: all 0.2s;
+        }
+
+        .lm_btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(91, 75, 214, 0.34);
+        }
+
+        .lm_btn:active {
+            transform: translateY(0);
+        }
+
+        .lm_btn--ghost {
+            background: #fff;
+            color: #475569;
+            border: 1px solid #dde2f0;
+            box-shadow: none;
+        }
+
+        .lm_btn--ghost:hover {
+            border-color: #5b4bd6;
+            color: #4536c0;
+            box-shadow: 0 4px 10px rgba(91, 75, 214, 0.15);
+        }
+
+        .lm_panel {
+            background: #fff;
+            border: 1px solid #e8ebf7;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(50, 60, 140, 0.07), 0 1px 3px rgba(50, 60, 140, 0.05);
+            padding: 18px 20px 14px;
+            margin-bottom: 20px;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        .lm_panel__head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 4px 12px;
+            border-bottom: 1px dashed #e6eaf5;
+            margin-bottom: 8px;
+        }
+
+        .lm_panel__title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .lm_panel__title i {
+            font-style: normal;
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: normal;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+        }
+
+        .lm_panel__desc {
+            margin-top: 5px;
+            font-size: 12.5px;
+            color: #7b8794;
+            line-height: 1.7;
+        }
+
+        .lm_tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #4536c0;
+            background: #f0eeff;
+            border: 1px solid #ddd8ff;
+        }
+
+        .lm_mermaid {
+            position: relative;
+            min-height: 160px;
+            padding: 10px 4px 6px;
+            overflow-x: auto;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .lm_mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .lm_mermaid svg g.node rect,
+        .lm_mermaid svg g.node circle,
+        .lm_mermaid svg g.node polygon,
+        .lm_mermaid svg g.node path {
+            transition: filter 0.2s ease;
+        }
+
+        .lm_mermaid svg g.node:hover rect,
+        .lm_mermaid svg g.node:hover circle,
+        .lm_mermaid svg g.node:hover polygon,
+        .lm_mermaid svg g.node:hover path {
+            filter: drop-shadow(0 4px 10px rgba(91, 75, 214, 0.4));
+        }
+
+        .lm_loading {
+            color: #9aa5b1;
+            font-size: 13px;
+            padding: 60px 0;
+        }
+
+        .lm_error {
+            margin: 10px 4px 4px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #c0392b;
+            background: #fdf0ef;
+            border: 1px solid #f6d3cf;
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+
+        .lm_note {
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid #e8ebf7;
+            border-left: 4px solid #5b4bd6;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #5b6b7f;
+            box-shadow: 0 4px 16px rgba(50, 60, 140, 0.05);
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        .lm_note b {
+            color: #0f172a;
+        }
+
+        .lm_note code {
+            padding: 2px 6px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            color: #4536c0;
+            font-size: 12.5px;
+        }
+
+        /* 深色主题 */
+        body.lm_dark {
+            background: linear-gradient(135deg, #0f172a 0%, #1a1b3a 55%, #10261f 100%);
+            color: #e2e8f0;
+        }
+
+        body.lm_dark .lm_sub {
+            background: #1b2437;
+            border-color: #2b3852;
+            color: #a9b6c9;
+        }
+
+        body.lm_dark .lm_panel,
+        body.lm_dark .lm_note {
+            background: #131c2e;
+            border-color: #253148;
+            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+        }
+
+        body.lm_dark .lm_panel__head {
+            border-bottom-color: #253148;
+        }
+
+        body.lm_dark .lm_panel__title,
+        body.lm_dark .lm_note b {
+            color: #e8eef7;
+        }
+
+        body.lm_dark .lm_panel__desc,
+        body.lm_dark .lm_note {
+            color: #9fb0c6;
+        }
+
+        body.lm_dark .lm_btn--ghost {
+            background: #1b2437;
+            color: #c3d0e2;
+            border-color: #2b3852;
+        }
+
+        body.lm_dark .lm_btn--ghost:hover {
+            border-color: #7c6cf0;
+            color: #b9aeff;
+        }
+
+        body.lm_dark .lm_tag {
+            color: #b9aeff;
+            background: #221f47;
+            border-color: #37316f;
+        }
+
+        body.lm_dark .lm_note code {
+            background: #1e2a3f;
+            color: #b9aeff;
+        }
+
+        body.lm_dark .lm_back {
+            color: #8f83ff;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 23px;
+                line-height: 1.4;
+            }
+
+            .lm_panel {
+                padding: 14px 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：基于 Mermaid 的智能客服系统流程图与 ER 图 -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>Mermaid 智能客服系统</h1>
+        <p class="lm_sub">流程图 + ER 图 · 本地 cdn 目录加载 · 支持深色主题</p>
+
+        <div class="lm_toolbar">
+            <button class="lm_btn lm_btn--ghost" id="lm_btn_theme">切换深色主题</button>
+            <button class="lm_btn lm_btn--ghost" id="lm_btn_rerender">重新渲染</button>
+        </div>
+
+        <!-- 流程图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">智能客服系统流程图<i>Flowchart</i></div>
+                    <div class="lm_panel__desc">从用户咨询接入，到意图识别、知识检索、答案生成、转人工与数据沉淀的完整闭环。</div>
+                </div>
+                <span class="lm_tag">flowchart TD</span>
+            </div>
+            <div class="lm_mermaid" id="lm_chart_flow">
+                <div class="lm_loading">流程图渲染中…</div>
+            </div>
+        </div>
+
+        <!-- ER 图 -->
+        <div class="lm_panel">
+            <div class="lm_panel__head">
+                <div>
+                    <div class="lm_panel__title">智能客服系统 ER 图<i>Entity Relationship</i></div>
+                    <div class="lm_panel__desc">用户、会话、消息、意图、知识库、工单、坐席、评价共 9 个核心实体的关系模型。</div>
+                </div>
+                <span class="lm_tag">erDiagram</span>
+            </div>
+            <div class="lm_mermaid" id="lm_chart_er">
+                <div class="lm_loading">ER 图渲染中…</div>
+            </div>
+        </div>
+
+        <div class="lm_error" id="lm_error" hidden></div>
+
+        <p class="lm_note">
+            <b>实现说明：</b><code>mermaid.min.js</code> 已从 CDN 下载到本地 <code>cdn/</code> 目录，
+            通过相对路径 <code>./cdn/mermaid.min.js</code> 引入，离线也能正常渲染。
+            流程图使用 <code>flowchart TD</code> 语法，按「用户交互 / 智能对话核心 / 人工与工单 / 数据与知识沉淀」四个子图组织；
+            ER 图使用 <code>erDiagram</code> 语法，用 <code>PK / FK</code> 标注主外键。
+            点击「切换深色主题」会重新初始化 Mermaid 的 <code>themeVariables</code> 并重绘两张图。
+        </p>
+    </div>
+
+    <script src="./cdn/mermaid.min.js"></script>
+    <script>
+        (function () {
+            var lm_flowSource = [
+                'flowchart TD',
+                '    subgraph U["① 用户交互层"]',
+                '        A([用户发起咨询]) --> B[渠道接入<br/>网页 · APP · 微信 · 电话]',
+                '    end',
+                '    subgraph S["② 智能对话核心"]',
+                '        C[创建会话 Session] --> D[消息预处理<br/>分词 · 纠错 · 合规过滤]',
+                '        D --> E{意图识别 NLU}',
+                '        E -->|知识型问题| F[知识检索<br/>FAQ · 知识图谱]',
+                '        E -->|闲聊寒暄| G[闲聊话术回复]',
+                '        F --> I[答案生成<br/>RAG 检索增强]',
+                '        I --> J{置信度 ≥ 0.8？}',
+                '        J -->|是| K[返回标准答案]',
+                '        G --> K',
+                '    end',
+                '    subgraph H2["③ 人工与工单"]',
+                '        H[转接人工坐席] --> M[创建工单并处理]',
+                '        M --> Q[质检 · 运营看板]',
+                '    end',
+                '    subgraph D2["④ 数据与知识沉淀"]',
+                '        L[会话结束] --> N[满意度评价]',
+                '        N --> O[(会话 · 工单 · 评价数据)]',
+                '        O --> P[[知识库与模型迭代]]',
+                '    end',
+                '    B --> C',
+                '    E -->|要求人工| H',
+                '    J -->|否| H',
+                '    K --> L',
+                '    M --> L',
+                '    P -.->|知识更新| F',
+                '    P -.->|样本回流| E',
+                '    Q -.-> P'
+            ].join('\n');
+
+            var lm_erSource = [
+                'erDiagram',
+                '    USER ||--o{ SESSION : "发起"',
+                '    USER ||--o{ FEEDBACK : "提交"',
+                '    SESSION ||--o{ MESSAGE : "包含"',
+                '    SESSION ||--o| FEEDBACK : "收到"',
+                '    SESSION ||--o| TICKET : "转人工生成"',
+                '    MESSAGE }o--|| INTENT : "归类为"',
+                '    INTENT ||--o{ KB_ENTRY : "匹配"',
+                '    KB_CATEGORY ||--o{ KB_ENTRY : "归类"',
+                '    AGENT ||--o{ TICKET : "处理"',
+                '    USER {',
+                '        bigint user_id PK "用户ID"',
+                '        varchar nickname "昵称"',
+                '        varchar phone "手机号"',
+                '        varchar channel "来源渠道"',
+                '        datetime created_at "注册时间"',
+                '    }',
+                '    SESSION {',
+                '        bigint session_id PK "会话ID"',
+                '        bigint user_id FK "所属用户"',
+                '        varchar channel "接入渠道"',
+                '        varchar status "会话状态"',
+                '        datetime started_at "开始时间"',
+                '        datetime ended_at "结束时间"',
+                '    }',
+                '    MESSAGE {',
+                '        bigint message_id PK "消息ID"',
+                '        bigint session_id FK "所属会话"',
+                '        varchar sender "发送方"',
+                '        text content "消息内容"',
+                '        bigint intent_id FK "意图ID"',
+                '        datetime created_at "发送时间"',
+                '    }',
+                '    INTENT {',
+                '        bigint intent_id PK "意图ID"',
+                '        varchar name "意图名称"',
+                '        decimal confidence "置信度"',
+                '    }',
+                '    KB_ENTRY {',
+                '        bigint entry_id PK "条目ID"',
+                '        bigint category_id FK "所属分类"',
+                '        bigint intent_id FK "关联意图"',
+                '        varchar question "标准问题"',
+                '        text answer "标准答案"',
+                '        int hit_count "命中次数"',
+                '    }',
+                '    KB_CATEGORY {',
+                '        bigint category_id PK "分类ID"',
+                '        varchar name "分类名称"',
+                '        bigint parent_id FK "上级分类"',
+                '    }',
+                '    TICKET {',
+                '        bigint ticket_id PK "工单ID"',
+                '        bigint session_id FK "关联会话"',
+                '        bigint agent_id FK "处理坐席"',
+                '        varchar priority "优先级"',
+                '        varchar status "工单状态"',
+                '        datetime created_at "创建时间"',
+                '    }',
+                '    AGENT {',
+                '        bigint agent_id PK "坐席ID"',
+                '        varchar name "姓名"',
+                '        varchar group_name "所属班组"',
+                '        int online "在线状态"',
+                '    }',
+                '    FEEDBACK {',
+                '        bigint feedback_id PK "评价ID"',
+                '        bigint session_id FK "关联会话"',
+                '        bigint user_id FK "评价用户"',
+                '        int score "满意度评分"',
+                '        varchar comment "评价内容"',
+                '        datetime created_at "提交时间"',
+                '    }'
+            ].join('\n');
+
+            var lm_flowBox = document.getElementById('lm_chart_flow');
+            var lm_erBox = document.getElementById('lm_chart_er');
+            var lm_errBox = document.getElementById('lm_error');
+            var lm_dark = false;
+            var lm_seq = 0;
+
+            function lm_configure() {
+                var lm_common = {
+                    startOnLoad: false,
+                    fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                    flowchart: { curve: 'basis', useMaxWidth: true, htmlLabels: true, padding: 12 },
+                    er: { useMaxWidth: true, diagramPadding: 20 }
+                };
+
+                if (lm_dark) {
+                    lm_common.theme = 'dark';
+                    lm_common.themeVariables = {
+                        background: '#131c2e',
+                        primaryColor: '#1f2a3f',
+                        primaryTextColor: '#e2e8f0',
+                        primaryBorderColor: '#7c6cf0',
+                        lineColor: '#8fa3bd',
+                        tertiaryColor: '#14261f',
+                        fontSize: '14px'
+                    };
+                } else {
+                    lm_common.theme = 'base';
+                    lm_common.themeVariables = {
+                        background: '#ffffff',
+                        primaryColor: '#eef3ff',
+                        primaryBorderColor: '#4f6bed',
+                        primaryTextColor: '#1e293b',
+                        secondaryColor: '#e9f7f0',
+                        secondaryBorderColor: '#16a085',
+                        tertiaryColor: '#fdf3e7',
+                        tertiaryBorderColor: '#e08a2e',
+                        lineColor: '#8fa3bd',
+                        fontSize: '14px'
+                    };
+                }
+
+                mermaid.initialize(lm_common);
+            }
+
+            function lm_renderOne(lm_box, lm_source) {
+                lm_seq++;
+                return mermaid.render('lm_mmd_' + lm_seq + '_' + Date.now(), lm_source).then(function (lm_res) {
+                    lm_box.innerHTML = lm_res.svg;
+                    if (lm_res.bindFunctions) lm_res.bindFunctions(lm_box);
+                });
+            }
+
+            function lm_renderAll() {
+                lm_errBox.hidden = true;
+                lm_flowBox.innerHTML = '<div class="lm_loading">流程图渲染中…</div>';
+                lm_erBox.innerHTML = '<div class="lm_loading">ER 图渲染中…</div>';
+
+                try {
+                    lm_configure();
+                    Promise.all([
+                        lm_renderOne(lm_flowBox, lm_flowSource),
+                        lm_renderOne(lm_erBox, lm_erSource)
+                    ]).catch(function (lm_e) {
+                        lm_errBox.hidden = false;
+                        lm_errBox.textContent = '图表渲染失败：' + (lm_e && lm_e.message ? lm_e.message : lm_e);
+                    });
+                } catch (lm_e) {
+                    lm_errBox.hidden = false;
+                    lm_errBox.textContent = '图表渲染失败：' + lm_e.message;
+                }
+            }
+
+            document.getElementById('lm_btn_theme').addEventListener('click', function () {
+                lm_dark = !lm_dark;
+                document.body.classList.toggle('lm_dark', lm_dark);
+                this.textContent = lm_dark ? '切换浅色主题' : '切换深色主题';
+                lm_renderAll();
+            });
+
+            document.getElementById('lm_btn_rerender').addEventListener('click', lm_renderAll);
+
+            lm_renderAll();
+
+            window.addEventListener('resize', function () {
+                /* Mermaid 图按容器宽度自适应，无需手动缩放 */
+            });
+        })();
+    </script>
+</body>
+</html>

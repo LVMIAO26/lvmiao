@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-3 · 基于知识库的智能客服系统架构</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #f3f1fb 0%, #fdf3f7 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 440px;
+            height: 440px;
+            left: -130px;
+            top: -90px;
+            background: radial-gradient(circle, #c4b5fd 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 480px;
+            height: 480px;
+            right: -150px;
+            bottom: -110px;
+            background: radial-gradient(circle, #f9a8d4 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #7c3aed;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 29px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #7c3aed, #be185d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #7c3aed, #be185d);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 20px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #ecdff0;
+            border-radius: 999px;
+            color: #6b6478;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(76, 29, 149, 0.06);
+        }
+
+        /* 图例 */
+        .lm_legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 18px;
+            margin-bottom: 16px;
+            font-size: 12.5px;
+            color: #5b6b7f;
+        }
+
+        .lm_legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lm_legend i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* SVG 容器 */
+        .lm_board {
+            background: #fff;
+            border: 1px solid #ece7f2;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(76, 29, 149, 0.08), 0 1px 3px rgba(76, 29, 149, 0.06);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        #lm_svg {
+            display: block;
+            width: 100%;
+            min-width: 900px;
+            height: auto;
+        }
+
+        #lm_svg text {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        /* 节点通用样式 */
+        .lm_node {
+            cursor: pointer;
+        }
+
+        .lm_node .lm_box {
+            fill: var(--f);
+            stroke: var(--b);
+            stroke-width: 1;
+            transition: fill 0.18s, stroke 0.18s, stroke-width 0.18s;
+        }
+
+        .lm_node .lm_title {
+            fill: var(--t);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .lm_node .lm_sub {
+            fill: #8492a6;
+            font-size: 11px;
+        }
+
+        .lm_node .lm_bar {
+            fill: var(--c);
+        }
+
+        .lm_node:hover .lm_box,
+        .lm_node.is-on .lm_box {
+            fill: #fff;
+            stroke: var(--c);
+            stroke-width: 2;
+        }
+
+        .lm_node:hover .lm_box,
+        .lm_node.is-on .lm_box {
+            filter: drop-shadow(0 5px 12px rgba(23, 54, 125, 0.16));
+        }
+
+        .lm_step .lm_num {
+            fill: rgba(190, 24, 93, 0.10);
+        }
+
+        .lm_step .lm_numT {
+            fill: var(--c);
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .lm_step .lm_title {
+            font-size: 12.5px;
+        }
+
+        .lm_step .lm_sub {
+            font-size: 10px;
+        }
+
+        /* 层间连接线 */
+        .lm_flow {
+            stroke: rgba(120, 150, 190, 0.55);
+            stroke-width: 1.4;
+            stroke-dasharray: 5 5;
+            animation: lm_dash 1.3s linear infinite;
+        }
+
+        @keyframes lm_dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        /* 入场动画 */
+        .lm_layer,
+        .lm_research {
+            animation: lm_in 0.55s ease both;
+        }
+
+        @keyframes lm_in {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 节点信息面板 */
+        .lm_info {
+            margin-top: 16px;
+            padding: 18px 22px;
+            background: #fff;
+            border: 1px solid #ece7f2;
+            border-left: 4px solid #be185d;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(76, 29, 149, 0.06);
+            min-height: 104px;
+        }
+
+        .lm_info__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .lm_info__dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .lm_info h3 {
+            font-size: 17px;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .lm_info__stack {
+            font-size: 13px;
+            color: #be185d;
+            margin-bottom: 8px;
+        }
+
+        .lm_info__desc {
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: #5b6b7f;
+        }
+
+        .lm_note {
+            margin-top: 16px;
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid #ece7f2;
+            border-left: 4px solid #7c3aed;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #5b6b7f;
+            box-shadow: 0 4px 16px rgba(76, 29, 149, 0.05);
+        }
+
+        .lm_note b {
+            color: #0f172a;
+        }
+
+        .lm_note ol {
+            margin: 8px 0 0 20px;
+        }
+
+        .lm_note li {
+            margin-bottom: 4px;
+        }
+
+        .lm_note code {
+            padding: 2px 6px;
+            background: #f6f2fb;
+            border-radius: 4px;
+            color: #7c3aed;
+            font-size: 12.5px;
+        }
+
+        @media (max-width: 720px) {
+            h1 {
+                font-size: 22px;
+                line-height: 1.4;
+            }
+
+            .lm_info {
+                padding: 16px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：基于知识库的智能客服系统架构图（SVG） -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>基于知识库的智能客服系统架构</h1>
+        <p class="lm_sub">科研方向 · 知识库构建 + 检索增强生成（RAG）· SVG 矢量架构图</p>
+
+        <div class="lm_legend">
+            <span><i style="background:#2e6fe3"></i>用户交互层</span>
+            <span><i style="background:#7c3aed"></i>接入与服务层</span>
+            <span><i style="background:#0f9d76"></i>智能核心层</span>
+            <span><i style="background:#d97706"></i>知识库层</span>
+            <span><i style="background:#475569"></i>数据与支撑层</span>
+            <span><i style="background:#be185d"></i>科研方法与评估</span>
+        </div>
+
+        <div class="lm_board">
+            <svg id="lm_svg" viewBox="0 0 1120 740" role="img" aria-label="基于知识库的智能客服系统架构图">
+                <defs>
+                    <marker id="lm_ar" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                        <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(120,150,190,0.65)" />
+                    </marker>
+                </defs>
+
+                <!-- ===== 用户交互层 ===== -->
+                <g class="lm_layer" style="animation-delay:0s">
+                    <rect x="18" y="24" width="1092" height="88" rx="12" fill="rgba(46,111,227,0.035)" />
+                    <rect x="18" y="24" width="56" height="88" rx="12" fill="rgba(46,111,227,0.10)" stroke="rgba(46,111,227,0.28)" />
+                    <text transform="translate(46,68) rotate(-90)" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e6fe3">用户交互层</text>
+
+                    <g class="lm_node" data-key="a1" style="--c:#2e6fe3;--f:#eaf2ff;--b:#bcd4ff;--t:#17367d" transform="translate(88,36)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">网页在线客服</text>
+                        <text class="lm_sub" x="18" y="47">Web Widget · SSE</text>
+                    </g>
+                    <g class="lm_node" data-key="a2" style="--c:#2e6fe3;--f:#eaf2ff;--b:#bcd4ff;--t:#17367d" transform="translate(342,36)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">微信小程序客服</text>
+                        <text class="lm_sub" x="18" y="47">公众号 / 小程序消息</text>
+                    </g>
+                    <g class="lm_node" data-key="a3" style="--c:#2e6fe3;--f:#eaf2ff;--b:#bcd4ff;--t:#17367d" transform="translate(596,36)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">App 内嵌客服</text>
+                        <text class="lm_sub" x="18" y="47">SDK · 消息推送</text>
+                    </g>
+                    <g class="lm_node" data-key="a4" style="--c:#2e6fe3;--f:#eaf2ff;--b:#bcd4ff;--t:#17367d" transform="translate(850,36)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">电话与工单入口</text>
+                        <text class="lm_sub" x="18" y="47">呼叫中心 / 工单系统</text>
+                    </g>
+                </g>
+
+                <!-- 连接线 1 -->
+                <g class="lm_layer" style="animation-delay:0.05s">
+                    <line class="lm_flow" x1="258" y1="113" x2="258" y2="126" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="478" y1="113" x2="478" y2="126" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="698" y1="113" x2="698" y2="126" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="918" y1="113" x2="918" y2="126" marker-end="url(#lm_ar)" />
+                </g>
+
+                <!-- ===== 接入与服务层 ===== -->
+                <g class="lm_layer" style="animation-delay:0.1s">
+                    <rect x="18" y="130" width="1092" height="88" rx="12" fill="rgba(124,58,237,0.035)" />
+                    <rect x="18" y="130" width="56" height="88" rx="12" fill="rgba(124,58,237,0.10)" stroke="rgba(124,58,237,0.28)" />
+                    <text transform="translate(46,174) rotate(-90)" text-anchor="middle" font-size="13" font-weight="bold" fill="#7c3aed">接入与服务层</text>
+
+                    <g class="lm_node" data-key="b1" style="--c:#7c3aed;--f:#f3edff;--b:#dbc9ff;--t:#4c1d95" transform="translate(88,142)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">会话网关</text>
+                        <text class="lm_sub" x="18" y="47">WebSocket · 长连接</text>
+                    </g>
+                    <g class="lm_node" data-key="b2" style="--c:#7c3aed;--f:#f3edff;--b:#dbc9ff;--t:#4c1d95" transform="translate(342,142)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">渠道适配层</text>
+                        <text class="lm_sub" x="18" y="47">多协议消息统一</text>
+                    </g>
+                    <g class="lm_node" data-key="b3" style="--c:#7c3aed;--f:#f3edff;--b:#dbc9ff;--t:#4c1d95" transform="translate(596,142)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">会话路由</text>
+                        <text class="lm_sub" x="18" y="47">业务线 · 技能组</text>
+                    </g>
+                    <g class="lm_node" data-key="b4" style="--c:#7c3aed;--f:#f3edff;--b:#dbc9ff;--t:#4c1d95" transform="translate(850,142)">
+                        <rect class="lm_box" width="238" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">转人工协同</text>
+                        <text class="lm_sub" x="18" y="47">坐席工作台</text>
+                    </g>
+                </g>
+
+                <!-- 连接线 2 -->
+                <g class="lm_layer" style="animation-delay:0.15s">
+                    <line class="lm_flow" x1="258" y1="219" x2="258" y2="232" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="478" y1="219" x2="478" y2="232" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="698" y1="219" x2="698" y2="232" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="918" y1="219" x2="918" y2="232" marker-end="url(#lm_ar)" />
+                </g>
+
+                <!-- ===== 智能核心层 ===== -->
+                <g class="lm_layer" style="animation-delay:0.2s">
+                    <rect x="18" y="236" width="1092" height="88" rx="12" fill="rgba(15,157,118,0.035)" />
+                    <rect x="18" y="236" width="56" height="88" rx="12" fill="rgba(15,157,118,0.10)" stroke="rgba(15,157,118,0.28)" />
+                    <text transform="translate(46,280) rotate(-90)" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f9d76">智能核心层</text>
+
+                    <g class="lm_node" data-key="c1" style="--c:#0f9d76;--f:#e8f8f2;--b:#b7e6d4;--t:#08513b" transform="translate(88,248)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">意图识别</text>
+                        <text class="lm_sub" x="18" y="47">NLU · 分类 + 槽位</text>
+                    </g>
+                    <g class="lm_node" data-key="c2" style="--c:#0f9d76;--f:#e8f8f2;--b:#b7e6d4;--t:#08513b" transform="translate(291,248)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">多轮对话管理</text>
+                        <text class="lm_sub" x="18" y="47">DST · 对话状态</text>
+                    </g>
+                    <g class="lm_node" data-key="c3" style="--c:#0f9d76;--f:#e8f8f2;--b:#b7e6d4;--t:#08513b" transform="translate(494,248)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">检索增强 RAG</text>
+                        <text class="lm_sub" x="18" y="47">混合召回 + Rerank</text>
+                    </g>
+                    <g class="lm_node" data-key="c4" style="--c:#0f9d76;--f:#e8f8f2;--b:#b7e6d4;--t:#08513b" transform="translate(697,248)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">大模型生成</text>
+                        <text class="lm_sub" x="18" y="47">LLM · 约束提示</text>
+                    </g>
+                    <g class="lm_node" data-key="c5" style="--c:#0f9d76;--f:#e8f8f2;--b:#b7e6d4;--t:#08513b" transform="translate(900,248)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">答案校验溯源</text>
+                        <text class="lm_sub" x="18" y="47">事实核查 · 引用</text>
+                    </g>
+                </g>
+
+                <!-- 连接线 3 -->
+                <g class="lm_layer" style="animation-delay:0.25s">
+                    <line class="lm_flow" x1="258" y1="325" x2="258" y2="338" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="478" y1="325" x2="478" y2="338" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="698" y1="325" x2="698" y2="338" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="918" y1="325" x2="918" y2="338" marker-end="url(#lm_ar)" />
+                </g>
+
+                <!-- ===== 知识库层 ===== -->
+                <g class="lm_layer" style="animation-delay:0.3s">
+                    <rect x="18" y="342" width="1092" height="88" rx="12" fill="rgba(217,119,6,0.035)" />
+                    <rect x="18" y="342" width="56" height="88" rx="12" fill="rgba(217,119,6,0.10)" stroke="rgba(217,119,6,0.28)" />
+                    <text transform="translate(46,386) rotate(-90)" text-anchor="middle" font-size="13" font-weight="bold" fill="#d97706">知识库层</text>
+
+                    <g class="lm_node" data-key="d1" style="--c:#d97706;--f:#fff4e8;--b:#ffd9b4;--t:#7c3a00" transform="translate(88,354)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">文档解析入库</text>
+                        <text class="lm_sub" x="18" y="47">PDF · Word · HTML</text>
+                    </g>
+                    <g class="lm_node" data-key="d2" style="--c:#d97706;--f:#fff4e8;--b:#ffd9b4;--t:#7c3a00" transform="translate(291,354)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">FAQ 知识库</text>
+                        <text class="lm_sub" x="18" y="47">标准问答对</text>
+                    </g>
+                    <g class="lm_node" data-key="d3" style="--c:#d97706;--f:#fff4e8;--b:#ffd9b4;--t:#7c3a00" transform="translate(494,354)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">知识图谱</text>
+                        <text class="lm_sub" x="18" y="47">实体-关系三元组</text>
+                    </g>
+                    <g class="lm_node" data-key="d4" style="--c:#d97706;--f:#fff4e8;--b:#ffd9b4;--t:#7c3a00" transform="translate(697,354)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">向量索引库</text>
+                        <text class="lm_sub" x="18" y="47">Embedding + ANN</text>
+                    </g>
+                    <g class="lm_node" data-key="d5" style="--c:#d97706;--f:#fff4e8;--b:#ffd9b4;--t:#7c3a00" transform="translate(900,354)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">知识更新审核</text>
+                        <text class="lm_sub" x="18" y="47">版本 · 生效时间</text>
+                    </g>
+                </g>
+
+                <!-- 连接线 4 -->
+                <g class="lm_layer" style="animation-delay:0.35s">
+                    <line class="lm_flow" x1="258" y1="431" x2="258" y2="444" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="478" y1="431" x2="478" y2="444" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="698" y1="431" x2="698" y2="444" marker-end="url(#lm_ar)" />
+                    <line class="lm_flow" x1="918" y1="431" x2="918" y2="444" marker-end="url(#lm_ar)" />
+                </g>
+
+                <!-- ===== 数据与支撑层 ===== -->
+                <g class="lm_layer" style="animation-delay:0.4s">
+                    <rect x="18" y="448" width="1092" height="88" rx="12" fill="rgba(71,85,105,0.035)" />
+                    <rect x="18" y="448" width="56" height="88" rx="12" fill="rgba(71,85,105,0.10)" stroke="rgba(71,85,105,0.28)" />
+                    <text transform="translate(46,492) rotate(-90)" text-anchor="middle" font-size="13" font-weight="bold" fill="#475569">数据支撑层</text>
+
+                    <g class="lm_node" data-key="e1" style="--c:#475569;--f:#eef1f6;--b:#d2dae6;--t:#1e293b" transform="translate(88,460)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">会话日志</text>
+                        <text class="lm_sub" x="18" y="47">埋点 · 主题存储</text>
+                    </g>
+                    <g class="lm_node" data-key="e2" style="--c:#475569;--f:#eef1f6;--b:#d2dae6;--t:#1e293b" transform="translate(291,460)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">模型推理服务</text>
+                        <text class="lm_sub" x="18" y="47">vLLM · Triton</text>
+                    </g>
+                    <g class="lm_node" data-key="e3" style="--c:#475569;--f:#eef1f6;--b:#d2dae6;--t:#1e293b" transform="translate(494,460)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">Embedding 服务</text>
+                        <text class="lm_sub" x="18" y="47">向量化 API</text>
+                    </g>
+                    <g class="lm_node" data-key="e4" style="--c:#475569;--f:#eef1f6;--b:#d2dae6;--t:#1e293b" transform="translate(697,460)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">缓存与队列</text>
+                        <text class="lm_sub" x="18" y="47">Redis · Kafka</text>
+                    </g>
+                    <g class="lm_node" data-key="e5" style="--c:#475569;--f:#eef1f6;--b:#d2dae6;--t:#1e293b" transform="translate(900,460)">
+                        <rect class="lm_box" width="188" height="64" rx="10" />
+                        <rect class="lm_bar" width="4" height="64" rx="2" />
+                        <text class="lm_title" x="18" y="27">监控告警</text>
+                        <text class="lm_sub" x="18" y="47">时延 · 命中率</text>
+                    </g>
+                </g>
+
+                <!-- ===== 科研方法与评估 ===== -->
+                <g class="lm_research" style="animation-delay:0.45s">
+                    <rect x="18" y="552" width="1092" height="152" rx="14" fill="#faf6fb" stroke="rgba(190,24,93,0.18)" />
+                    <rect x="36" y="563" width="4" height="16" rx="2" fill="#be185d" />
+                    <text x="50" y="576" font-size="13" font-weight="bold" fill="#be185d">科研方法与评估体系</text>
+                    <text x="1092" y="576" text-anchor="end" font-size="10" fill="#9aa7b8" letter-spacing="1">RESEARCH PIPELINE &amp; EVALUATION</text>
+
+                    <g class="lm_node lm_step" data-key="r1" style="--c:#be185d;--f:#fff;--b:rgba(190,24,93,0.22);--t:#5b1230" transform="translate(36,586)">
+                        <rect class="lm_box" width="195" height="54" rx="10" />
+                        <circle class="lm_num" cx="20" cy="27" r="10" />
+                        <text class="lm_numT" x="20" y="31" text-anchor="middle">1</text>
+                        <text class="lm_title" x="40" y="23">问题定义与文献调研</text>
+                        <text class="lm_sub" x="40" y="41">研究问题 · 文献综述</text>
+                    </g>
+                    <path d="M236,609 L241,613 L236,617" fill="none" stroke="rgba(190,24,93,0.45)" stroke-width="1.6" />
+
+                    <g class="lm_node lm_step" data-key="r2" style="--c:#be185d;--f:#fff;--b:rgba(190,24,93,0.22);--t:#5b1230" transform="translate(251,586)">
+                        <rect class="lm_box" width="195" height="54" rx="10" />
+                        <circle class="lm_num" cx="20" cy="27" r="10" />
+                        <text class="lm_numT" x="20" y="31" text-anchor="middle">2</text>
+                        <text class="lm_title" x="40" y="23">语料采集与标注</text>
+                        <text class="lm_sub" x="40" y="41">客服语料 · 意图标注</text>
+                    </g>
+                    <path d="M451,609 L456,613 L451,617" fill="none" stroke="rgba(190,24,93,0.45)" stroke-width="1.6" />
+
+                    <g class="lm_node lm_step" data-key="r3" style="--c:#be185d;--f:#fff;--b:rgba(190,24,93,0.22);--t:#5b1230" transform="translate(466,586)">
+                        <rect class="lm_box" width="195" height="54" rx="10" />
+                        <circle class="lm_num" cx="20" cy="27" r="10" />
+                        <text class="lm_numT" x="20" y="31" text-anchor="middle">3</text>
+                        <text class="lm_title" x="40" y="23">知识库与索引构建</text>
+                        <text class="lm_sub" x="40" y="41">文档解析 · 图谱 · 向量</text>
+                    </g>
+                    <path d="M666,609 L671,613 L666,617" fill="none" stroke="rgba(190,24,93,0.45)" stroke-width="1.6" />
+
+                    <g class="lm_node lm_step" data-key="r4" style="--c:#be185d;--f:#fff;--b:rgba(190,24,93,0.22);--t:#5b1230" transform="translate(681,586)">
+                        <rect class="lm_box" width="195" height="54" rx="10" />
+                        <circle class="lm_num" cx="20" cy="27" r="10" />
+                        <text class="lm_numT" x="20" y="31" text-anchor="middle">4</text>
+                        <text class="lm_title" x="40" y="23">检索增强生成方法</text>
+                        <text class="lm_sub" x="40" y="41">混合检索 · 提示工程</text>
+                    </g>
+                    <path d="M881,609 L886,613 L881,617" fill="none" stroke="rgba(190,24,93,0.45)" stroke-width="1.6" />
+
+                    <g class="lm_node lm_step" data-key="r5" style="--c:#be185d;--f:#fff;--b:rgba(190,24,93,0.22);--t:#5b1230" transform="translate(896,586)">
+                        <rect class="lm_box" width="195" height="54" rx="10" />
+                        <circle class="lm_num" cx="20" cy="27" r="10" />
+                        <text class="lm_numT" x="20" y="31" text-anchor="middle">5</text>
+                        <text class="lm_title" x="40" y="23">实验对比与消融分析</text>
+                        <text class="lm_sub" x="40" y="41">基线对比 · 消融实验</text>
+                    </g>
+
+                    <rect x="36" y="650" width="201" height="30" rx="15" fill="#fff" stroke="rgba(190,24,93,0.16)" />
+                    <text x="136.5" y="669" text-anchor="middle" font-size="10.5" fill="#64748b">检索 Recall@K / MRR</text>
+                    <rect x="249" y="650" width="201" height="30" rx="15" fill="#fff" stroke="rgba(190,24,93,0.16)" />
+                    <text x="349.5" y="669" text-anchor="middle" font-size="10.5" fill="#64748b">意图 Accuracy / F1</text>
+                    <rect x="462" y="650" width="201" height="30" rx="15" fill="#fff" stroke="rgba(190,24,93,0.16)" />
+                    <text x="562.5" y="669" text-anchor="middle" font-size="10.5" fill="#64748b">生成 BLEU / ROUGE-L</text>
+                    <rect x="675" y="650" width="201" height="30" rx="15" fill="#fff" stroke="rgba(190,24,93,0.16)" />
+                    <text x="775.5" y="669" text-anchor="middle" font-size="10.5" fill="#64748b">人工满意度评分</text>
+                    <rect x="888" y="650" width="201" height="30" rx="15" fill="#fff" stroke="rgba(190,24,93,0.16)" />
+                    <text x="988.5" y="669" text-anchor="middle" font-size="10.5" fill="#64748b">端到端响应时延</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="lm_info">
+            <div class="lm_info__head"><span class="lm_info__dot" id="lm_info_dot"></span><span id="lm_info_layer">未选择节点</span></div>
+            <h3 id="lm_info_title">点击架构图中的任意节点</h3>
+            <p class="lm_info__stack" id="lm_info_stack">悬停可高亮，点击查看该层的职责、技术栈与研究要点。</p>
+            <p class="lm_info__desc" id="lm_info_desc"></p>
+        </div>
+
+        <div class="lm_note">
+            <b>科研方向说明：</b>本架构以「知识库」为底座、以「检索增强生成（RAG）」为核心方法，形成可实验、可评估的闭环。
+            <ol>
+                <li><b>知识表示：</b>FAQ 对、知识图谱三元组与文本向量三路知识互补，覆盖结构化与半结构化客服知识。</li>
+                <li><b>方法创新点：</b>BM25 与向量召回混合，再用 Cross-Encoder 精排；生成阶段用约束提示与引用片段抑制幻觉。</li>
+                <li><b>评估体系：</b>离线指标（Recall@K、MRR、意图 F1、BLEU/ROUGE-L）加在线 A/B 与人工评分，验证方法的有效性。</li>
+            </ol>
+            <b>技术实现：</b>整图使用原生 <code>&lt;svg&gt;</code> 矢量绘制，节点为 <code>&lt;g&gt;</code> 分组，
+            悬停高亮由 CSS 变量与 <code>:hover</code> 控制，点击后由原生 JS 读取 <code>data-key</code> 填充下方信息面板，全程无第三方库。
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var lm_svg = document.getElementById('lm_svg');
+            var lm_dot = document.getElementById('lm_info_dot');
+            var lm_layerEl = document.getElementById('lm_info_layer');
+            var lm_titleEl = document.getElementById('lm_info_title');
+            var lm_stackEl = document.getElementById('lm_info_stack');
+            var lm_descEl = document.getElementById('lm_info_desc');
+            var lm_on = null;
+
+            var lm_data = {
+                a1: { layer: '用户交互层', color: '#2e6fe3', title: '网页在线客服', stack: 'Web Widget / SSE 流式输出', desc: '网页右下角悬浮的客服窗口，支持图文消息、文件上传与订单卡片，通过 SSE 流式接收机器人答案。' },
+                a2: { layer: '用户交互层', color: '#2e6fe3', title: '微信小程序客服', stack: '公众号 / 小程序消息通道', desc: '承接公众号与小程序内的咨询消息，复用同一套智能核心，支持菜单与图文卡片消息。' },
+                a3: { layer: '用户交互层', color: '#2e6fe3', title: 'App 内嵌客服', stack: 'Android / iOS SDK', desc: '原生 App 内嵌的会话页面，支持离线消息补发与系统推送提醒，是移动端主要咨询入口。' },
+                a4: { layer: '用户交互层', color: '#2e6fe3', title: '电话与工单入口', stack: '呼叫中心 / ASR / 工单系统', desc: '语音经 ASR 转文字后接入智能客服；机器人无法闭环的问题自动升级为工单，进入人工处理队列。' },
+
+                b1: { layer: '接入与服务层', color: '#7c3aed', title: '会话网关', stack: 'WebSocket / SSE / 心跳保活', desc: '统一接入多端会话，负责长连接管理、消息分发与断线重连，是流量进入系统的第一道关口。' },
+                b2: { layer: '接入与服务层', color: '#7c3aed', title: '渠道适配层', stack: '消息协议转换', desc: '把各个渠道不同格式的消息统一成标准消息结构，屏蔽渠道差异，让核心层只关心语义。' },
+                b3: { layer: '接入与服务层', color: '#7c3aed', title: '会话路由', stack: '规则引擎 / 技能组负载', desc: '按业务线、用户等级与问题类型把会话分发给对应机器人与技能组，忙时按负载做均衡。' },
+                b4: { layer: '接入与服务层', color: '#7c3aed', title: '转人工协同', stack: '坐席工作台 / 上下文透传', desc: '当机器人置信度低于阈值或用户主动要求时转人工，同时把对话上下文与推荐答案推给坐席。' },
+
+                c1: { layer: '智能核心层', color: '#0f9d76', title: '意图识别', stack: 'BERT / TextCNN + 槽位抽取', desc: '对用户问句做多分类意图识别与槽位抽取，输出结构化语义，是后续检索与生成的前置条件。' },
+                c2: { layer: '智能核心层', color: '#0f9d76', title: '多轮对话管理', stack: 'DST / 对话策略', desc: '维护对话状态与多轮上下文，处理澄清追问、槽位补全与任务编排，让回答不脱离上下文。' },
+                c3: { layer: '智能核心层', color: '#0f9d76', title: '检索增强 RAG', stack: 'BM25 + 向量召回 + Cross-Encoder', desc: '先从知识库混合召回候选片段并精排，再把高质量片段交给大模型，是抑制幻觉的关键环节。' },
+                c4: { layer: '智能核心层', color: '#0f9d76', title: '大模型生成', stack: 'LLM / Prompt 模板', desc: '在检索片段约束下生成答案，提示词限定「只依据给定资料作答」，超出知识范围时明确告知并转人工。' },
+                c5: { layer: '智能核心层', color: '#0f9d76', title: '答案校验与溯源', stack: '事实核查 / 引用回链', desc: '校验生成答案与引用片段的一致性，输出知识来源链接，便于用户核验与后续人工抽检。' },
+
+                d1: { layer: '知识库层', color: '#d97706', title: '文档解析入库', stack: 'PDF / Word / HTML 解析', desc: '把产品手册、政策文档解析、清洗并按语义切分为知识片段，是知识库的原始来源。' },
+                d2: { layer: '知识库层', color: '#d97706', title: 'FAQ 知识库', stack: '标准问答对 / 相似问', desc: '沉淀高频问题的标准答案与相似问法，高置信度命中时直接返回，响应快且答案稳定。' },
+                d3: { layer: '知识库层', color: '#d97706', title: '知识图谱', stack: '实体-关系-属性三元组', desc: '把商品、政策、业务流程抽成实体与关系，支持多跳推理，补足纯文本检索说不清的结构化问题。' },
+                d4: { layer: '知识库层', color: '#d97706', title: '向量索引库', stack: 'Embedding + FAISS / Milvus', desc: '知识片段向量化后写入 ANN 索引，支持语义召回，解决同义表述与口语化问法的匹配问题。' },
+                d5: { layer: '知识库层', color: '#d97706', title: '知识更新审核', stack: '版本管理 / 生效时间', desc: '知识条目带版本与生效时间，变更需人工审核，保证客服口径与业务政策同步，避免答错。' },
+
+                e1: { layer: '数据与支撑层', color: '#475569', title: '会话日志', stack: '埋点 / 主题化存储', desc: '全量留存会话与检索、生成过程日志，为错误分析、语料回流和模型迭代提供数据基础。' },
+                e2: { layer: '数据与支撑层', color: '#475569', title: '模型推理服务', stack: 'vLLM / Triton', desc: '统一封装 NLU 与 LLM 推理，支持批处理与流式输出，隔离模型与业务逻辑。' },
+                e3: { layer: '数据与支撑层', color: '#475569', title: 'Embedding 服务', stack: '向量化 API', desc: '把文本转为向量，供离线建索引与在线检索共用，保证两侧向量空间一致。' },
+                e4: { layer: '数据与支撑层', color: '#475569', title: '缓存与消息队列', stack: 'Redis / Kafka', desc: '缓存高频问答结果降低时延，用 Kafka 异步处理日志投递与知识更新，削峰填谷。' },
+                e5: { layer: '数据与支撑层', color: '#475569', title: '监控告警', stack: 'Prometheus / Grafana', desc: '监控端到端时延、检索命中率、转人工率与错误率，异常指标自动告警，支撑线上质量闭环。' },
+
+                r1: { layer: '科研方法与评估', color: '#be185d', title: '问题定义与文献调研', stack: '研究步骤 1 / 文献综述', desc: '明确研究问题（如客服答案准确性与幻觉抑制），综述 RAG、KBQA 与对话系统的相关工作，确定研究边界。' },
+                r2: { layer: '科研方法与评估', color: '#be185d', title: '语料采集与标注', stack: '研究步骤 2 / 数据集构建', desc: '采集真实客服语料，完成意图与答案标注，按比例划分训练集、验证集与测试集，保证实验可复现。' },
+                r3: { layer: '科研方法与评估', color: '#be185d', title: '知识库与索引构建', stack: '研究步骤 3 / 知识工程', desc: '完成文档解析、知识图谱抽取与向量索引构建，形成支撑检索实验的知识底座。' },
+                r4: { layer: '科研方法与评估', color: '#be185d', title: '检索增强生成方法', stack: '研究步骤 4 / 方法设计', desc: '设计混合检索策略、精排模型与提示模板，通过约束生成与引用回链抑制幻觉，这是本文的方法核心。' },
+                r5: { layer: '科研方法与评估', color: '#be185d', title: '实验对比与消融分析', stack: '研究步骤 5 / 实验验证', desc: '与基线模型对比，做检索模块、精排模块的消融实验，结合误差分析说明各模块的贡献。' }
+            };
+
+            function lm_select(lm_g) {
+                if (lm_on) {
+                    lm_on.classList.remove('is-on');
+                }
+                lm_on = lm_g;
+                lm_g.classList.add('is-on');
+
+                var lm_d = lm_data[lm_g.getAttribute('data-key')];
+                if (!lm_d) return;
+
+                lm_layerEl.textContent = lm_d.layer;
+                lm_dot.style.background = lm_d.color;
+                lm_titleEl.textContent = lm_d.title;
+                lm_stackEl.textContent = lm_d.stack;
+                lm_descEl.textContent = lm_d.desc;
+            }
+
+            lm_svg.addEventListener('click', function (lm_e) {
+                var lm_g = lm_e.target.closest ? lm_e.target.closest('g.lm_node') : null;
+                if (lm_g) lm_select(lm_g);
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-2 · Canvas 电商系统架构图</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #eef3fb 0%, #f2f8f5 100%);
+            color: #2c3e50;
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            width: 440px;
+            height: 440px;
+            left: -130px;
+            top: -90px;
+            background: radial-gradient(circle, #93c5fd 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 480px;
+            height: 480px;
+            right: -150px;
+            bottom: -110px;
+            background: radial-gradient(circle, #99f6e4 0%, transparent 70%);
+        }
+
+        .lm_wrap {
+            max-width: 1160px;
+            margin: 0 auto;
+        }
+
+        .lm_back {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .lm_back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #2563eb, #0f766e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 46px;
+            height: 4px;
+            border-radius: 2px;
+            margin: 8px auto 0;
+            background: linear-gradient(90deg, #2563eb, #0f766e);
+        }
+
+        .lm_sub {
+            display: table;
+            margin: 0 auto 20px;
+            padding: 6px 18px;
+            background: #fff;
+            border: 1px solid #dce8f3;
+            border-radius: 999px;
+            color: #64748b;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(23, 54, 125, 0.05);
+        }
+
+        /* 图例 */
+        .lm_legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 18px;
+            margin-bottom: 16px;
+            font-size: 12.5px;
+            color: #5b6b7f;
+        }
+
+        .lm_legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lm_legend i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* 画布容器 */
+        .lm_board {
+            position: relative;
+            background: #fff;
+            border: 1px solid #e6ecf5;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(23, 54, 125, 0.08), 0 1px 3px rgba(23, 54, 125, 0.06);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        #lm_canvas {
+            display: block;
+            cursor: default;
+        }
+
+        /* 悬浮提示 */
+        .lm_tip {
+            position: absolute;
+            z-index: 5;
+            max-width: 260px;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.92);
+            color: #e8eef7;
+            font-size: 12.5px;
+            line-height: 1.6;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+            pointer-events: none;
+            display: none;
+            white-space: normal;
+        }
+
+        .lm_tip b {
+            color: #93c5fd;
+            font-weight: bold;
+        }
+
+        /* 节点信息面板 */
+        .lm_info {
+            margin-top: 16px;
+            padding: 18px 22px;
+            background: #fff;
+            border: 1px solid #e6ecf5;
+            border-left: 4px solid #2563eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(23, 54, 125, 0.06);
+            min-height: 104px;
+        }
+
+        .lm_info__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .lm_info__dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .lm_info h3 {
+            font-size: 17px;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .lm_info__stack {
+            font-size: 13px;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .lm_info__desc {
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: #5b6b7f;
+        }
+
+        .lm_note {
+            margin-top: 16px;
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid #e6ecf5;
+            border-left: 4px solid #0f766e;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #5b6b7f;
+            box-shadow: 0 4px 16px rgba(23, 54, 125, 0.05);
+        }
+
+        .lm_note b {
+            color: #0f172a;
+        }
+
+        .lm_note code {
+            padding: 2px 6px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            color: #0f766e;
+            font-size: 12.5px;
+        }
+
+        @media (max-width: 720px) {
+            h1 {
+                font-size: 23px;
+                line-height: 1.4;
+            }
+
+            .lm_info {
+                padding: 16px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：canvas 电商系统架构图 -->
+    <div class="lm_wrap">
+        <a class="lm_back" href="./index.html">← 返回首页</a>
+        <h1>电商全站系统架构图</h1>
+        <p class="lm_sub">纯 canvas 绘制 · 鼠标悬停高亮 · 点击节点查看职责</p>
+
+        <div class="lm_legend">
+            <span><i style="background:#2e6fe3"></i>用户层</span>
+            <span><i style="background:#7c3aed"></i>接入层</span>
+            <span><i style="background:#0f9d76"></i>业务服务层</span>
+            <span><i style="background:#d97706"></i>中间件层</span>
+            <span><i style="background:#c0171f"></i>数据层</span>
+            <span><i style="background:#475569"></i>运维保障</span>
+        </div>
+
+        <div class="lm_board" id="lm_board">
+            <canvas id="lm_canvas"></canvas>
+            <div class="lm_tip" id="lm_tip"></div>
+        </div>
+
+        <div class="lm_info" id="lm_info">
+            <div class="lm_info__head"><span class="lm_info__dot" id="lm_info_dot"></span><span id="lm_info_layer">未选择节点</span></div>
+            <h3 id="lm_info_title">点击架构图中的任意节点</h3>
+            <p class="lm_info__stack" id="lm_info_stack">悬停可高亮，点击查看该节点的职责与技术栈。</p>
+            <p class="lm_info__desc" id="lm_info_desc"></p>
+        </div>
+
+        <p class="lm_note">
+            <b>实现思路：</b>整张架构图不用一张图片，全部由 canvas 2D API 逐帧绘制：
+            用 <code>roundRect</code> 画圆角卡片、<code>fillText</code> 画文字、<code>lineTo</code> 画层间箭头，
+            用 <code>requestAnimationFrame</code> 让数据流小圆点沿箭头向下滚动。
+            鼠标坐标经 <code>getBoundingClientRect</code> 换算回逻辑坐标后做矩形碰撞检测，实现悬停高亮与点击查看详情。
+        </p>
+    </div>
+
+    <script>
+        (function () {
+            var LM_W = 1120;
+            var LM_H = 748;
+            var LM_X0 = 88;
+            var LM_X1 = 1088;
+            var LM_RAIL_X = 18;
+            var LM_RAIL_W = 56;
+            var LM_BOX_H = 62;
+
+            var lm_canvas = document.getElementById('lm_canvas');
+            var lm_board = document.getElementById('lm_board');
+            var lm_tip = document.getElementById('lm_tip');
+            var lm_ctx = lm_canvas.getContext('2d');
+
+            var lm_infoLayer = document.getElementById('lm_info_layer');
+            var lm_infoDot = document.getElementById('lm_info_dot');
+            var lm_infoTitle = document.getElementById('lm_info_title');
+            var lm_infoStack = document.getElementById('lm_info_stack');
+            var lm_infoDesc = document.getElementById('lm_info_desc');
+
+            var lm_t0 = performance.now();
+            var lm_nodes = [];
+            var lm_hover = null;
+            var lm_selected = null;
+
+            var lm_tones = {
+                user: { fill: '#eaf2ff', border: '#bcd4ff', accent: '#2e6fe3', text: '#17367d' },
+                gate: { fill: '#f3edff', border: '#dbc9ff', accent: '#7c3aed', text: '#4c1d95' },
+                svc: { fill: '#e8f8f2', border: '#b7e6d4', accent: '#0f9d76', text: '#08513b' },
+                mid: { fill: '#fff4e8', border: '#ffd9b4', accent: '#d97706', text: '#7c3a00' },
+                data: { fill: '#fdecee', border: '#f6c4c9', accent: '#c0171f', text: '#7a0c12' },
+                ops: { fill: '#eef1f6', border: '#d2dae6', accent: '#475569', text: '#1e293b' }
+            };
+
+            // 架构数据：从顶部的用户入口到底部的数据与运维，逐层向下
+            var lm_layers = [
+                {
+                    name: '用户层',
+                    tone: 'user',
+                    rows: [
+                        {
+                            y: 44,
+                            items: [
+                                { title: 'PC 商城前台', sub: 'Vue3 + Vite', stack: 'Vue3 / Pinia / Vite', desc: '面向 PC 浏览器的主站，承载从商品浏览、加入购物车到下单支付的完整交易链路。' },
+                                { title: '微信小程序', sub: 'Taro / 原生', stack: 'Taro / 微信原生框架', desc: '移动端主要流量入口，复用交易主链路，接入微信登录、分享与微信支付。' },
+                                { title: '移动 App', sub: 'Flutter / 原生', stack: 'Flutter / Android / iOS', desc: 'iOS 与 Android 客户端，负责消息推送、会员中心与秒杀等高转化场景。' },
+                                { title: '商家管理后台', sub: 'Vue3 + Element', stack: 'Vue3 / Element Plus', desc: '商家上架商品、处理订单、设置促销、查看经营数据的后台工作台。' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '接入层',
+                    tone: 'gate',
+                    rows: [
+                        {
+                            y: 152,
+                            items: [
+                                { title: 'CDN 加速', sub: '边缘静态分发', stack: 'CDN 边缘节点 / 对象存储回源', desc: '把图片、视频、JS/CSS 分发到离用户最近的节点，显著降低首屏加载时间。' },
+                                { title: 'API 网关', sub: 'Spring Cloud Gateway', stack: 'Spring Cloud Gateway', desc: '全站统一流量入口：统一鉴权、限流熔断、灰度路由、请求日志与埋点。' },
+                                { title: '负载均衡', sub: 'Nginx / LVS', stack: 'Nginx + LVS', desc: '四层与七层流量转发，按权重分发请求，健康检查失败自动摘除故障节点。' },
+                                { title: '安全防护', sub: 'WAF / HTTPS', stack: 'WAF / HTTPS / 风控', desc: '拦截 SQL 注入与 XSS，防刷限流、防薅羊毛，保障接口与交易安全。' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '服务层',
+                    tone: 'svc',
+                    rows: [
+                        {
+                            y: 260,
+                            items: [
+                                { title: '用户中心', sub: '注册 / 会员 / 地址', stack: 'Spring Boot / MySQL', desc: '注册登录、会员等级与权益、收货地址簿、实名认证，是全站账户体系的基础。' },
+                                { title: '商品服务', sub: 'SPU / SKU / 类目', stack: 'Spring Boot / MySQL / Redis', desc: '类目树、SPU/SKU 管理、上下架与价格库存快照，为交易提供商品数据基础。' },
+                                { title: '订单服务', sub: '下单 / 拆单 / 状态机', stack: 'Spring Boot / Kafka', desc: '下单校验、拆单、订单状态机流转、超时关单，保证交易数据最终一致。' },
+                                { title: '支付服务', sub: '微信 / 支付宝', stack: 'Spring Boot / Kafka', desc: '对接第三方支付渠道，处理支付回调、账单对账、退款与异常补偿。' }
+                            ]
+                        },
+                        {
+                            y: 334,
+                            items: [
+                                { title: '库存服务', sub: '扣减 / 预占 / 回补', stack: 'Redis / MySQL 乐观锁', desc: '下单预占库存、支付后真实扣减、取消订单回补库存，通过乐观锁与 Redis 防止超卖。' },
+                                { title: '物流服务', sub: '运费 / 发货 / 轨迹', stack: 'Spring Boot / 三方物流 API', desc: '运费模板计算、电子面单打印发货、物流轨迹订阅与签收状态同步。' },
+                                { title: '营销服务', sub: '券 / 秒杀 / 拼团', stack: 'Spring Boot / Redis / Kafka', desc: '优惠券发放与核销、满减计算、秒杀与拼团活动，负责促销规则与价格计算。' },
+                                { title: '消息服务', sub: '短信 / 推送 / 站内信', stack: 'Kafka / 三方消息通道', desc: '短信、站内信、App 推送的统一发送与限流，异步触达用户，避免阻塞主链路。' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '中间件层',
+                    tone: 'mid',
+                    rows: [
+                        {
+                            y: 444,
+                            gap: 14,
+                            items: [
+                                { title: '注册中心', sub: 'Nacos', stack: 'Nacos', desc: '服务注册与发现、配置动态下发，支撑服务水平扩容与灰度发布。' },
+                                { title: '消息队列', sub: 'Kafka', stack: 'Kafka', desc: '订单、库存、支付的异步解耦与削峰填谷，用可靠消息保证最终一致性。' },
+                                { title: 'Redis 缓存', sub: '热点 / 锁 / 会话', stack: 'Redis Cluster', desc: '缓存热点商品与类目数据，提供分布式锁与会话共享，抗住高并发读。' },
+                                { title: '搜索引擎', sub: 'Elasticsearch', stack: 'Elasticsearch / IK 分词', desc: '商品全文检索、分词与聚合筛选，支撑搜索页与推荐场景。' },
+                                { title: '任务调度', sub: 'XXL-JOB', stack: 'XXL-JOB', desc: '订单超时关闭、库存回补、每日对账等定时任务统一调度与失败重试。' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '数据层',
+                    tone: 'data',
+                    rows: [
+                        {
+                            y: 548,
+                            items: [
+                                { title: 'MySQL 主从', sub: '读写分离', stack: 'MySQL / binlog 同步', desc: '交易、用户、商品主库，主从复制实现读写分离，保障核心数据可靠。' },
+                                { title: '分库分表', sub: 'ShardingSphere', stack: 'ShardingSphere / 分片键', desc: '按用户与订单维度水平拆分，解决单表数据量过大带来的性能瓶颈。' },
+                                { title: '对象存储 OSS', sub: '图片 / 视频 / 附件', stack: 'OSS / 私有 Bucket', desc: '商品图片、详情视频与售后附件的统一存储，配合 CDN 完成回源分发。' },
+                                { title: '数据仓库', sub: '离线 + 实时数仓', stack: 'Hive / Spark / Flink', desc: '数仓分层建模，产出经营报表、用户画像与选品分析数据。' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '运维保障',
+                    tone: 'ops',
+                    rows: [
+                        {
+                            y: 652,
+                            gap: 20,
+                            items: [
+                                { title: '日志中心', sub: 'ELK', stack: 'Filebeat / Kafka / ES / Kibana', desc: '统一采集应用日志，按 TraceID 聚合检索，快速定位线上问题。' },
+                                { title: '监控告警', sub: 'Prometheus + Grafana', stack: 'Prometheus / Grafana / Alertmanager', desc: '监控接口耗时、错误率、JVM 与主机指标，异常阈值自动告警值班。' },
+                                { title: '链路追踪', sub: 'SkyWalking', stack: 'SkyWalking / TraceID', desc: 'TraceID 贯穿网关到数据库的全链路，定位跨服务调用的性能瓶颈。' }
+                            ]
+                        }
+                    ]
+                }
+            ];
+
+            function lm_alpha(lm_hex, lm_a) {
+                return 'rgba(' + parseInt(lm_hex.slice(1, 3), 16) + ',' +
+                    parseInt(lm_hex.slice(3, 5), 16) + ',' +
+                    parseInt(lm_hex.slice(5, 7), 16) + ',' + lm_a + ')';
+            }
+
+            function lm_roundRect(lm_x, lm_y, lm_w, lm_h, lm_r) {
+                lm_ctx.beginPath();
+                lm_ctx.moveTo(lm_x + lm_r, lm_y);
+                lm_ctx.lineTo(lm_x + lm_w - lm_r, lm_y);
+                lm_ctx.quadraticCurveTo(lm_x + lm_w, lm_y, lm_x + lm_w, lm_y + lm_r);
+                lm_ctx.lineTo(lm_x + lm_w, lm_y + lm_h - lm_r);
+                lm_ctx.quadraticCurveTo(lm_x + lm_w, lm_y + lm_h, lm_x + lm_w - lm_r, lm_y + lm_h);
+                lm_ctx.lineTo(lm_x + lm_r, lm_y + lm_h);
+                lm_ctx.quadraticCurveTo(lm_x, lm_y + lm_h, lm_x, lm_y + lm_h - lm_r);
+                lm_ctx.lineTo(lm_x, lm_y + lm_r);
+                lm_ctx.quadraticCurveTo(lm_x, lm_y, lm_x + lm_r, lm_y);
+                lm_ctx.closePath();
+            }
+
+            // 计算每个节点的矩形位置（逻辑坐标，与缩放无关）
+            function lm_buildLayout() {
+                lm_nodes = [];
+
+                for (var lm_i = 0; lm_i < lm_layers.length; lm_i++) {
+                    var lm_layer = lm_layers[lm_i];
+                    var lm_tone = lm_tones[lm_layer.tone];
+                    lm_layer.accent = lm_tone.accent;
+
+                    for (var lm_r = 0; lm_r < lm_layer.rows.length; lm_r++) {
+                        var lm_row = lm_layer.rows[lm_r];
+                        var lm_n = lm_row.items.length;
+                        var lm_gap = lm_row.gap || 16;
+                        var lm_boxW = (LM_X1 - LM_X0 - (lm_n - 1) * lm_gap) / lm_n;
+
+                        for (var lm_k = 0; lm_k < lm_n; lm_k++) {
+                            var lm_item = lm_row.items[lm_k];
+                            lm_item.x = LM_X0 + lm_k * (lm_boxW + lm_gap);
+                            lm_item.y = lm_row.y;
+                            lm_item.w = lm_boxW;
+                            lm_item.h = LM_BOX_H;
+                            lm_item.tone = lm_tone;
+                            lm_item.layerName = lm_layer.name;
+                            lm_nodes.push(lm_item);
+                        }
+                    }
+
+                    lm_layer.top = lm_layer.rows[0].y - 12;
+                    var lm_lastRow = lm_layer.rows[lm_layer.rows.length - 1];
+                    lm_layer.bottom = lm_lastRow.y + LM_BOX_H + 12;
+                }
+            }
+
+            // 画一个节点卡片
+            function lm_drawNode(lm_node) {
+                var lm_hl = lm_node === lm_selected ? 2 : (lm_node === lm_hover ? 1 : 0);
+                var lm_tone = lm_node.tone;
+
+                if (lm_hl > 0) {
+                    lm_ctx.save();
+                    lm_ctx.shadowColor = lm_alpha(lm_tone.accent, 0.35);
+                    lm_ctx.shadowBlur = lm_hl === 2 ? 20 : 12;
+                    lm_ctx.shadowOffsetY = 4;
+                    lm_ctx.fillStyle = '#fff';
+                    lm_roundRect(lm_node.x, lm_node.y, lm_node.w, lm_node.h, 10);
+                    lm_ctx.fill();
+                    lm_ctx.restore();
+                }
+
+                lm_ctx.fillStyle = lm_hl > 0 ? '#fff' : lm_tone.fill;
+                lm_roundRect(lm_node.x, lm_node.y, lm_node.w, lm_node.h, 10);
+                lm_ctx.fill();
+
+                lm_ctx.strokeStyle = lm_hl > 0 ? lm_tone.accent : lm_tone.border;
+                lm_ctx.lineWidth = lm_hl > 0 ? 2 : 1;
+                lm_roundRect(lm_node.x + (lm_hl > 0 ? 1 : 0.5), lm_node.y + (lm_hl > 0 ? 1 : 0.5),
+                    lm_node.w - (lm_hl > 0 ? 2 : 1), lm_node.h - (lm_hl > 0 ? 2 : 1), 10);
+                lm_ctx.stroke();
+
+                // 左侧强调条
+                lm_ctx.fillStyle = lm_tone.accent;
+                lm_roundRect(lm_node.x, lm_node.y, 4, lm_node.h, 2);
+                lm_ctx.fill();
+
+                // 标题
+                lm_ctx.fillStyle = lm_tone.text;
+                lm_ctx.font = 'bold 14px "Microsoft YaHei", sans-serif';
+                lm_ctx.textAlign = 'left';
+                lm_ctx.textBaseline = 'alphabetic';
+                lm_ctx.fillText(lm_node.title, lm_node.x + 18, lm_node.y + 27);
+
+                // 副标题
+                lm_ctx.fillStyle = '#8492a6';
+                lm_ctx.font = '11px "Microsoft YaHei", sans-serif';
+                lm_ctx.fillText(lm_node.sub, lm_node.x + 18, lm_node.y + 47);
+            }
+
+            function lm_draw(lm_now) {
+                var lm_t = (lm_now - lm_t0) / 1000;
+
+                lm_ctx.clearRect(0, 0, LM_W, LM_H);
+
+                // 背景网格
+                lm_ctx.strokeStyle = 'rgba(110, 140, 180, 0.06)';
+                lm_ctx.lineWidth = 1;
+                for (var lm_gx = 0; lm_gx <= LM_W; lm_gx += 40) {
+                    lm_ctx.beginPath();
+                    lm_ctx.moveTo(lm_gx, 0);
+                    lm_ctx.lineTo(lm_gx, LM_H);
+                    lm_ctx.stroke();
+                }
+                for (var lm_gy = 0; lm_gy <= LM_H; lm_gy += 40) {
+                    lm_ctx.beginPath();
+                    lm_ctx.moveTo(0, lm_gy);
+                    lm_ctx.lineTo(LM_W, lm_gy);
+                    lm_ctx.stroke();
+                }
+
+                // 分层背景 + 左侧层名
+                for (var lm_i = 0; lm_i < lm_layers.length; lm_i++) {
+                    var lm_layer = lm_layers[lm_i];
+
+                    lm_ctx.fillStyle = lm_alpha(lm_layer.accent, 0.035);
+                    lm_roundRect(LM_RAIL_X, lm_layer.top, LM_X1 - LM_RAIL_X + 4, lm_layer.bottom - lm_layer.top, 12);
+                    lm_ctx.fill();
+
+                    lm_ctx.fillStyle = lm_alpha(lm_layer.accent, 0.10);
+                    lm_roundRect(LM_RAIL_X, lm_layer.top, LM_RAIL_W, lm_layer.bottom - lm_layer.top, 12);
+                    lm_ctx.fill();
+
+                    lm_ctx.strokeStyle = lm_alpha(lm_layer.accent, 0.28);
+                    lm_ctx.lineWidth = 1;
+                    lm_roundRect(LM_RAIL_X + 0.5, lm_layer.top + 0.5, LM_RAIL_W - 1, lm_layer.bottom - lm_layer.top - 1, 12);
+                    lm_ctx.stroke();
+
+                    lm_ctx.save();
+                    lm_ctx.translate(LM_RAIL_X + LM_RAIL_W / 2, (lm_layer.top + lm_layer.bottom) / 2);
+                    lm_ctx.rotate(-Math.PI / 2);
+                    lm_ctx.fillStyle = lm_layer.accent;
+                    lm_ctx.font = 'bold 13px "Microsoft YaHei", sans-serif';
+                    lm_ctx.textAlign = 'center';
+                    lm_ctx.textBaseline = 'middle';
+                    lm_ctx.fillText(lm_layer.name, 0, 0);
+                    lm_ctx.restore();
+                }
+
+                // 层间箭头与流动光点
+                var lm_cols = [0.17, 0.39, 0.61, 0.83];
+                var lm_contentW = LM_X1 - LM_X0;
+
+                for (var lm_g = 0; lm_g < lm_layers.length - 1; lm_g++) {
+                    var lm_y1 = lm_layers[lm_g].bottom;
+                    var lm_y2 = lm_layers[lm_g + 1].top;
+                    var lm_color = lm_layers[lm_g + 1].accent;
+
+                    for (var lm_c = 0; lm_c < lm_cols.length; lm_c++) {
+                        var lm_x = LM_X0 + lm_contentW * lm_cols[lm_c];
+
+                        lm_ctx.strokeStyle = lm_alpha(lm_color, 0.28);
+                        lm_ctx.lineWidth = 1;
+                        lm_ctx.beginPath();
+                        lm_ctx.moveTo(lm_x, lm_y1 + 2);
+                        lm_ctx.lineTo(lm_x, lm_y2 - 7);
+                        lm_ctx.stroke();
+
+                        lm_ctx.fillStyle = lm_alpha(lm_color, 0.45);
+                        lm_ctx.beginPath();
+                        lm_ctx.moveTo(lm_x, lm_y2 - 2);
+                        lm_ctx.lineTo(lm_x - 4, lm_y2 - 9);
+                        lm_ctx.lineTo(lm_x + 4, lm_y2 - 9);
+                        lm_ctx.closePath();
+                        lm_ctx.fill();
+
+                        // 沿箭头向下移动的光点
+                        var lm_prog = (lm_t * 0.5 + lm_c * 0.25 + lm_g * 0.18) % 1;
+                        var lm_dotY = lm_y1 + 2 + (lm_y2 - 9 - lm_y1) * lm_prog;
+                        lm_ctx.fillStyle = lm_alpha(lm_color, 0.25);
+                        lm_ctx.beginPath();
+                        lm_ctx.arc(lm_x, lm_dotY, 4.5, 0, Math.PI * 2);
+                        lm_ctx.fill();
+                        lm_ctx.fillStyle = lm_color;
+                        lm_ctx.beginPath();
+                        lm_ctx.arc(lm_x, lm_dotY, 2, 0, Math.PI * 2);
+                        lm_ctx.fill();
+                    }
+                }
+
+                // 节点
+                for (var lm_n = 0; lm_n < lm_nodes.length; lm_n++) {
+                    lm_drawNode(lm_nodes[lm_n]);
+                }
+
+                requestAnimationFrame(lm_draw);
+            }
+
+            // 缩放适配（画布按容器宽度等比缩放，最小 860px 可横向滚动）
+            function lm_fit() {
+                var lm_boardW = Math.max(lm_board.clientWidth, 860);
+                var lm_scale = lm_boardW / LM_W;
+                var lm_dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                lm_canvas.style.width = lm_boardW + 'px';
+                lm_canvas.style.height = Math.round(LM_H * lm_scale) + 'px';
+                lm_canvas.width = Math.round(lm_boardW * lm_dpr);
+                lm_canvas.height = Math.round(LM_H * lm_scale * lm_dpr);
+
+                lm_ctx.setTransform(lm_scale * lm_dpr, 0, 0, lm_scale * lm_dpr, 0, 0);
+                lm_ctx.clearRect(0, 0, LM_W, LM_H);
+            }
+
+            function lm_hit(lm_x, lm_y) {
+                for (var lm_i = 0; lm_i < lm_nodes.length; lm_i++) {
+                    var lm_n = lm_nodes[lm_i];
+                    if (lm_x >= lm_n.x && lm_x <= lm_n.x + lm_n.w &&
+                        lm_y >= lm_n.y && lm_y <= lm_n.y + lm_n.h) {
+                        return lm_n;
+                    }
+                }
+                return null;
+            }
+
+            function lm_loc(e) {
+                var lm_rect = lm_canvas.getBoundingClientRect();
+                var lm_scale = lm_rect.width / LM_W;
+                return {
+                    x: (e.clientX - lm_rect.left) / lm_scale,
+                    y: (e.clientY - lm_rect.top) / lm_scale
+                };
+            }
+
+            lm_canvas.addEventListener('mousemove', function (lm_e) {
+                var lm_p = lm_loc(lm_e);
+                var lm_node = lm_hit(lm_p.x, lm_p.y);
+
+                lm_hover = lm_node;
+                lm_canvas.style.cursor = lm_node ? 'pointer' : 'default';
+
+                if (lm_node) {
+                    var lm_boardRect = lm_board.getBoundingClientRect();
+                    var lm_left = lm_e.clientX - lm_boardRect.left + lm_board.scrollLeft + 14;
+                    var lm_top = lm_e.clientY - lm_boardRect.top + 16;
+                    var lm_maxLeft = lm_board.scrollLeft + lm_board.clientWidth - 240;
+
+                    lm_tip.innerHTML = '<b>' + lm_node.layerName + '</b> · ' + lm_node.title;
+                    lm_tip.style.display = 'block';
+                    lm_tip.style.left = Math.min(lm_left, lm_maxLeft) + 'px';
+                    lm_tip.style.top = lm_top + 'px';
+                } else {
+                    lm_tip.style.display = 'none';
+                }
+            });
+
+            lm_canvas.addEventListener('mouseleave', function () {
+                lm_hover = null;
+                lm_tip.style.display = 'none';
+            });
+
+            lm_canvas.addEventListener('click', function (lm_e) {
+                var lm_p = lm_loc(lm_e);
+                var lm_node = lm_hit(lm_p.x, lm_p.y);
+
+                lm_selected = lm_node;
+
+                if (lm_node) {
+                    lm_infoLayer.textContent = lm_node.layerName;
+                    lm_infoDot.style.background = lm_node.tone.accent;
+                    lm_infoTitle.textContent = lm_node.title;
+                    lm_infoStack.textContent = '技术栈：' + lm_node.stack;
+                    lm_infoDesc.textContent = lm_node.desc;
+                } else {
+                    lm_infoLayer.textContent = '未选择节点';
+                    lm_infoDot.style.background = '#cbd5e1';
+                    lm_infoTitle.textContent = '点击架构图中的任意节点';
+                    lm_infoStack.textContent = '悬停可高亮，点击查看该节点的职责与技术栈。';
+                    lm_infoDesc.textContent = '';
+                }
+            });
+
+            window.addEventListener('resize', lm_fit);
+
+            lm_buildLayout();
+            lm_fit();
+            requestAnimationFrame(lm_draw);
+        })();
+    </script>
+</body>
+</html>

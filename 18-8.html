@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-8 · 数据可视化大屏</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: radial-gradient(circle at 50% 0%, #10203f 0%, #070d1c 48%, #04070f 100%);
+            color: #cfe3ff;
+            overflow-x: auto;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(56, 141, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 141, 255, 0.04) 1px, transparent 1px);
+            background-size: 42px 42px;
+            z-index: 0;
+        }
+
+        .lm_back {
+            position: fixed;
+            left: 14px;
+            top: 12px;
+            z-index: 20;
+            font-size: 12px;
+            color: #5aa7ff;
+            text-decoration: none;
+            padding: 5px 12px;
+            border: 1px solid rgba(58, 140, 255, 0.35);
+            border-radius: 999px;
+            background: rgba(10, 22, 42, 0.7);
+        }
+
+        .lm_back:hover {
+            color: #9fd0ff;
+            border-color: #4f9dff;
+        }
+
+        .lm_screen {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-width: 1180px;
+            height: 100vh;
+            min-height: 740px;
+            padding: 10px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ============ 顶部标题 ============ */
+        .lm_head {
+            position: relative;
+            flex: none;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border: 1px solid rgba(46, 120, 220, 0.28);
+            border-radius: 6px;
+            background: linear-gradient(180deg, rgba(18, 42, 78, 0.85), rgba(8, 18, 36, 0.7));
+            box-shadow: inset 0 0 26px rgba(24, 96, 200, 0.18);
+        }
+
+        .lm_head::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -1px;
+            transform: translateX(-50%);
+            width: 46%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4fa8ff, transparent);
+        }
+
+        .lm_head__side {
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #6f8db3;
+        }
+
+        .lm_head__side b {
+            color: #9fd0ff;
+            font-weight: normal;
+        }
+
+        .lm_head__title {
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            background: linear-gradient(120deg, #ffffff 0%, #7fd4ff 45%, #2f8bff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 26px rgba(63, 150, 255, 0.35);
+        }
+
+        .lm_head__clock {
+            font-family: Consolas, monospace;
+            color: #9fd0ff;
+            font-size: 13px;
+        }
+
+        /* ============ 三列栅格 ============ */
+        .lm_grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 2.15fr 1fr;
+            gap: 10px;
+        }
+
+        .lm_col {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .lm_col--center {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .lm_center__bottom {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ============ 面板 ============ */
+        .lm_panel {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(46, 120, 220, 0.26);
+            border-radius: 6px;
+            background: linear-gradient(180deg, rgba(15, 34, 62, 0.82), rgba(7, 16, 32, 0.72));
+            box-shadow: inset 0 0 30px rgba(20, 80, 170, 0.14), 0 4px 18px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .lm_panel::before,
+        .lm_panel::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .lm_panel::before {
+            left: -1px;
+            top: -1px;
+            border-top: 2px solid #3f8dff;
+            border-left: 2px solid #3f8dff;
+        }
+
+        .lm_panel::after {
+            right: -1px;
+            bottom: -1px;
+            border-bottom: 2px solid #3f8dff;
+            border-right: 2px solid #3f8dff;
+        }
+
+        .lm_panel__title {
+            flex: none;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 14px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #d6e8ff;
+        }
+
+        .lm_panel__title::before {
+            content: '';
+            width: 3px;
+            height: 13px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, #6fe4ff, #1b5cff);
+            box-shadow: 0 0 8px rgba(63, 160, 255, 0.7);
+        }
+
+        .lm_panel__title small {
+            font-size: 11px;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+            color: #66809f;
+        }
+
+        .lm_chart {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+        }
+
+        .lm_panel--map {
+            flex: 1.42;
+        }
+
+        .lm_legend_note {
+            position: absolute;
+            right: 14px;
+            top: 12px;
+            font-size: 11px;
+            color: #66809f;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 1180px) {
+            .lm_screen {
+                height: auto;
+                min-height: 0;
+            }
+
+            .lm_grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lm_col,
+            .lm_center__bottom {
+                grid-template-columns: 1fr;
+            }
+
+            .lm_panel {
+                min-height: 300px;
+            }
+
+            .lm_panel--map {
+                min-height: 420px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 姓名：吕淼，日期：2026-11-05，功能名称：基于 ECharts 的三列数据大屏（中国地图 + 实时图表） -->
+    <a class="lm_back" href="./index.html">← 返回首页</a>
+
+    <div class="lm_screen">
+        <header class="lm_head">
+            <div class="lm_head__side">数据源 <b>模拟实时数据</b> · 更新周期 <b>2s</b></div>
+            <h1 class="lm_head__title">智慧零售运营数据大屏</h1>
+            <div class="lm_head__side lm_head__clock" id="lm_clock">--</div>
+        </header>
+
+        <main class="lm_grid">
+            <!-- 左列 -->
+            <aside class="lm_col">
+                <section class="lm_panel">
+                    <div class="lm_panel__title">渠道订单量 <small>CHANNEL ORDERS</small></div>
+                    <div class="lm_chart" id="lm_chart_channel"></div>
+                </section>
+                <section class="lm_panel">
+                    <div class="lm_panel__title">24 小时访问趋势 <small>VISITS TREND</small></div>
+                    <div class="lm_chart" id="lm_chart_trend"></div>
+                </section>
+            </aside>
+
+            <!-- 中列 -->
+            <section class="lm_col lm_col--center">
+                <section class="lm_panel lm_panel--map">
+                    <div class="lm_panel__title">全国销售分布 <small>CHINA SALES MAP</small></div>
+                    <span class="lm_legend_note">光点 = 重点城市成交额 · 飞线 = 订单流转</span>
+                    <div class="lm_chart" id="lm_chart_map"></div>
+                </section>
+                <div class="lm_center__bottom">
+                    <section class="lm_panel">
+                        <div class="lm_panel__title">实时流量 <small>REAL-TIME</small></div>
+                        <div class="lm_chart" id="lm_chart_flow"></div>
+                    </section>
+                    <section class="lm_panel">
+                        <div class="lm_panel__title">品类销售占比 <small>CATEGORY</small></div>
+                        <div class="lm_chart" id="lm_chart_category"></div>
+                    </section>
+                </div>
+            </section>
+
+            <!-- 右列 -->
+            <aside class="lm_col">
+                <section class="lm_panel">
+                    <div class="lm_panel__title">访问终端占比 <small>DEVICE</small></div>
+                    <div class="lm_chart" id="lm_chart_device"></div>
+                </section>
+                <section class="lm_panel">
+                    <div class="lm_panel__title">城市成交额 TOP 8 <small>CITY RANK</small></div>
+                    <div class="lm_chart" id="lm_chart_rank"></div>
+                </section>
+            </aside>
+        </main>
+    </div>
+
+    <script src="./cdn/echarts.min.js"></script>
+    <script src="./cdn/china.js"></script>
+    <script>
+        (function () {
+            /* ---------- 通用样式 ---------- */
+            var lm_textColor = '#8ea6c8';
+            var lm_axisLabel = { color: lm_textColor, fontSize: 11 };
+            var lm_axisLine = { lineStyle: { color: 'rgba(70, 120, 180, 0.35)' } };
+            var lm_splitLine = { lineStyle: { color: 'rgba(70, 120, 180, 0.18)', type: 'dashed' } };
+
+            var lm_tooltip = {
+                backgroundColor: 'rgba(7, 17, 33, 0.94)',
+                borderColor: 'rgba(56, 141, 255, 0.48)',
+                borderWidth: 1,
+                padding: [8, 12],
+                textStyle: { color: '#dbe8f8', fontSize: 12 }
+            };
+
+            var lm_gradient = {
+                cyan: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#6fe4ff' },
+                    { offset: 1, color: '#1b5cff' }
+                ]),
+                green: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#7cf2c8' },
+                    { offset: 1, color: '#0e9f77' }
+                ]),
+                purple: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#c4a7ff' },
+                    { offset: 1, color: '#5b4bd6' }
+                ])
+            };
+
+            /* ---------- 时钟 ---------- */
+            var lm_clockEl = document.getElementById('lm_clock');
+
+            function lm_tickClock() {
+                var lm_d = new Date();
+                var lm_pad = function (lm_n) { return lm_n < 10 ? '0' + lm_n : String(lm_n); };
+                lm_clockEl.textContent =
+                    lm_d.getFullYear() + '-' + lm_pad(lm_d.getMonth() + 1) + '-' + lm_pad(lm_d.getDate()) +
+                    ' ' + lm_pad(lm_d.getHours()) + ':' + lm_pad(lm_d.getMinutes()) + ':' + lm_pad(lm_d.getSeconds());
+            }
+
+            lm_tickClock();
+            setInterval(lm_tickClock, 1000);
+
+            /* ---------- 左列：渠道订单量 ---------- */
+            var lm_channelChart = echarts.init(document.getElementById('lm_chart_channel'));
+
+            lm_channelChart.setOption({
+                grid: { left: 46, right: 18, top: 26, bottom: 26 },
+                tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' } }, lm_tooltip),
+                xAxis: {
+                    type: 'category',
+                    data: ['官网', 'APP', '小程序', '门店', '第三方'],
+                    axisTick: { show: false },
+                    axisLine: lm_axisLine,
+                    axisLabel: lm_axisLabel
+                },
+                yAxis: {
+                    type: 'value',
+                    axisTick: { show: false },
+                    axisLine: { show: false },
+                    axisLabel: lm_axisLabel,
+                    splitLine: lm_splitLine
+                },
+                series: [{
+                    type: 'bar',
+                    barWidth: 16,
+                    itemStyle: { color: lm_gradient.cyan, borderRadius: [4, 4, 0, 0] },
+                    label: { show: true, position: 'top', color: '#9fd6ff', fontSize: 11 },
+                    data: [1280, 2160, 1860, 980, 640]
+                }]
+            });
+
+            /* ---------- 左列：24 小时访问趋势 ---------- */
+            var lm_trendChart = echarts.init(document.getElementById('lm_chart_trend'));
+            var lm_hours = [];
+            for (var lm_h = 0; lm_h < 24; lm_h++) {
+                lm_hours.push((lm_h < 10 ? '0' + lm_h : String(lm_h)) + ':00');
+            }
+
+            function lm_trendData(lm_offset) {
+                var lm_arr = [];
+                for (var lm_i = 0; lm_i < 24; lm_i++) {
+                    var lm_base = 120 + 95 * Math.sin((lm_i - 6 + lm_offset) / 24 * Math.PI * 2);
+                    lm_arr.push(Math.max(8, Math.round(lm_base + Math.abs(lm_base) * 0.18)));
+                }
+                return lm_arr;
+            }
+
+            lm_trendChart.setOption({
+                grid: { left: 42, right: 20, top: 34, bottom: 26 },
+                tooltip: Object.assign({ trigger: 'axis' }, lm_tooltip),
+                legend: {
+                    right: 6,
+                    top: 2,
+                    itemWidth: 10,
+                    itemHeight: 8,
+                    textStyle: { color: '#8ea6c8', fontSize: 11 },
+                    data: ['访问量', '下单量']
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: lm_hours,
+                    axisTick: { show: false },
+                    axisLine: lm_axisLine,
+                    axisLabel: { color: lm_textColor, fontSize: 10, interval: 3 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisTick: { show: false },
+                    axisLine: { show: false },
+                    axisLabel: lm_axisLabel,
+                    splitLine: lm_splitLine
+                },
+                series: [
+                    {
+                        name: '访问量',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#4fb1ff', width: 2 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(79, 177, 255, 0.45)' },
+                                { offset: 1, color: 'rgba(79, 177, 255, 0.02)' }
+                            ])
+                        },
+                        data: lm_trendData(0)
+                    },
+                    {
+                        name: '下单量',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#7cf2c8', width: 2 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(124, 242, 200, 0.35)' },
+                                { offset: 1, color: 'rgba(124, 242, 200, 0.02)' }
+                            ])
+                        },
+                        data: lm_trendData(3)
+                    }
+                ]
+            });
+
+            /* ---------- 中列：全国销售分布地图 ---------- */
+            var lm_mapChart = echarts.init(document.getElementById('lm_chart_map'));
+
+            var lm_provinceValue = {
+                '北京': 286, '天津': 132, '河北': 168, '山西': 96, '内蒙古': 78,
+                '辽宁': 142, '吉林': 74, '黑龙江': 82, '上海': 318, '江苏': 296,
+                '浙江': 305, '安徽': 158, '福建': 214, '江西': 126, '山东': 232,
+                '河南': 196, '湖北': 174, '湖南': 162, '广东': 356, '广西': 118,
+                '海南': 64, '重庆': 148, '四川': 188, '贵州': 92, '云南': 104,
+                '西藏': 32, '陕西': 136, '甘肃': 58, '青海': 26, '宁夏': 34,
+                '新疆': 62, '香港': 88, '澳门': 24, '台湾': 76
+            };
+
+            var lm_minVal = 24;
+            var lm_maxVal = 356;
+
+            function lm_heatColor(lm_v) {
+                var lm_t = Math.max(0, Math.min(1, (lm_v - lm_minVal) / (lm_maxVal - lm_minVal)));
+                var lm_r = Math.round(12 + 30 * lm_t);
+                var lm_g = Math.round(36 + 96 * lm_t);
+                var lm_b = Math.round(68 + 156 * lm_t);
+                return 'rgb(' + lm_r + ',' + lm_g + ',' + lm_b + ')';
+            }
+
+            var lm_regions = [];
+            if (window.LM_CHINA_GEO && window.LM_CHINA_GEO.features) {
+                for (var lm_f = 0; lm_f < window.LM_CHINA_GEO.features.length; lm_f++) {
+                    var lm_name = window.LM_CHINA_GEO.features[lm_f].properties.name;
+                    var lm_v = lm_provinceValue[lm_name];
+                    if (lm_v === undefined) continue;
+                    lm_regions.push({
+                        name: lm_name,
+                        itemStyle: { areaColor: lm_heatColor(lm_v) }
+                    });
+                }
+                echarts.registerMap('lm_china', window.LM_CHINA_GEO);
+            }
+
+            var lm_cities = [
+                { name: '北京', coord: [116.46, 39.92], value: 286 },
+                { name: '上海', coord: [121.48, 31.22], value: 318 },
+                { name: '广州', coord: [113.23, 23.16], value: 356 },
+                { name: '深圳', coord: [114.07, 22.62], value: 322 },
+                { name: '杭州', coord: [120.19, 30.26], value: 268 },
+                { name: '成都', coord: [104.06, 30.67], value: 188 },
+                { name: '武汉', coord: [114.31, 30.52], value: 174 },
+                { name: '西安', coord: [108.95, 34.27], value: 136 },
+                { name: '沈阳', coord: [123.38, 41.80], value: 142 },
+                { name: '昆明', coord: [102.73, 25.04], value: 104 },
+                { name: '乌鲁木齐', coord: [87.68, 43.77], value: 62 },
+                { name: '哈尔滨', coord: [126.63, 45.75], value: 82 }
+            ];
+
+            var lm_routes = [];
+            var lm_hub = [121.48, 31.22];
+            for (var lm_c = 0; lm_c < lm_cities.length; lm_c++) {
+                if (lm_cities[lm_c].name === '上海') continue;
+                lm_routes.push({
+                    fromName: '上海',
+                    toName: lm_cities[lm_c].name,
+                    coords: [lm_hub, lm_cities[lm_c].coord]
+                });
+            }
+
+            var lm_mapOption = {
+                backgroundColor: 'transparent',
+                tooltip: Object.assign({
+                    trigger: 'item',
+                    formatter: function (lm_p) {
+                        if (lm_p.seriesType === 'lines') {
+                            return '订单流转：' + lm_p.data.fromName + ' → ' + lm_p.data.toName;
+                        }
+                        if (lm_p.seriesType === 'effectScatter') {
+                            return lm_p.name + '<br/>成交额：<b style="color:#7fd4ff">' + lm_p.value[2] + ' 万元</b>';
+                        }
+                        var lm_pv = lm_provinceValue[lm_p.name];
+                        return lm_p.name + (lm_pv === undefined ? '：暂无数据' : '：' + lm_pv + ' 万元');
+                    }
+                }, lm_tooltip),
+                geo: {
+                    map: 'lm_china',
+                    roam: true,
+                    zoom: 1.16,
+                    layoutCenter: ['50%', '53%'],
+                    layoutSize: '94%',
+                    regions: lm_regions,
+                    itemStyle: {
+                        areaColor: '#0d1f3a',
+                        borderColor: 'rgba(64, 158, 255, 0.55)',
+                        borderWidth: 1,
+                        shadowColor: 'rgba(20, 100, 200, 0.55)',
+                        shadowBlur: 14,
+                        shadowOffsetY: 6
+                    },
+                    emphasis: {
+                        itemStyle: { areaColor: '#1c4f8c' },
+                        label: { color: '#ffffff', fontSize: 12 }
+                    },
+                    label: {
+                        show: true,
+                        color: 'rgba(150, 190, 235, 0.55)',
+                        fontSize: 9
+                    },
+                    tooltip: {
+                        show: true,
+                        backgroundColor: 'rgba(7, 17, 33, 0.94)',
+                        borderColor: 'rgba(56, 141, 255, 0.48)',
+                        textStyle: { color: '#dbe8f8', fontSize: 12 },
+                        formatter: function (lm_p) {
+                            var lm_pv = lm_provinceValue[lm_p.name];
+                            return lm_p.name + (lm_pv === undefined ? '：暂无数据' : '：' + lm_pv + ' 万元');
+                        }
+                    }
+                },
+                series: [
+                    {
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        effect: {
+                            show: true,
+                            period: 4,
+                            trailLength: 0.35,
+                            symbol: 'arrow',
+                            symbolSize: 5,
+                            color: '#8fe6ff'
+                        },
+                        lineStyle: {
+                            color: '#38bdf8',
+                            width: 1,
+                            opacity: 0.55,
+                            curveness: 0.22
+                        },
+                        data: lm_routes
+                    },
+                    {
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        zlevel: 3,
+                        rippleEffect: { brushType: 'stroke', scale: 3.2, period: 4 },
+                        symbolSize: function (lm_val) {
+                            return 6 + lm_val[2] / 46;
+                        },
+                        itemStyle: {
+                            color: '#6fe4ff',
+                            shadowBlur: 12,
+                            shadowColor: 'rgba(63, 200, 255, 0.85)'
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{b}',
+                            color: '#bfe4ff',
+                            fontSize: 10
+                        },
+                        data: lm_cities.map(function (lm_item) {
+                            return {
+                                name: lm_item.name,
+                                value: [lm_item.coord[0], lm_item.coord[1], lm_item.value]
+                            };
+                        })
+                    }
+                ]
+            };
+
+            if (window.LM_CHINA_GEO) {
+                lm_mapChart.setOption(lm_mapOption);
+            } else {
+                lm_mapChart.setOption({
+                    title: {
+                        text: '地图数据加载失败（缺少 cdn/china.js）',
+                        left: 'center',
+                        top: 'middle',
+                        textStyle: { color: '#ff8f8f', fontSize: 14 }
+                    }
+                });
+            }
+
+            /* ---------- 中列：实时流量 ---------- */
+            var lm_flowChart = echarts.init(document.getElementById('lm_chart_flow'));
+            var lm_flowTime = [];
+            var lm_flowValue = [];
+
+            function lm_seedTime(lm_len) {
+                var lm_now = Date.now();
+                for (var lm_i = lm_len - 1; lm_i >= 0; lm_i--) {
+                    var lm_d = new Date(lm_now - lm_i * 2000);
+                    lm_flowTime.push(
+                        (lm_d.getMinutes() < 10 ? '0' : '') + lm_d.getMinutes() + ':' +
+                        (lm_d.getSeconds() < 10 ? '0' : '') + lm_d.getSeconds()
+                    );
+                    lm_flowValue.push(Math.round(180 + 90 * Math.sin(lm_i / 6) + Math.random() * 60));
+                }
+            }
+
+            lm_seedTime(24);
+
+            lm_flowChart.setOption({
+                grid: { left: 42, right: 20, top: 26, bottom: 26 },
+                tooltip: Object.assign({ trigger: 'axis' }, lm_tooltip),
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: lm_flowTime,
+                    axisTick: { show: false },
+                    axisLine: lm_axisLine,
+                    axisLabel: { color: lm_textColor, fontSize: 10, interval: 5 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisTick: { show: false },
+                    axisLine: { show: false },
+                    axisLabel: lm_axisLabel,
+                    splitLine: lm_splitLine
+                },
+                series: [{
+                    name: '实时访问',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 4,
+                    showSymbol: false,
+                    lineStyle: { color: '#7cf2c8', width: 2 },
+                    itemStyle: { color: '#7cf2c8' },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(124, 242, 200, 0.42)' },
+                            { offset: 1, color: 'rgba(124, 242, 200, 0.02)' }
+                        ])
+                    },
+                    data: lm_flowValue
+                }]
+            });
+
+            setInterval(function () {
+                var lm_d = new Date();
+                lm_flowTime.push(
+                    (lm_d.getMinutes() < 10 ? '0' : '') + lm_d.getMinutes() + ':' +
+                    (lm_d.getSeconds() < 10 ? '0' : '') + lm_d.getSeconds()
+                );
+                lm_flowValue.push(Math.round(180 + Math.random() * 160));
+                if (lm_flowTime.length > 24) {
+                    lm_flowTime.shift();
+                    lm_flowValue.shift();
+                }
+                lm_flowChart.setOption({
+                    xAxis: { data: lm_flowTime },
+                    series: [{ data: lm_flowValue }]
+                });
+            }, 2000);
+
+            /* ---------- 中列：品类销售占比 ---------- */
+            var lm_categoryChart = echarts.init(document.getElementById('lm_chart_category'));
+
+            lm_categoryChart.setOption({
+                tooltip: Object.assign({ trigger: 'item', formatter: '{b}<br/>销售额：{c} 万元（{d}%）' }, lm_tooltip),
+                legend: {
+                    orient: 'vertical',
+                    right: 6,
+                    top: 'center',
+                    itemWidth: 9,
+                    itemHeight: 9,
+                    itemGap: 10,
+                    textStyle: { color: '#8ea6c8', fontSize: 11 }
+                },
+                color: ['#4fb1ff', '#7cf2c8', '#c4a7ff', '#ffcb6b', '#ff8fa3'],
+                series: [{
+                    type: 'pie',
+                    radius: ['42%', '68%'],
+                    center: ['44%', '52%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderColor: 'rgba(7, 16, 32, 0.9)', borderWidth: 2 },
+                    label: {
+                        show: true,
+                        color: '#a9c4e4',
+                        fontSize: 10,
+                        formatter: '{b}\n{d}%'
+                    },
+                    labelLine: { length: 8, length2: 8, lineStyle: { color: 'rgba(120, 170, 220, 0.4)' } },
+                    data: [
+                        { name: '数码家电', value: 1280 },
+                        { name: '服饰鞋包', value: 960 },
+                        { name: '美妆个护', value: 720 },
+                        { name: '食品生鲜', value: 540 },
+                        { name: '家居日用', value: 380 }
+                    ]
+                }]
+            });
+
+            /* ---------- 右列：访问终端占比 ---------- */
+            var lm_deviceChart = echarts.init(document.getElementById('lm_chart_device'));
+
+            lm_deviceChart.setOption({
+                tooltip: Object.assign({ trigger: 'item', formatter: '{b}：{c}%（{d}%）' }, lm_tooltip),
+                color: ['#4fb1ff', '#7cf2c8', '#c4a7ff', '#ffcb6b'],
+                series: [{
+                    type: 'pie',
+                    radius: ['52%', '74%'],
+                    center: ['50%', '54%'],
+                    itemStyle: { borderColor: 'rgba(7, 16, 32, 0.9)', borderWidth: 3 },
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        color: '#a9c4e4',
+                        fontSize: 10,
+                        formatter: '{b} {d}%'
+                    },
+                    labelLine: { length: 10, length2: 8, lineStyle: { color: 'rgba(120, 170, 220, 0.4)' } },
+                    data: [
+                        { name: '移动端', value: 62 },
+                        { name: '桌面端', value: 26 },
+                        { name: '平板', value: 9 },
+                        { name: '其他', value: 3 }
+                    ]
+                }],
+                graphic: [
+                    {
+                        type: 'text',
+                        left: 'center',
+                        top: '44%',
+                        style: {
+                            text: '62%',
+                            fill: '#7fd4ff',
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            fontFamily: 'Consolas, monospace'
+                        },
+                        silent: true
+                    },
+                    {
+                        type: 'text',
+                        left: 'center',
+                        top: '57%',
+                        style: {
+                            text: '移动端占比',
+                            fill: '#66809f',
+                            fontSize: 10
+                        },
+                        silent: true
+                    }
+                ]
+            });
+
+            /* ---------- 右列：城市成交额 TOP 8 ---------- */
+            var lm_rankChart = echarts.init(document.getElementById('lm_chart_rank'));
+
+            lm_rankChart.setOption({
+                grid: { left: 52, right: 46, top: 16, bottom: 16 },
+                tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' } }, lm_tooltip),
+                xAxis: {
+                    type: 'value',
+                    max: 380,
+                    axisTick: { show: false },
+                    axisLine: { show: false },
+                    axisLabel: { show: false },
+                    splitLine: { show: false }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['乌鲁木齐', '哈尔滨', '西安', '成都', '杭州', '深圳', '上海', '广州'],
+                    axisTick: { show: false },
+                    axisLine: { show: false },
+                    axisLabel: { color: '#a9c4e4', fontSize: 11 }
+                },
+                series: [{
+                    type: 'bar',
+                    barWidth: 11,
+                    showBackground: true,
+                    backgroundStyle: { color: 'rgba(56, 110, 180, 0.12)', borderRadius: 6 },
+                    itemStyle: { color: lm_gradient.cyan, borderRadius: 6 },
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#9fd6ff',
+                        fontSize: 11,
+                        formatter: '{c} 万'
+                    },
+                    data: [62, 82, 136, 188, 268, 322, 318, 356]
+                }]
+            });
+
+            /* ---------- 自适应 ---------- */
+            var lm_charts = [lm_channelChart, lm_trendChart, lm_mapChart, lm_flowChart, lm_categoryChart, lm_deviceChart, lm_rankChart];
+            var lm_resizeTimer = null;
+
+            window.addEventListener('resize', function () {
+                if (lm_resizeTimer) clearTimeout(lm_resizeTimer);
+                lm_resizeTimer = setTimeout(function () {
+                    for (var lm_i = 0; lm_i < lm_charts.length; lm_i++) lm_charts[lm_i].resize();
+                }, 120);
+            });
+        })();
+    </script>
+</body>
+</html>
